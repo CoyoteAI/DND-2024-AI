@@ -8,6 +8,7 @@ public class GameService
 {
     private readonly ILLMService _llmService;
     private readonly IDiceRoller _diceRoller;
+    private readonly ICombatService _combatService;
     private readonly CampaignRepository _campaignRepository;
     private readonly SessionRepository _sessionRepository;
     private readonly IRepository<ConversationMessage> _messageRepository;
@@ -15,10 +16,12 @@ public class GameService
     private readonly IRepository<Location> _locationRepository;
     private readonly IRepository<Event> _eventRepository;
     private readonly IRepository<Quest> _questRepository;
+    private readonly CombatCommandParser _combatCommandParser;
 
     public GameService(
         ILLMService llmService,
         IDiceRoller diceRoller,
+        ICombatService combatService,
         CampaignRepository campaignRepository,
         SessionRepository sessionRepository,
         IRepository<ConversationMessage> messageRepository,
@@ -29,6 +32,7 @@ public class GameService
     {
         _llmService = llmService;
         _diceRoller = diceRoller;
+        _combatService = combatService;
         _campaignRepository = campaignRepository;
         _sessionRepository = sessionRepository;
         _messageRepository = messageRepository;
@@ -36,6 +40,7 @@ public class GameService
         _locationRepository = locationRepository;
         _eventRepository = eventRepository;
         _questRepository = questRepository;
+        _combatCommandParser = new CombatCommandParser(combatService);
     }
 
     public async Task<Campaign> CreateCampaignAsync(string name, string description, string setting)
@@ -87,10 +92,23 @@ public class GameService
         // Get DM response from LLM
         var dmResponse = await _llmService.GenerateWithMemoryAsync(campaignId, playerInput);
 
-        // Save DM message
-        await SaveMessageAsync(sessionId, "DM", dmResponse);
+        // Parse and execute combat commands
+        var commandResults = await _combatCommandParser.ParseAndExecuteCommandsAsync(dmResponse, campaignId, sessionId);
 
-        return dmResponse;
+        // Strip commands from the response text
+        var cleanedResponse = _combatCommandParser.StripCommandsFromText(dmResponse);
+
+        // Save DM message (cleaned version)
+        await SaveMessageAsync(sessionId, "DM", cleanedResponse);
+
+        // Log command results if any
+        if (commandResults.Any())
+        {
+            var commandLog = string.Join(", ", commandResults);
+            await SaveMessageAsync(sessionId, "System", $"Combat: {commandLog}", "System");
+        }
+
+        return cleanedResponse;
     }
 
     public async Task<ConversationMessage> SaveMessageAsync(int sessionId, string speaker, string message, string messageType = "Normal")
