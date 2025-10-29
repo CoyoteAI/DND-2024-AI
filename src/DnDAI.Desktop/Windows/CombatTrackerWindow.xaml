@@ -25,15 +25,23 @@
                               FontSize="20" FontWeight="Bold" Foreground="White"/>
                     <TextBlock x:Name="RoundInfoText" Text="Round 1"
                               FontSize="14" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+                    <TextBlock Text="AI-Controlled Combat Tracker (Updates Automatically)"
+                              FontSize="11" Foreground="#95A5A6" Margin="0,5,0,0" FontStyle="Italic"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="Add Combatant" Width="120" Margin="0,0,10,0"
-                           Click="AddCombatant_Click"/>
-                    <Button Content="Roll Initiative" Width="120" Margin="0,0,10,0"
-                           Click="RollInitiative_Click"/>
-                    <Button Content="End Combat" Width="100"
-                           Click="EndCombat_Click" Background="#E74C3C"/>
+                <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right">
+                    <Button x:Name="RefreshButton" Content="🔄 Refresh" Width="120" Margin="0,0,0,5"
+                           Click="Refresh_Click" ToolTip="Manually refresh combat display"/>
+                    <Expander Header="Manual Controls" Width="120" HorizontalContentAlignment="Stretch">
+                        <StackPanel Margin="0,5,0,0">
+                            <Button Content="Add Combatant" Margin="0,0,0,5"
+                                   Click="AddCombatant_Click"/>
+                            <Button Content="Roll Initiative" Margin="0,0,0,5"
+                                   Click="RollInitiative_Click"/>
+                            <Button Content="End Combat" Background="#E74C3C"
+                                   Click="EndCombat_Click"/>
+                        </StackPanel>
+                    </Expander>
                 </StackPanel>
             </Grid>
         </Border>

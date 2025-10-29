@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly ICombatService _combatService;
     private Campaign? _currentCampaign;
     private Session? _currentSession;
+    private CombatTrackerWindow? _combatTrackerWindow;
 
     public MainWindow(GameService gameService, ICombatService combatService)
     {
@@ -157,6 +158,9 @@ public partial class MainWindow : Window
                 input);
 
             AddDMMessage(response);
+
+            // Check if combat was started by the AI and auto-open tracker if needed
+            await CheckAndOpenCombatTrackerAsync();
         }
         catch (Exception ex)
         {
@@ -167,6 +171,38 @@ public partial class MainWindow : Window
             InputTextBox.IsEnabled = true;
             SendButton.IsEnabled = true;
             InputTextBox.Focus();
+        }
+    }
+
+    private async Task CheckAndOpenCombatTrackerAsync()
+    {
+        if (_currentCampaign == null) return;
+
+        try
+        {
+            var activeCombat = await _combatService.GetActiveCombatAsync(_currentCampaign.Id);
+
+            // If combat is active and tracker isn't open, open it
+            if (activeCombat != null && (_combatTrackerWindow == null || !_combatTrackerWindow.IsVisible))
+            {
+                _combatTrackerWindow = new CombatTrackerWindow(
+                    _combatService,
+                    _gameService,
+                    _currentCampaign.Id,
+                    _currentSession?.Id)
+                {
+                    Owner = this
+                };
+
+                _combatTrackerWindow.Closed += (s, e) => _combatTrackerWindow = null;
+                _combatTrackerWindow.Show();
+
+                AddSystemMessage("Combat tracker opened automatically.");
+            }
+        }
+        catch
+        {
+            // Silently fail if combat check fails
         }
     }
 
@@ -238,14 +274,24 @@ public partial class MainWindow : Window
 
         try
         {
-            var combatWindow = new CombatTrackerWindow(
+            // If combat tracker is already open, just bring it to front
+            if (_combatTrackerWindow != null && _combatTrackerWindow.IsVisible)
+            {
+                _combatTrackerWindow.Activate();
+                return;
+            }
+
+            _combatTrackerWindow = new CombatTrackerWindow(
                 _combatService,
                 _gameService,
                 _currentCampaign.Id,
-                _currentSession?.Id);
+                _currentSession?.Id)
+            {
+                Owner = this
+            };
 
-            combatWindow.Owner = this;
-            combatWindow.ShowDialog();
+            _combatTrackerWindow.Closed += (s, e) => _combatTrackerWindow = null;
+            _combatTrackerWindow.Show();
         }
         catch (Exception ex)
         {

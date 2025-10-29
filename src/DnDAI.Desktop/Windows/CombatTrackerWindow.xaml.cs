@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using DnDAI.Core.Interfaces;
 using DnDAI.Core.Models;
 using DnDAI.Services;
@@ -14,6 +15,7 @@ public partial class CombatTrackerWindow : Window
     private readonly int _campaignId;
     private readonly int? _sessionId;
     private CombatEncounter? _currentEncounter;
+    private readonly DispatcherTimer _refreshTimer;
 
     public CombatTrackerWindow(
         ICombatService combatService,
@@ -27,7 +29,21 @@ public partial class CombatTrackerWindow : Window
         _campaignId = campaignId;
         _sessionId = sessionId;
 
+        // Set up auto-refresh timer (every 2 seconds)
+        _refreshTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(2)
+        };
+        _refreshTimer.Tick += async (s, e) => await AutoRefreshAsync();
+        _refreshTimer.Start();
+
         LoadActiveCombatAsync();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _refreshTimer.Stop();
+        base.OnClosed(e);
     }
 
     private async void LoadActiveCombatAsync()
@@ -400,5 +416,62 @@ public partial class CombatTrackerWindow : Window
     {
         _currentEncounter = await _combatService.GetCombatEncounterAsync(_currentEncounter!.Id);
         RefreshCombatDisplay();
+    }
+
+    private async Task AutoRefreshAsync()
+    {
+        if (_currentEncounter == null) return;
+
+        try
+        {
+            var updatedEncounter = await _combatService.GetCombatEncounterAsync(_currentEncounter.Id);
+
+            // Check if combat has ended
+            if (updatedEncounter == null || updatedEncounter.EndTime.HasValue)
+            {
+                _refreshTimer.Stop();
+                MessageBox.Show("Combat has ended.", "Combat Ended", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
+                return;
+            }
+
+            // Only update if something changed to avoid unnecessary UI updates
+            if (HasCombatChanged(_currentEncounter, updatedEncounter))
+            {
+                _currentEncounter = updatedEncounter;
+                RefreshCombatDisplay();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Silently fail on auto-refresh errors to avoid interrupting gameplay
+            System.Diagnostics.Debug.WriteLine($"Auto-refresh error: {ex.Message}");
+        }
+    }
+
+    private bool HasCombatChanged(CombatEncounter old, CombatEncounter updated)
+    {
+        if (old.CurrentRound != updated.CurrentRound) return true;
+        if (old.CurrentTurnIndex != updated.CurrentTurnIndex) return true;
+        if (old.Combatants.Count != updated.Combatants.Count) return true;
+
+        // Check for HP changes
+        foreach (var combatant in updated.Combatants)
+        {
+            var oldCombatant = old.Combatants.FirstOrDefault(c => c.Id == combatant.Id);
+            if (oldCombatant == null) return true;
+            if (oldCombatant.CurrentHP != combatant.CurrentHP) return true;
+            if (oldCombatant.CurrentMaxHP != combatant.CurrentMaxHP) return true;
+            if (oldCombatant.IsDead != combatant.IsDead) return true;
+            if (oldCombatant.Initiative != combatant.Initiative) return true;
+        }
+
+        return false;
+    }
+
+    private async void Refresh_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentEncounter == null) return;
+        await ReloadCombatAsync();
     }
 }
