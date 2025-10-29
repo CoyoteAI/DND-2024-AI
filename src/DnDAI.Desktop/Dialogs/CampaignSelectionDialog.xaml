@@ -1,0 +1,24 @@
+<Window x:Class="DnDAI.Desktop.CampaignSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select Campaign" Height="400" Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Select a Campaign:" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <ListBox Grid.Row="1" x:Name="CampaignsListBox" Margin="0,0,0,10"
+                DisplayMemberPath="Name" MouseDoubleClick="CampaignsListBox_MouseDoubleClick"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Load" Width="100" Margin="0,0,10,0" Click="Load_Click"/>
+            <Button Content="Cancel" Width="100" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

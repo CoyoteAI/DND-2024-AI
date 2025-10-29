@@ -1,0 +1,106 @@
+<Window x:Class="DnDAI.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="D&amp;D AI Dungeon Master" Height="700" Width="1200"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource PrimaryBrush}"
+                CornerRadius="4" Padding="15" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="D&amp;D AI Dungeon Master"
+                          FontSize="24" FontWeight="Bold" Foreground="White"/>
+                <TextBlock x:Name="CampaignNameText" Text="No campaign loaded"
+                          FontSize="14" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Sidebar -->
+        <Border Grid.Row="1" Grid.Column="0" Background="White"
+                CornerRadius="4" Padding="10" Margin="0,0,10,0">
+            <StackPanel>
+                <TextBlock Text="Campaign" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                <Button Content="New Campaign" Click="NewCampaign_Click" Margin="0,0,0,5"/>
+                <Button Content="Load Campaign" Click="LoadCampaign_Click" Margin="0,0,0,5"/>
+                <Button Content="Start Session" Click="StartSession_Click" Margin="0,0,0,5"
+                        x:Name="StartSessionButton" IsEnabled="False"/>
+                <Button Content="End Session" Click="EndSession_Click" Margin="0,0,0,15"
+                        x:Name="EndSessionButton" IsEnabled="False"/>
+
+                <Separator Margin="0,10"/>
+
+                <TextBlock Text="Quick Actions" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+                <Button Content="Add NPC" Click="AddNPC_Click" Margin="0,0,0,5"
+                        x:Name="AddNPCButton" IsEnabled="False"/>
+                <Button Content="Add Location" Click="AddLocation_Click" Margin="0,0,0,5"
+                        x:Name="AddLocationButton" IsEnabled="False"/>
+                <Button Content="Add Quest" Click="AddQuest_Click" Margin="0,0,0,5"
+                        x:Name="AddQuestButton" IsEnabled="False"/>
+                <Button Content="View Campaign" Click="ViewCampaign_Click" Margin="0,0,0,5"
+                        x:Name="ViewCampaignButton" IsEnabled="False"/>
+
+                <Separator Margin="0,10"/>
+
+                <TextBlock Text="Session Info" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+                <TextBlock x:Name="SessionInfoText" Text="No active session" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content - Chat Area -->
+        <Border Grid.Row="1" Grid.Column="1" Background="White" CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Messages -->
+                <ScrollViewer Grid.Row="0" x:Name="MessagesScrollViewer"
+                             VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel x:Name="MessagesPanel">
+                        <TextBlock Text="Welcome to D&amp;D AI Dungeon Master!"
+                                  FontSize="16" TextWrapping="Wrap" Foreground="#7F8C8D"
+                                  Margin="0,100,0,10" TextAlignment="Center"/>
+                        <TextBlock Text="Create or load a campaign to begin your adventure."
+                                  FontSize="14" TextWrapping="Wrap" Foreground="#95A5A6"
+                                  TextAlignment="Center"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Input Area -->
+                <Border Grid.Row="1" BorderBrush="#BDC3C7" BorderThickness="0,1,0,0"
+                        Background="#F8F9FA" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox x:Name="InputTextBox" Grid.Column="0"
+                                Height="80" TextWrapping="Wrap"
+                                AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                IsEnabled="False"
+                                KeyDown="InputTextBox_KeyDown"/>
+                        <Button Grid.Column="1" Content="Send" Width="100"
+                               Margin="10,0,0,0" Click="Send_Click"
+                               x:Name="SendButton" IsEnabled="False"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

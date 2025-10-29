@@ -1,0 +1,22 @@
+<Window x:Class="DnDAI.Desktop.CampaignViewDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Campaign Details" Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="DetailsPanel">
+                <!-- Details will be populated in code-behind -->
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="1" Content="Close" Width="100" HorizontalAlignment="Right"
+                Margin="0,10,0,0" Click="Close_Click"/>
+    </Grid>
+</Window>

@@ -1,0 +1,32 @@
+<Window x:Class="DnDAI.Desktop.CampaignDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create New Campaign" Height="400" Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Campaign Name:" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBox Grid.Row="0" x:Name="NameTextBox" Margin="0,25,0,10"/>
+
+        <TextBlock Grid.Row="1" Text="Setting:" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBox Grid.Row="1" x:Name="SettingTextBox" Margin="0,25,0,10"/>
+
+        <TextBlock Grid.Row="2" Text="Description:" FontWeight="Bold" Margin="0,0,0,5"/>
+        <TextBox Grid.Row="3" x:Name="DescriptionTextBox"
+                TextWrapping="Wrap" AcceptsReturn="True"
+                VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Create" Width="100" Margin="0,0,10,0" Click="Create_Click"/>
+            <Button Content="Cancel" Width="100" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
