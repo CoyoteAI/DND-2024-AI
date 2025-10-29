@@ -50,6 +50,7 @@ public partial class App : Application
                 // Services
                 services.AddHttpClient<ILLMService, QwenLLMService>();
                 services.AddScoped<IMemoryService, MemoryService>();
+                services.AddScoped<IDiceRoller, DiceRoller>();
                 services.AddScoped<GameService>();
 
                 // Windows

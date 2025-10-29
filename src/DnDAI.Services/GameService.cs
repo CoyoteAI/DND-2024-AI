@@ -7,6 +7,7 @@ namespace DnDAI.Services;
 public class GameService
 {
     private readonly ILLMService _llmService;
+    private readonly IDiceRoller _diceRoller;
     private readonly CampaignRepository _campaignRepository;
     private readonly SessionRepository _sessionRepository;
     private readonly IRepository<ConversationMessage> _messageRepository;
@@ -17,6 +18,7 @@ public class GameService
 
     public GameService(
         ILLMService llmService,
+        IDiceRoller diceRoller,
         CampaignRepository campaignRepository,
         SessionRepository sessionRepository,
         IRepository<ConversationMessage> messageRepository,
@@ -26,6 +28,7 @@ public class GameService
         IRepository<Quest> questRepository)
     {
         _llmService = llmService;
+        _diceRoller = diceRoller;
         _campaignRepository = campaignRepository;
         _sessionRepository = sessionRepository;
         _messageRepository = messageRepository;
@@ -161,5 +164,50 @@ public class GameService
     public async Task<IEnumerable<Quest>> GetActiveQuestsAsync(int campaignId)
     {
         return await _questRepository.FindAsync(q => q.CampaignId == campaignId && q.IsActive && !q.IsCompleted);
+    }
+
+    // Dice Rolling Methods
+    public DiceRoll RollDice(string expression, string rolledBy = "Player", string purpose = "")
+    {
+        return _diceRoller.Roll(expression, rolledBy, purpose);
+    }
+
+    public DiceRoll RollD20(int modifier = 0, string rolledBy = "Player", string purpose = "")
+    {
+        return _diceRoller.RollD20(modifier, rolledBy, purpose);
+    }
+
+    public DiceRoll RollWithAdvantage(int modifier = 0, string rolledBy = "Player", string purpose = "")
+    {
+        return _diceRoller.RollWithAdvantage(modifier, rolledBy, purpose);
+    }
+
+    public DiceRoll RollWithDisadvantage(int modifier = 0, string rolledBy = "Player", string purpose = "")
+    {
+        return _diceRoller.RollWithDisadvantage(modifier, rolledBy, purpose);
+    }
+
+    public async Task<DiceRoll> RollAndLogAsync(int sessionId, string expression, string rolledBy = "Player", string purpose = "")
+    {
+        var roll = _diceRoller.Roll(expression, rolledBy, purpose);
+        await LogDiceRollAsync(sessionId, roll);
+        return roll;
+    }
+
+    public async Task LogDiceRollAsync(int sessionId, DiceRoll roll)
+    {
+        var rollDetails = $"[{roll.Expression}] = {string.Join(", ", roll.IndividualRolls)}";
+        if (roll.Modifier != 0)
+        {
+            rollDetails += $" {(roll.Modifier >= 0 ? "+" : "")}{roll.Modifier}";
+        }
+        rollDetails += $" = **{roll.Total}**";
+
+        if (!string.IsNullOrEmpty(roll.Purpose))
+        {
+            rollDetails = $"{roll.Purpose}: {rollDetails}";
+        }
+
+        await SaveMessageAsync(sessionId, roll.RolledBy, rollDetails, "Dice Roll");
     }
 }

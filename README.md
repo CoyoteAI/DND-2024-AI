@@ -8,6 +8,11 @@ A C# WPF desktop application that uses an AI-powered Dungeon Master to run Dunge
 - **Persistent Memory**: SQL Server database stores all campaign information
 - **Campaign Management**: Create and manage multiple D&D campaigns
 - **Session Tracking**: Start and end gaming sessions with conversation history
+- **Dice Rolling System**: Built-in dice roller with support for all standard D&D dice (d4, d6, d8, d10, d12, d20, d100)
+  - Quick-roll buttons for common dice
+  - Custom dice expressions (e.g., "2d6+3", "1d20+5")
+  - Advantage and Disadvantage rolls
+  - Automatic logging to conversation history
 - **NPC Management**: Track non-player characters with stats, personalities, and backstories
 - **Location Tracking**: Maintain a detailed world with interconnected locations
 - **Event History**: Record significant events and maintain narrative continuity
@@ -149,6 +154,32 @@ dotnet run
 - **Add Location**: Define new places in your world
 - **Add Quest**: Track objectives and missions
 - **View Campaign**: See all campaign details and statistics
+
+### Rolling Dice
+
+The application includes a comprehensive dice rolling system:
+
+**Quick Roll Buttons:**
+- Click any dice button (d4, d6, d8, d10, d12, d20, d100) for an instant roll
+- Results are displayed in the chat and logged to the session history
+
+**Custom Rolls:**
+- Enter custom expressions in the text box (e.g., "2d6+3", "1d20+5", "3d8-2")
+- Click "Roll" to execute the custom roll
+- Supports standard dice notation: XdY+Z or XdY-Z
+
+**Advantage and Disadvantage:**
+- **ADV** button: Rolls d20 twice, takes the higher result (D&D Advantage)
+- **DIS** button: Rolls d20 twice, takes the lower result (D&D Disadvantage)
+
+**Roll Display:**
+All dice rolls show:
+- The expression rolled
+- Individual die results
+- Any modifiers applied
+- The total result
+
+All rolls are automatically saved to the conversation history, making it easy to reference past rolls.
 
 ### Database Management
 

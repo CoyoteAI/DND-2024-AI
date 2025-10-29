@@ -83,6 +83,7 @@ public partial class MainWindow : Window
             EndSessionButton.IsEnabled = true;
             InputTextBox.IsEnabled = true;
             SendButton.IsEnabled = true;
+            EnableDiceButtons();
 
             AddSystemMessage($"Session #{_currentSession.SessionNumber} started. The adventure begins!");
         }
@@ -106,6 +107,7 @@ public partial class MainWindow : Window
             EndSessionButton.IsEnabled = false;
             InputTextBox.IsEnabled = false;
             SendButton.IsEnabled = false;
+            DisableDiceButtons();
 
             AddSystemMessage($"Session #{_currentSession.SessionNumber} ended.");
             _currentSession = null;
@@ -275,5 +277,118 @@ public partial class MainWindow : Window
         {
             MessageBox.Show($"Error viewing campaign: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    // Dice Rolling Methods
+    private void EnableDiceButtons()
+    {
+        RollD4Button.IsEnabled = true;
+        RollD6Button.IsEnabled = true;
+        RollD8Button.IsEnabled = true;
+        RollD10Button.IsEnabled = true;
+        RollD12Button.IsEnabled = true;
+        RollD20Button.IsEnabled = true;
+        RollD100Button.IsEnabled = true;
+        RollAdvButton.IsEnabled = true;
+        RollDisButton.IsEnabled = true;
+        CustomRollTextBox.IsEnabled = true;
+        RollCustomButton.IsEnabled = true;
+    }
+
+    private void DisableDiceButtons()
+    {
+        RollD4Button.IsEnabled = false;
+        RollD6Button.IsEnabled = false;
+        RollD8Button.IsEnabled = false;
+        RollD10Button.IsEnabled = false;
+        RollD12Button.IsEnabled = false;
+        RollD20Button.IsEnabled = false;
+        RollD100Button.IsEnabled = false;
+        RollAdvButton.IsEnabled = false;
+        RollDisButton.IsEnabled = false;
+        CustomRollTextBox.IsEnabled = false;
+        RollCustomButton.IsEnabled = false;
+    }
+
+    private async void RollD4_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d4");
+    private async void RollD6_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d6");
+    private async void RollD8_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d8");
+    private async void RollD10_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d10");
+    private async void RollD12_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d12");
+    private async void RollD20_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d20");
+    private async void RollD100_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d100");
+
+    private async void RollAdvantage_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession == null) return;
+
+        try
+        {
+            var roll = _gameService.RollWithAdvantage(0, "Player", "Advantage Roll");
+            await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
+            AddDiceRollMessage(roll);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Error rolling dice: {ex.Message}");
+        }
+    }
+
+    private async void RollDisadvantage_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSession == null) return;
+
+        try
+        {
+            var roll = _gameService.RollWithDisadvantage(0, "Player", "Disadvantage Roll");
+            await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
+            AddDiceRollMessage(roll);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Error rolling dice: {ex.Message}");
+        }
+    }
+
+    private async void RollCustom_Click(object sender, RoutedEventArgs e)
+    {
+        var expression = CustomRollTextBox.Text.Trim();
+        if (string.IsNullOrEmpty(expression)) return;
+
+        await RollDiceAsync(expression);
+        CustomRollTextBox.Clear();
+    }
+
+    private async Task RollDiceAsync(string expression)
+    {
+        if (_currentSession == null) return;
+
+        try
+        {
+            var roll = await _gameService.RollAndLogAsync(_currentSession.Id, expression);
+            AddDiceRollMessage(roll);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"Error rolling dice: {ex.Message}");
+        }
+    }
+
+    private void AddDiceRollMessage(Core.Models.DiceRoll roll)
+    {
+        var rollText = $"{roll.Expression}\n";
+        rollText += $"Rolls: [{string.Join(", ", roll.IndividualRolls)}]";
+        if (roll.Modifier != 0)
+        {
+            rollText += $" {(roll.Modifier >= 0 ? "+" : "")}{roll.Modifier}";
+        }
+        rollText += $"\nTotal: {roll.Total}";
+
+        if (!string.IsNullOrEmpty(roll.Purpose))
+        {
+            rollText = $"{roll.Purpose}\n{rollText}";
+        }
+
+        AddMessage("Dice Roll", rollText, new SolidColorBrush(Color.FromRgb(232, 245, 233)));
     }
 }

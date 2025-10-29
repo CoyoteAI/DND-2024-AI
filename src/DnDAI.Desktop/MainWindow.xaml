@@ -66,6 +66,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Messages -->
@@ -81,8 +82,51 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Input Area -->
+                <!-- Dice Rolling Toolbar -->
                 <Border Grid.Row="1" BorderBrush="#BDC3C7" BorderThickness="0,1,0,0"
+                        Background="#ECEFF1" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Roll Dice:" VerticalAlignment="Center"
+                                  FontWeight="Bold" Margin="0,0,10,0"/>
+
+                        <WrapPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="d4" Width="50" Margin="0,0,5,0" Click="RollD4_Click"
+                                   x:Name="RollD4Button" IsEnabled="False"/>
+                            <Button Content="d6" Width="50" Margin="0,0,5,0" Click="RollD6_Click"
+                                   x:Name="RollD6Button" IsEnabled="False"/>
+                            <Button Content="d8" Width="50" Margin="0,0,5,0" Click="RollD8_Click"
+                                   x:Name="RollD8Button" IsEnabled="False"/>
+                            <Button Content="d10" Width="50" Margin="0,0,5,0" Click="RollD10_Click"
+                                   x:Name="RollD10Button" IsEnabled="False"/>
+                            <Button Content="d12" Width="50" Margin="0,0,5,0" Click="RollD12_Click"
+                                   x:Name="RollD12Button" IsEnabled="False"/>
+                            <Button Content="d20" Width="50" Margin="0,0,5,0" Click="RollD20_Click"
+                                   x:Name="RollD20Button" IsEnabled="False"/>
+                            <Button Content="d100" Width="55" Margin="0,0,10,0" Click="RollD100_Click"
+                                   x:Name="RollD100Button" IsEnabled="False"/>
+                            <Button Content="ADV" Width="50" Margin="0,0,5,0" Click="RollAdvantage_Click"
+                                   x:Name="RollAdvButton" IsEnabled="False" ToolTip="Roll with Advantage"/>
+                            <Button Content="DIS" Width="50" Margin="0,0,10,0" Click="RollDisadvantage_Click"
+                                   x:Name="RollDisButton" IsEnabled="False" ToolTip="Roll with Disadvantage"/>
+                        </WrapPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <TextBox x:Name="CustomRollTextBox" Width="100" Margin="0,0,5,0"
+                                    IsEnabled="False" ToolTip="e.g., 2d6+3"/>
+                            <Button Content="Roll" Width="60" Click="RollCustom_Click"
+                                   x:Name="RollCustomButton" IsEnabled="False"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Input Area -->
+                <Border Grid.Row="2" BorderBrush="#BDC3C7" BorderThickness="0,1,0,0"
                         Background="#F8F9FA" Padding="10">
                     <Grid>
                         <Grid.ColumnDefinitions>
