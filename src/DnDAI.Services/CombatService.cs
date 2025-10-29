@@ -285,6 +285,16 @@ public class CombatService : ICombatService
         await _context.SaveChangesAsync();
     }
 
+    public async Task AddTempHPAsync(int combatantId, int tempHP)
+    {
+        var combatant = await _context.Combatants.FindAsync(combatantId);
+        if (combatant == null)
+            throw new ArgumentException("Combatant not found");
+
+        combatant.AddTempHP(tempHP);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task ReduceMaxHPAsync(int combatantId, int reduction)
     {
         var combatant = await _context.Combatants.FindAsync(combatantId);

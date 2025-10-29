@@ -71,6 +71,9 @@ public class CombatCommandParser
             case "HEAL":
                 return await HandleHeal(parameters, campaignId);
 
+            case "TEMP_HP":
+                return await HandleTempHP(parameters, campaignId);
+
             case "REDUCE_MAX_HP":
                 return await HandleReduceMaxHP(parameters, campaignId);
 
@@ -238,6 +241,38 @@ public class CombatCommandParser
 
         await _combatService.ApplyHealingAsync(combatant.Id, healing);
         return $"{name} heals {healing} HP";
+    }
+
+    private async Task<string> HandleTempHP(string parameters, int campaignId)
+    {
+        var encounter = await _combatService.GetActiveCombatAsync(campaignId);
+        if (encounter == null)
+        {
+            return "No active combat";
+        }
+
+        var parts = parameters.Split(',').Select(p => p.Trim()).ToArray();
+        if (parts.Length < 2)
+        {
+            return "Invalid TEMP_HP format";
+        }
+
+        var name = parts[0];
+        if (!int.TryParse(parts[1], out int tempHP))
+        {
+            return "Invalid temp HP amount";
+        }
+
+        var combatant = encounter.Combatants.FirstOrDefault(c =>
+            c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+        if (combatant == null)
+        {
+            return $"Combatant '{name}' not found";
+        }
+
+        await _combatService.AddTempHPAsync(combatant.Id, tempHP);
+        return $"{name} gains {tempHP} temporary HP";
     }
 
     private async Task<string> HandleReduceMaxHP(string parameters, int campaignId)

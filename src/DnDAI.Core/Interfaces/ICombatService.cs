@@ -30,6 +30,7 @@ public interface ICombatService
     // HP management
     Task ApplyDamageAsync(int combatantId, int damage);
     Task ApplyHealingAsync(int combatantId, int healing);
+    Task AddTempHPAsync(int combatantId, int tempHP);
     Task ReduceMaxHPAsync(int combatantId, int reduction);
     Task RestoreMaxHPAsync(int combatantId);
 

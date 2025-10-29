@@ -18,6 +18,7 @@ public class Combatant : BaseEntity
     public int CurrentHP { get; set; }
     public int CurrentMaxHP { get; set; }  // Can be reduced by effects
     public int OriginalMaxHP { get; set; } // Original max, restored when effects end
+    public int TempHP { get; set; } = 0;   // Temporary hit points (lost first, can't be healed)
 
     // Armor Class
     public int ArmorClass { get; set; } = 10;
@@ -49,11 +50,33 @@ public class Combatant : BaseEntity
     // Helper methods
     public void TakeDamage(int damage)
     {
+        // Temp HP is lost first
+        if (TempHP > 0)
+        {
+            if (damage <= TempHP)
+            {
+                TempHP -= damage;
+                return; // All damage absorbed by temp HP
+            }
+            else
+            {
+                damage -= TempHP;
+                TempHP = 0;
+            }
+        }
+
+        // Apply remaining damage to regular HP
         CurrentHP = Math.Max(0, CurrentHP - damage);
         if (CurrentHP == 0)
         {
             IsUnconscious = true;
         }
+    }
+
+    public void AddTempHP(int tempHP)
+    {
+        // Temp HP doesn't stack - take the higher value
+        TempHP = Math.Max(TempHP, tempHP);
     }
 
     public void Heal(int healing)

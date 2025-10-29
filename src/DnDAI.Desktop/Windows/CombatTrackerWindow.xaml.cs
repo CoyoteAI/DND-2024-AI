@@ -165,11 +165,24 @@ public partial class CombatTrackerWindow : Window
         var hpText = new TextBlock
         {
             Text = $"HP: {combatant.CurrentHP}/{combatant.CurrentMaxHP}" +
-                   (combatant.CurrentMaxHP < combatant.OriginalMaxHP ? $" (Max: {combatant.OriginalMaxHP})" : ""),
+                   (combatant.CurrentMaxHP < combatant.OriginalMaxHP ? $" (Max: {combatant.OriginalMaxHP})" : "") +
+                   (combatant.TempHP > 0 ? $" +{combatant.TempHP} temp" : ""),
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.FromRgb(108, 117, 125))
         };
         infoPanel.Children.Add(hpText);
+
+        if (combatant.TempHP > 0)
+        {
+            var tempHPText = new TextBlock
+            {
+                Text = $"🛡️ {combatant.TempHP} Temporary HP",
+                FontSize = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+                FontWeight = FontWeights.Bold
+            };
+            infoPanel.Children.Add(tempHPText);
+        }
 
         if (combatant.CurrentMaxHP < combatant.OriginalMaxHP)
         {
@@ -462,6 +475,7 @@ public partial class CombatTrackerWindow : Window
             if (oldCombatant == null) return true;
             if (oldCombatant.CurrentHP != combatant.CurrentHP) return true;
             if (oldCombatant.CurrentMaxHP != combatant.CurrentMaxHP) return true;
+            if (oldCombatant.TempHP != combatant.TempHP) return true;
             if (oldCombatant.IsDead != combatant.IsDead) return true;
             if (oldCombatant.Initiative != combatant.Initiative) return true;
         }
