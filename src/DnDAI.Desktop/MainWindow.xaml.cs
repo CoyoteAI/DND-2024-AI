@@ -262,6 +262,7 @@ public partial class MainWindow : Window
     {
         StartSessionButton.IsEnabled = true;
         StartCombatButton.IsEnabled = true;
+        CharacterSheetButton.IsEnabled = true;
         AddNPCButton.IsEnabled = true;
         AddLocationButton.IsEnabled = true;
         AddQuestButton.IsEnabled = true;
@@ -296,6 +297,46 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show($"Error opening combat tracker: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void CharacterSheet_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentCampaign == null) return;
+
+        try
+        {
+            // Get the first player character from the campaign (or prompt to select)
+            var campaign = await _gameService.GetCampaignAsync(_currentCampaign.Id);
+            var playerCharacter = campaign?.PlayerCharacters.FirstOrDefault();
+
+            if (playerCharacter == null)
+            {
+                MessageBox.Show("No player character found in this campaign. Please create one first.",
+                    "No Character", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var characterSheet = new CharacterSheetWindow(
+                playerCharacter,
+                _gameService,
+                _currentSession?.Id,
+                (purpose, result) =>
+                {
+                    // Callback to display roll in main window
+                    AddMessage("Dice Roll", $"{purpose}: {result}",
+                        new SolidColorBrush(Color.FromRgb(232, 245, 233)));
+                })
+            {
+                Owner = this
+            };
+
+            characterSheet.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening character sheet: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

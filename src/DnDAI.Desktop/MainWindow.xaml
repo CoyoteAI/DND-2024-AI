@@ -46,6 +46,8 @@
                 <TextBlock Text="Quick Actions" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
                 <Button Content="Start Combat" Click="StartCombat_Click" Margin="0,0,0,5"
                         x:Name="StartCombatButton" IsEnabled="False" Background="#E74C3C" Foreground="White"/>
+                <Button Content="Character Sheet" Click="CharacterSheet_Click" Margin="0,0,0,5"
+                        x:Name="CharacterSheetButton" IsEnabled="False" Background="#3498DB" Foreground="White"/>
                 <Button Content="Add NPC" Click="AddNPC_Click" Margin="0,0,0,5"
                         x:Name="AddNPCButton" IsEnabled="False"/>
                 <Button Content="Add Location" Click="AddLocation_Click" Margin="0,0,0,5"

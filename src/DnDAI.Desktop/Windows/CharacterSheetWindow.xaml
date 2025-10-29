@@ -1,0 +1,223 @@
+<Window x:Class="DnDAI.Desktop.Windows.CharacterSheetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Character Sheet" Height="700" Width="900"
+        Background="#ECF0F1" WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <Window.Resources>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+
+        <Style x:Key="StatButton" TargetType="Button">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SkillButton" TargetType="Button">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Background" Value="#95A5A6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Character Header -->
+            <Border Grid.Row="0" Background="#2C3E50" CornerRadius="8" Padding="20" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="CharacterNameText" Text="Character Name"
+                                   FontSize="24" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="CharacterInfoText" Text="Level 1 Human Fighter"
+                                   FontSize="14" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Margin="0,0,20,0" HorizontalAlignment="Center">
+                            <TextBlock Text="HP" FontSize="12" Foreground="#BDC3C7" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="HPText" Text="10/10" FontSize="20" FontWeight="Bold"
+                                       Foreground="#E74C3C" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,0" HorizontalAlignment="Center">
+                            <TextBlock Text="AC" FontSize="12" Foreground="#BDC3C7" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ACText" Text="15" FontSize="20" FontWeight="Bold"
+                                       Foreground="#3498DB" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="Prof" FontSize="12" Foreground="#BDC3C7" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ProfText" Text="+2" FontSize="20" FontWeight="Bold"
+                                       Foreground="#2ECC71" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Column: Ability Scores & Saves -->
+                <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="Ability Scores" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="Click to roll d20 + modifier" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,10"/>
+
+                        <WrapPanel HorizontalAlignment="Center">
+                            <Button x:Name="StrButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="STR">
+                                <StackPanel>
+                                    <TextBlock Text="STR" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="StrScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="StrMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="DexButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="DEX">
+                                <StackPanel>
+                                    <TextBlock Text="DEX" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="DexScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="DexMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="ConButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="CON">
+                                <StackPanel>
+                                    <TextBlock Text="CON" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="ConScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="ConMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="IntButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="INT">
+                                <StackPanel>
+                                    <TextBlock Text="INT" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="IntScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="IntMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="WisButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="WIS">
+                                <StackPanel>
+                                    <TextBlock Text="WIS" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="WisScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="WisMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="ChaButton" Style="{StaticResource StatButton}" Click="AbilityCheck_Click" Tag="CHA">
+                                <StackPanel>
+                                    <TextBlock Text="CHA" FontSize="12" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="ChaScore" Text="10" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="ChaMod" Text="+0" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+
+                        <TextBlock Text="Saving Throws" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
+                        <StackPanel x:Name="SavingThrowsPanel">
+                            <Button Content="Strength Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="STR"/>
+                            <Button Content="Dexterity Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="DEX"/>
+                            <Button Content="Constitution Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="CON"/>
+                            <Button Content="Intelligence Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="INT"/>
+                            <Button Content="Wisdom Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="WIS"/>
+                            <Button Content="Charisma Save: +0" Style="{StaticResource SkillButton}" Click="SavingThrow_Click" Tag="CHA"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Right Column: Skills & Combat -->
+                <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Skills -->
+                            <TextBlock Text="Skills" Style="{StaticResource SectionHeader}"/>
+                            <TextBlock Text="Click to roll d20 + modifier" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,5"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                    <Button Content="Acrobatics (DEX): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Acrobatics|DEX"/>
+                                    <Button Content="Animal Handling (WIS): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Animal Handling|WIS"/>
+                                    <Button Content="Arcana (INT): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Arcana|INT"/>
+                                    <Button Content="Athletics (STR): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Athletics|STR"/>
+                                    <Button Content="Deception (CHA): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Deception|CHA"/>
+                                    <Button Content="History (INT): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="History|INT"/>
+                                    <Button Content="Insight (WIS): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Insight|WIS"/>
+                                    <Button Content="Intimidation (CHA): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Intimidation|CHA"/>
+                                    <Button Content="Investigation (INT): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Investigation|INT"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                                    <Button Content="Medicine (WIS): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Medicine|WIS"/>
+                                    <Button Content="Nature (INT): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Nature|INT"/>
+                                    <Button Content="Perception (WIS): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Perception|WIS"/>
+                                    <Button Content="Performance (CHA): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Performance|CHA"/>
+                                    <Button Content="Persuasion (CHA): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Persuasion|CHA"/>
+                                    <Button Content="Religion (INT): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Religion|INT"/>
+                                    <Button Content="Sleight of Hand (DEX): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Sleight of Hand|DEX"/>
+                                    <Button Content="Stealth (DEX): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Stealth|DEX"/>
+                                    <Button Content="Survival (WIS): +0" Style="{StaticResource SkillButton}" Click="SkillCheck_Click" Tag="Survival|WIS"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Combat Actions -->
+                            <TextBlock Text="Combat Actions" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
+                            <TextBlock Text="Weapons and attacks from equipment" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,5"/>
+                            <StackPanel x:Name="WeaponsPanel">
+                                <!-- Weapons will be added dynamically -->
+                                <TextBlock Text="No weapons equipped" FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>
+                            </StackPanel>
+
+                            <!-- Initiative -->
+                            <TextBlock Text="Initiative" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
+                            <Button x:Name="InitiativeButton" Height="40" Background="#E67E22" Foreground="White"
+                                    BorderThickness="0" Click="Initiative_Click" Cursor="Hand">
+                                <TextBlock x:Name="InitiativeText" Text="Roll Initiative: +0" FontSize="14" FontWeight="Bold"/>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Window>

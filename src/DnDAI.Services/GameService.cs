@@ -195,6 +195,12 @@ public class GameService
         return _diceRoller.RollD20(modifier, rolledBy, purpose);
     }
 
+    public DiceRoll RollWithModifier(int modifier = 0, string rolledBy = "Player", string purpose = "")
+    {
+        string expression = modifier >= 0 ? $"1d20+{modifier}" : $"1d20{modifier}";
+        return _diceRoller.Roll(expression, rolledBy, purpose);
+    }
+
     public DiceRoll RollWithAdvantage(int modifier = 0, string rolledBy = "Player", string purpose = "")
     {
         return _diceRoller.RollWithAdvantage(modifier, rolledBy, purpose);
