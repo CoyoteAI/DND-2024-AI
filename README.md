@@ -124,10 +124,10 @@ dotnet run
 
 ### Getting Started
 
-1. **Start Ollama** (if using Ollama):
-   ```bash
-   ollama serve
-   ```
+1. **Ollama Setup**:
+   - The application will **automatically start Ollama** if it's installed and not running
+   - No manual startup required! Just launch the app.
+   - If you prefer to manage Ollama manually, see the configuration section below
 
 2. **Launch the Application**
 
@@ -246,6 +246,38 @@ The application uses Entity Framework Core with SQL Server. You can:
 - Restore packages: `dotnet restore`
 
 ## Advanced Configuration
+
+### Ollama Auto-Start Configuration
+
+The application can automatically start and stop the Ollama API server. Configure this in `appsettings.json`:
+
+```json
+{
+  "OllamaSettings": {
+    "AutoStart": true,           // Automatically start Ollama on app launch
+    "AutoStop": true,            // Automatically stop Ollama on app exit
+    "OllamaPath": "ollama",      // Path to ollama executable (or "ollama" if in PATH)
+    "StartupTimeoutSeconds": 30  // How long to wait for Ollama to start
+  }
+}
+```
+
+**Options:**
+- **AutoStart**: Set to `false` to manage Ollama manually
+- **AutoStop**: Set to `false` to keep Ollama running after the app closes
+- **OllamaPath**: Full path to `ollama.exe` if it's not in your system PATH
+
+**How it works:**
+1. On app startup, checks if Ollama is already running
+2. If not running and `AutoStart` is true, launches `ollama serve`
+3. Waits up to `StartupTimeoutSeconds` for the API to become available
+4. On app exit, stops Ollama if `AutoStop` is true (only stops it if the app started it)
+
+**Manual Management:**
+If you prefer to manage Ollama yourself, set `AutoStart: false` and run:
+```bash
+ollama serve
+```
 
 ### Using a Different LLM
 
