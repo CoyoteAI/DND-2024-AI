@@ -15,6 +15,7 @@ public class Campaign : BaseEntity
     public ICollection<Location> Locations { get; set; } = new List<Location>();
     public ICollection<Event> Events { get; set; } = new List<Event>();
     public ICollection<Quest> Quests { get; set; } = new List<Quest>();
+    public ICollection<CombatEncounter> CombatEncounters { get; set; } = new List<CombatEncounter>();
 
     public int? CurrentLocationId { get; set; }
     public Location? CurrentLocation { get; set; }

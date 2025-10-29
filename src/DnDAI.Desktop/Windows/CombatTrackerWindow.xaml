@@ -1,0 +1,72 @@
+<Window x:Class="DnDAI.Desktop.Windows.CombatTrackerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Combat Tracker" Height="600" Width="900"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}"
+                CornerRadius="4" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock x:Name="EncounterNameText" Text="Combat Encounter"
+                              FontSize="20" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock x:Name="RoundInfoText" Text="Round 1"
+                              FontSize="14" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Add Combatant" Width="120" Margin="0,0,10,0"
+                           Click="AddCombatant_Click"/>
+                    <Button Content="Roll Initiative" Width="120" Margin="0,0,10,0"
+                           Click="RollInitiative_Click"/>
+                    <Button Content="End Combat" Width="100"
+                           Click="EndCombat_Click" Background="#E74C3C"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Combatants List -->
+        <Border Grid.Row="1" Background="White" CornerRadius="4" Padding="10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="CombatantsPanel">
+                    <!-- Combatants will be added dynamically -->
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Turn Controls -->
+        <Border Grid.Row="2" Background="White" CornerRadius="4" Padding="15" Margin="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" x:Name="CurrentTurnText"
+                          Text="Current Turn: None"
+                          FontSize="16" FontWeight="Bold"
+                          VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Next Turn" Width="120" Margin="0,0,10,0"
+                           Click="NextTurn_Click"/>
+                    <Button Content="Next Round" Width="120"
+                           Click="NextRound_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

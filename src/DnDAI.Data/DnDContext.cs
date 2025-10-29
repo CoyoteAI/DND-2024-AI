@@ -17,6 +17,9 @@ public class DnDContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<ConversationMessage> ConversationMessages { get; set; }
     public DbSet<Quest> Quests { get; set; }
+    public DbSet<CombatEncounter> CombatEncounters { get; set; }
+    public DbSet<Combatant> Combatants { get; set; }
+    public DbSet<StatusEffect> StatusEffects { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -151,6 +154,59 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.Campaign)
                 .WithMany(c => c.Quests)
                 .HasForeignKey(e => e.CampaignId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // CombatEncounter configuration
+        modelBuilder.Entity<CombatEncounter>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+
+            entity.HasOne(e => e.Campaign)
+                .WithMany(c => c.CombatEncounters)
+                .HasForeignKey(e => e.CampaignId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Session)
+                .WithMany()
+                .HasForeignKey(e => e.SessionId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Combatant configuration
+        modelBuilder.Entity<Combatant>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(e => e.CombatEncounter)
+                .WithMany(ce => ce.Combatants)
+                .HasForeignKey(e => e.CombatEncounterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.PlayerCharacter)
+                .WithMany()
+                .HasForeignKey(e => e.PlayerCharacterId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.NPC)
+                .WithMany()
+                .HasForeignKey(e => e.NPCId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // StatusEffect configuration
+        modelBuilder.Entity<StatusEffect>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Combatant)
+                .WithMany(c => c.StatusEffects)
+                .HasForeignKey(e => e.CombatantId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

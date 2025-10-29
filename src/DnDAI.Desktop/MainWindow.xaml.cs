@@ -2,21 +2,25 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using DnDAI.Core.Interfaces;
 using DnDAI.Core.Models;
 using DnDAI.Services;
+using DnDAI.Desktop.Windows;
 
 namespace DnDAI.Desktop;
 
 public partial class MainWindow : Window
 {
     private readonly GameService _gameService;
+    private readonly ICombatService _combatService;
     private Campaign? _currentCampaign;
     private Session? _currentSession;
 
-    public MainWindow(GameService gameService)
+    public MainWindow(GameService gameService, ICombatService combatService)
     {
         InitializeComponent();
         _gameService = gameService;
+        _combatService = combatService;
     }
 
     private async void NewCampaign_Click(object sender, RoutedEventArgs e)
@@ -221,10 +225,32 @@ public partial class MainWindow : Window
     private void EnableCampaignButtons()
     {
         StartSessionButton.IsEnabled = true;
+        StartCombatButton.IsEnabled = true;
         AddNPCButton.IsEnabled = true;
         AddLocationButton.IsEnabled = true;
         AddQuestButton.IsEnabled = true;
         ViewCampaignButton.IsEnabled = true;
+    }
+
+    private void StartCombat_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentCampaign == null) return;
+
+        try
+        {
+            var combatWindow = new CombatTrackerWindow(
+                _combatService,
+                _gameService,
+                _currentCampaign.Id,
+                _currentSession?.Id);
+
+            combatWindow.Owner = this;
+            combatWindow.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening combat tracker: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void AddNPC_Click(object sender, RoutedEventArgs e)

@@ -13,6 +13,14 @@ A C# WPF desktop application that uses an AI-powered Dungeon Master to run Dunge
   - Custom dice expressions (e.g., "2d6+3", "1d20+5")
   - Advantage and Disadvantage rolls
   - Automatic logging to conversation history
+- **Combat Manager**: Full-featured combat encounter tracker
+  - Initiative tracking with automatic turn order
+  - HP management with damage/healing
+  - Max HP reduction support (for undead attacks, etc.) with restoration tracking
+  - Add PCs, NPCs, and custom monsters to combat
+  - Turn and round advancement
+  - Status effects tracking
+  - Combat log and history
 - **NPC Management**: Track non-player characters with stats, personalities, and backstories
 - **Location Tracking**: Maintain a detailed world with interconnected locations
 - **Event History**: Record significant events and maintain narrative continuity
