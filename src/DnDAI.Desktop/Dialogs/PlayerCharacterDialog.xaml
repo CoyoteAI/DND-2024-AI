@@ -4,7 +4,7 @@
         Title="Add Player Character" Height="650" Width="500"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundBrush}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="True" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

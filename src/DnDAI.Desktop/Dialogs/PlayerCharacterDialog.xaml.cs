@@ -13,44 +13,16 @@ public partial class PlayerCharacterDialog : Window
     {
         InitializeComponent();
         PopulateComboBoxes();
-        SetupScrollWheelFix();
     }
 
-    private void SetupScrollWheelFix()
+    private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        // Fix scroll wheel not working - this approach works even after focus changes
-        Loaded += (s, e) =>
-        {
-            var scrollViewer = FindScrollViewer(this);
-            if (scrollViewer != null)
-            {
-                scrollViewer.PreviewMouseWheel += ScrollViewer_PreviewMouseWheel;
-            }
-        };
-    }
-
-    private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-    {
-        if (sender is System.Windows.Controls.ScrollViewer scrollViewer)
+        var scrollViewer = sender as System.Windows.Controls.ScrollViewer;
+        if (scrollViewer != null)
         {
             scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3.0);
             e.Handled = true;
         }
-    }
-
-    private System.Windows.Controls.ScrollViewer? FindScrollViewer(DependencyObject parent)
-    {
-        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-        {
-            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-            if (child is System.Windows.Controls.ScrollViewer scrollViewer)
-                return scrollViewer;
-
-            var result = FindScrollViewer(child);
-            if (result != null)
-                return result;
-        }
-        return null;
     }
 
     private void PopulateComboBoxes()
