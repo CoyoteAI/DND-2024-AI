@@ -75,7 +75,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" x:Name="CharacterInfoText" Text="Level 1 Human Fighter"
                                        FontSize="14" Foreground="#BDC3C7"/>
-                            <Button Grid.Column="1" Content="Change Subclass" Height="25" Width="130"
+                            <Button Grid.Column="1" Content="Change Subclass" Height="30" Width="130"
                                     Background="#9B59B6" Foreground="White" BorderThickness="0"
                                     Click="ChangeSubclass_Click" Cursor="Hand" Margin="10,0,0,0"
                                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
