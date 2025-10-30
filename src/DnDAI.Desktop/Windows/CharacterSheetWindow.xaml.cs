@@ -817,6 +817,115 @@ public partial class CharacterSheetWindow : Window
         }
     }
 
+    private async void SetLevel_Click(object sender, RoutedEventArgs e)
+    {
+        // Create a simple input dialog
+        var inputDialog = new Window
+        {
+            Title = "Set Character Level",
+            Width = 350,
+            Height = 200,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Owner = this,
+            ResizeMode = ResizeMode.NoResize,
+            Background = new SolidColorBrush(Color.FromRgb(236, 240, 241))
+        };
+
+        var panel = new StackPanel { Margin = new Thickness(20) };
+
+        // Info text
+        var infoText = new TextBlock
+        {
+            Text = $"Current Level: {_character.Level}\nEnter new level (1-20):",
+            FontSize = 14,
+            Margin = new Thickness(0, 0, 0, 15),
+            TextWrapping = TextWrapping.Wrap
+        };
+        panel.Children.Add(infoText);
+
+        // Level input
+        var levelInput = new TextBox
+        {
+            FontSize = 16,
+            Padding = new Thickness(5),
+            Margin = new Thickness(0, 0, 0, 20),
+            Text = _character.Level.ToString()
+        };
+        panel.Children.Add(levelInput);
+
+        // Buttons
+        var buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+
+        var okButton = new Button
+        {
+            Content = "OK",
+            Width = 80,
+            Height = 35,
+            Margin = new Thickness(0, 0, 10, 0),
+            Background = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+
+        var cancelButton = new Button
+        {
+            Content = "Cancel",
+            Width = 80,
+            Height = 35,
+            Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+
+        bool confirmed = false;
+        okButton.Click += (s, args) => { confirmed = true; inputDialog.Close(); };
+        cancelButton.Click += (s, args) => { inputDialog.Close(); };
+
+        buttonPanel.Children.Add(okButton);
+        buttonPanel.Children.Add(cancelButton);
+        panel.Children.Add(buttonPanel);
+
+        inputDialog.Content = panel;
+
+        // Select text on load
+        inputDialog.Loaded += (s, args) => { levelInput.SelectAll(); levelInput.Focus(); };
+
+        inputDialog.ShowDialog();
+
+        if (confirmed && int.TryParse(levelInput.Text, out int newLevel))
+        {
+            if (newLevel < 1 || newLevel > 20)
+            {
+                MessageBox.Show("Level must be between 1 and 20.", "Invalid Level",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Update character level
+            _character.Level = newLevel;
+
+            try
+            {
+                // Save to database
+                await _gameService.UpdatePlayerCharacterAsync(_character);
+
+                // Refresh character data (this will reload features based on new level)
+                LoadCharacterData();
+                LoadSpells();
+
+                MessageBox.Show($"Character level set to {newLevel}.", "Level Changed",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error setting level: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
     private async void Initiative_Click(object sender, RoutedEventArgs e)
     {
         int dexMod = _abilityModifiers.GetValueOrDefault("DEX", 0);
