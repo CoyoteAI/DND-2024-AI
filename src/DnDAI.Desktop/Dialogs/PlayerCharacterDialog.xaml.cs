@@ -13,6 +13,20 @@ public partial class PlayerCharacterDialog : Window
     {
         InitializeComponent();
         PopulateComboBoxes();
+        AttachScrollWheelHandler();
+    }
+
+    protected override void OnActivated(EventArgs e)
+    {
+        base.OnActivated(e);
+        // Re-attach handler every time window is activated to ensure it works after tabbing back
+        AttachScrollWheelHandler();
+    }
+
+    private void AttachScrollWheelHandler()
+    {
+        // Remove handler first to avoid duplicates
+        this.RemoveHandler(UIElement.MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheel));
 
         // Fix scroll wheel - use AddHandler with handledEventsToo = true
         // This ensures we receive mouse wheel events even if child controls marked them as handled
