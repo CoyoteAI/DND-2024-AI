@@ -116,11 +116,19 @@ public class GameService
         // Get DM response from LLM
         var dmResponse = await _llmService.GenerateWithMemoryAsync(campaignId, playerInput);
 
+        System.Diagnostics.Debug.WriteLine($"[GameService] DM response length before command stripping: {dmResponse.Length} characters");
+        System.Diagnostics.Debug.WriteLine($"[GameService] First 200 chars: {dmResponse.Substring(0, Math.Min(200, dmResponse.Length))}");
+        Console.WriteLine($"[GameService] DM response length before command stripping: {dmResponse.Length} characters");
+
         // Parse and execute combat commands
         var commandResults = await _combatCommandParser.ParseAndExecuteCommandsAsync(dmResponse, campaignId, sessionId);
 
         // Strip commands from the response text
         var cleanedResponse = _combatCommandParser.StripCommandsFromText(dmResponse);
+
+        System.Diagnostics.Debug.WriteLine($"[GameService] Cleaned response length: {cleanedResponse.Length} characters");
+        System.Diagnostics.Debug.WriteLine($"[GameService] First 200 chars: {cleanedResponse.Substring(0, Math.Min(200, cleanedResponse.Length))}");
+        Console.WriteLine($"[GameService] Cleaned response length: {cleanedResponse.Length} characters");
 
         // Save DM message (cleaned version)
         await SaveMessageAsync(sessionId, "DM", cleanedResponse);
