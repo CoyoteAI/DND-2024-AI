@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using DnDAI.Core.Interfaces;
@@ -12,15 +13,18 @@ public class QwenLLMService : ILLMService
     private readonly HttpClient _httpClient;
     private readonly QwenSettings _settings;
     private readonly IMemoryService _memoryService;
+    private readonly ILogger<QwenLLMService>? _logger;
 
     public QwenLLMService(
         HttpClient httpClient,
         IOptions<QwenSettings> settings,
-        IMemoryService memoryService)
+        IMemoryService memoryService,
+        ILogger<QwenLLMService>? logger = null)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
         _memoryService = memoryService;
+        _logger = logger;
         _httpClient.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
     }
 
@@ -29,6 +33,10 @@ public class QwenLLMService : ILLMService
         try
         {
             var fullPrompt = BuildPrompt(prompt, context);
+
+            _logger?.LogInformation("Sending request to Qwen API at {ApiUrl}/api/generate", _settings.ApiUrl);
+            _logger?.LogDebug("Model: {ModelName}, Prompt length: {PromptLength} chars",
+                _settings.ModelName, fullPrompt.Length);
 
             var request = new QwenRequest
             {
@@ -45,16 +53,52 @@ public class QwenLLMService : ILLMService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            _logger?.LogDebug("Request JSON length: {JsonLength} chars", json.Length);
+
             var response = await _httpClient.PostAsync($"{_settings.ApiUrl}/api/generate", content);
+
+            _logger?.LogInformation("Received response with status code: {StatusCode}", response.StatusCode);
+
             response.EnsureSuccessStatusCode();
 
             var responseJson = await response.Content.ReadAsStringAsync();
+
+            _logger?.LogDebug("Response JSON: {ResponseJson}", responseJson);
+
             var qwenResponse = JsonConvert.DeserializeObject<QwenResponse>(responseJson);
 
-            return qwenResponse?.Response ?? "I apologize, but I couldn't generate a response.";
+            if (qwenResponse == null)
+            {
+                _logger?.LogError("Failed to deserialize Qwen response. Response JSON was: {ResponseJson}", responseJson);
+                return "I apologize, but I couldn't parse the AI response.";
+            }
+
+            if (string.IsNullOrEmpty(qwenResponse.Response))
+            {
+                _logger?.LogWarning("Qwen returned an empty response. Done: {Done}, Model: {Model}",
+                    qwenResponse.Done, qwenResponse.Model);
+                _logger?.LogDebug("Full response object: {ResponseJson}", responseJson);
+                return "I apologize, but I couldn't generate a response.";
+            }
+
+            _logger?.LogInformation("Successfully generated response with {CharCount} characters",
+                qwenResponse.Response.Length);
+
+            return qwenResponse.Response;
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger?.LogError(ex, "Request to Qwen timed out after {Timeout} seconds", _settings.TimeoutSeconds);
+            return $"Error: Request timed out after {_settings.TimeoutSeconds} seconds. The model may be taking too long to respond.";
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger?.LogError(ex, "HTTP error communicating with Qwen at {ApiUrl}", _settings.ApiUrl);
+            return $"Error communicating with Qwen: {ex.Message}. Please check that Ollama is running.";
         }
         catch (Exception ex)
         {
+            _logger?.LogError(ex, "Unexpected error during Qwen API call");
             return $"Error communicating with Qwen: {ex.Message}";
         }
     }
