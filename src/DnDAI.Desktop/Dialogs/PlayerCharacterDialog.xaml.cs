@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using DnDAI.Core.Models;
 using DnDAI.Core.Enums;
 
@@ -15,19 +16,33 @@ public partial class PlayerCharacterDialog : Window
         InitializeComponent();
         PopulateComboBoxes();
 
-        // Attach mouse wheel handler to all child controls to intercept before they handle it
+        // Attach mouse wheel handler to all child controls
         Loaded += (s, e) =>
         {
-            // Add handler to the main grid to catch all mouse wheel events from children
-            var mainGrid = Content as Grid;
-            if (mainGrid != null)
+            // Recursively attach handlers to all controls that might capture mouse wheel
+            AttachMouseWheelToChildren(MainScrollViewer);
+
+            // Also attach to the ScrollViewer itself
+            MainScrollViewer.PreviewMouseWheel += InterceptMouseWheel;
+        };
+    }
+
+    private void AttachMouseWheelToChildren(DependencyObject parent)
+    {
+        int childCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+
+            // Attach handler to this child if it's a UIElement
+            if (child is UIElement element)
             {
-                mainGrid.AddHandler(MouseWheelEvent, new MouseWheelEventHandler(InterceptMouseWheel), handledEventsToo: true);
+                element.PreviewMouseWheel += InterceptMouseWheel;
             }
 
-            // Give focus to ScrollViewer so Page Up/Down work
-            MainScrollViewer.Focus();
-        };
+            // Recursively process children
+            AttachMouseWheelToChildren(child);
+        }
     }
 
     private void InterceptMouseWheel(object sender, MouseWheelEventArgs e)
