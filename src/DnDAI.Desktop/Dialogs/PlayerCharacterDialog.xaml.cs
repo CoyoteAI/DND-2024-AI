@@ -15,14 +15,13 @@ public partial class PlayerCharacterDialog : Window
         PopulateComboBoxes();
     }
 
-    protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+    private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
     {
-        // Use PreviewMouseWheel which tunnels down BEFORE child controls handle it
-        base.OnPreviewMouseWheel(e);
-
-        if (MainScrollViewer != null && !e.Handled)
+        // Simple XAML-attached handler for mouse wheel
+        if (MainScrollViewer != null)
         {
-            MainScrollViewer.ScrollToVerticalOffset(MainScrollViewer.VerticalOffset - e.Delta / 3.0);
+            double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
+            MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
             e.Handled = true;
         }
     }
