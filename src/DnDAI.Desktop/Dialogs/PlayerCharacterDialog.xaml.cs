@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using DnDAI.Core.Models;
 using DnDAI.Core.Enums;
 
@@ -12,6 +13,35 @@ public partial class PlayerCharacterDialog : Window
     {
         InitializeComponent();
         PopulateComboBoxes();
+
+        // Fix scroll wheel not working - bubble up PreviewMouseWheel events
+        PreviewMouseWheel += (sender, e) =>
+        {
+            if (sender is Window window)
+            {
+                var scrollViewer = FindScrollViewer(window);
+                if (scrollViewer != null)
+                {
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta);
+                    e.Handled = true;
+                }
+            }
+        };
+    }
+
+    private System.Windows.Controls.ScrollViewer? FindScrollViewer(DependencyObject parent)
+    {
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is System.Windows.Controls.ScrollViewer scrollViewer)
+                return scrollViewer;
+
+            var result = FindScrollViewer(child);
+            if (result != null)
+                return result;
+        }
+        return null;
     }
 
     private void PopulateComboBoxes()
