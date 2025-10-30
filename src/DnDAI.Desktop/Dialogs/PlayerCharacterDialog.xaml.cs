@@ -8,29 +8,34 @@ namespace DnDAI.Desktop.Dialogs;
 public partial class PlayerCharacterDialog : Window
 {
     public PlayerCharacter? Character { get; private set; }
+    private readonly MouseWheelEventHandler _mouseWheelHandler;
 
     public PlayerCharacterDialog()
     {
         InitializeComponent();
         PopulateComboBoxes();
-        AttachScrollWheelHandler();
+
+        // Store handler as field so we can properly manage it
+        _mouseWheelHandler = OnMouseWheel;
+
+        // Attach after the window is loaded
+        Loaded += (s, e) => AttachScrollWheelHandler();
     }
 
     protected override void OnActivated(EventArgs e)
     {
         base.OnActivated(e);
-        // Re-attach handler every time window is activated to ensure it works after tabbing back
+        // Ensure handler is attached when window is activated
         AttachScrollWheelHandler();
     }
 
     private void AttachScrollWheelHandler()
     {
-        // Remove handler first to avoid duplicates
-        this.RemoveHandler(UIElement.MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheel));
+        // Remove handler first using the stored instance to avoid duplicates
+        this.RemoveHandler(UIElement.MouseWheelEvent, _mouseWheelHandler);
 
-        // Fix scroll wheel - use AddHandler with handledEventsToo = true
-        // This ensures we receive mouse wheel events even if child controls marked them as handled
-        this.AddHandler(UIElement.MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheel), handledEventsToo: true);
+        // Re-add with handledEventsToo = true
+        this.AddHandler(UIElement.MouseWheelEvent, _mouseWheelHandler, handledEventsToo: true);
     }
 
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)
