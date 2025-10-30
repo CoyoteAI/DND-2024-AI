@@ -330,10 +330,7 @@ public partial class MainWindow : Window
                     // Callback to display roll in main window
                     AddMessage("Dice Roll", $"{purpose}: {result}",
                         new SolidColorBrush(Color.FromRgb(232, 245, 233)));
-                })
-            {
-                Owner = this
-            };
+                });
 
             characterSheet.Show();
         }
