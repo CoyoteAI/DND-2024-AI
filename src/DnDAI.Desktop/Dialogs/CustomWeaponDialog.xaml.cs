@@ -40,6 +40,10 @@ public partial class CustomWeaponDialog : Window
         if (BaseWeaponComboBox.SelectedItem is not ComboBoxItem selectedItem)
             return;
 
+        // Prevent null reference during initialization
+        if (DamageDiceTextBox == null || VersatileCheckBox == null || FinesseCheckBox == null)
+            return;
+
         string selectedWeapon = selectedItem.Content.ToString() ?? "";
 
         if (selectedWeapon == "(None - Custom)")
