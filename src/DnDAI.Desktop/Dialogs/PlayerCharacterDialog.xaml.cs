@@ -17,12 +17,17 @@ public partial class PlayerCharacterDialog : Window
 
     private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
     {
+        // Debug: Show that this is being called
+        System.Diagnostics.Debug.WriteLine($"Mouse wheel event: Delta={e.Delta}, Offset={MainScrollViewer.VerticalOffset}");
+
         // Force scroll the ScrollViewer regardless of which control has focus
         double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
         MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
 
         // Mark as handled to prevent child controls from processing it
         e.Handled = true;
+
+        System.Diagnostics.Debug.WriteLine($"After scroll: Offset={MainScrollViewer.VerticalOffset}");
     }
 
     private void PopulateComboBoxes()
