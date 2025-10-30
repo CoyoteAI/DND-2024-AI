@@ -74,7 +74,8 @@ public partial class App : Application
             DatabaseMigrationHelper.ApplyManualMigrations(dbContext);
 
             // Seed features (only happens first time when database is empty)
-            FeatureSeeder.SeedFeaturesAsync(dbContext).Wait();
+            // Use GetAwaiter().GetResult() instead of Wait() to avoid deadlocks
+            FeatureSeeder.SeedFeaturesAsync(dbContext).GetAwaiter().GetResult();
         }
 
         // Start Ollama service if configured
