@@ -53,6 +53,8 @@ public partial class App : Application
                 services.AddScoped<IRepository<ConversationMessage>, Repository<ConversationMessage>>();
                 services.AddScoped<IRepository<Feature>, Repository<Feature>>();
                 services.AddScoped<IRepository<CharacterFeature>, Repository<CharacterFeature>>();
+                services.AddScoped<IRepository<Equipment>, Repository<Equipment>>();
+                services.AddScoped<IRepository<CharacterEquipment>, Repository<CharacterEquipment>>();
 
                 // Services
                 services.AddSingleton<IOllamaService, OllamaService>();

@@ -22,6 +22,8 @@ public class GameService
     private readonly IRepository<PlayerCharacterSpell> _pcSpellRepository;
     private readonly IRepository<Feature> _featureRepository;
     private readonly IRepository<CharacterFeature> _characterFeatureRepository;
+    private readonly IRepository<Equipment> _equipmentRepository;
+    private readonly IRepository<CharacterEquipment> _characterEquipmentRepository;
     private readonly CombatCommandParser _combatCommandParser;
 
     public GameService(
@@ -40,7 +42,9 @@ public class GameService
         IRepository<Spell> spellRepository,
         IRepository<PlayerCharacterSpell> pcSpellRepository,
         IRepository<Feature> featureRepository,
-        IRepository<CharacterFeature> characterFeatureRepository)
+        IRepository<CharacterFeature> characterFeatureRepository,
+        IRepository<Equipment> equipmentRepository,
+        IRepository<CharacterEquipment> characterEquipmentRepository)
     {
         _llmService = llmService;
         _diceRoller = diceRoller;
@@ -58,6 +62,8 @@ public class GameService
         _pcSpellRepository = pcSpellRepository;
         _featureRepository = featureRepository;
         _characterFeatureRepository = characterFeatureRepository;
+        _equipmentRepository = equipmentRepository;
+        _characterEquipmentRepository = characterEquipmentRepository;
         _combatCommandParser = new CombatCommandParser(combatService);
     }
 
@@ -357,5 +363,53 @@ public class GameService
     public async Task<List<Feature>> GetAllFeaturesAsync()
     {
         return (await _featureRepository.GetAllAsync()).ToList();
+    }
+
+    // Equipment Management
+    public async Task<List<Equipment>> GetAllEquipmentAsync()
+    {
+        return (await _equipmentRepository.GetAllAsync()).ToList();
+    }
+
+    public async Task<List<Equipment>> GetWeaponsAsync()
+    {
+        var all = await _equipmentRepository.GetAllAsync();
+        return all.Where(e => e.Type == Core.Enums.EquipmentType.Weapon).ToList();
+    }
+
+    public async Task<List<CharacterEquipment>> GetCharacterEquipmentAsync(int playerCharacterId)
+    {
+        var all = await _characterEquipmentRepository.GetAllAsync();
+        return all.Where(ce => ce.PlayerCharacterId == playerCharacterId).ToList();
+    }
+
+    public async Task<CharacterEquipment> AddEquipmentToCharacterAsync(int playerCharacterId, int equipmentId, int quantity = 1, bool isEquipped = false)
+    {
+        var charEquip = new CharacterEquipment
+        {
+            PlayerCharacterId = playerCharacterId,
+            EquipmentId = equipmentId,
+            Quantity = quantity,
+            IsEquipped = isEquipped
+        };
+        await _characterEquipmentRepository.AddAsync(charEquip);
+        return charEquip;
+    }
+
+    public async Task<Equipment> CreateCustomEquipmentAsync(Equipment equipment)
+    {
+        equipment.IsStandard = false;
+        await _equipmentRepository.AddAsync(equipment);
+        return equipment;
+    }
+
+    public async Task RemoveEquipmentFromCharacterAsync(int characterEquipmentId)
+    {
+        await _characterEquipmentRepository.DeleteAsync(characterEquipmentId);
+    }
+
+    public async Task UpdateCharacterEquipmentAsync(CharacterEquipment characterEquipment)
+    {
+        await _characterEquipmentRepository.UpdateAsync(characterEquipment);
     }
 }
