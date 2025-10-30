@@ -17,6 +17,9 @@ public partial class MainWindow : Window
     private Session? _currentSession;
     private CombatTrackerWindow? _combatTrackerWindow;
 
+    private enum RollMode { Normal, Advantage, Disadvantage }
+    private RollMode _currentRollMode = RollMode.Normal;
+
     public MainWindow(GameService gameService, ICombatService combatService)
     {
         InitializeComponent();
@@ -446,6 +449,11 @@ public partial class MainWindow : Window
         RollDisButton.IsEnabled = false;
         CustomRollTextBox.IsEnabled = false;
         RollCustomButton.IsEnabled = false;
+
+        // Reset roll mode and button colors
+        _currentRollMode = RollMode.Normal;
+        RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+        RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
     }
 
     private async void RollD4_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d4");
@@ -456,35 +464,39 @@ public partial class MainWindow : Window
     private async void RollD20_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d20");
     private async void RollD100_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d100");
 
-    private async void RollAdvantage_Click(object sender, RoutedEventArgs e)
+    private void RollAdvantage_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentSession == null) return;
-
-        try
+        if (_currentRollMode == RollMode.Advantage)
         {
-            var roll = _gameService.RollWithAdvantage(0, "Player", "Advantage Roll");
-            await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
-            AddDiceRollMessage(roll);
+            // Toggle off
+            _currentRollMode = RollMode.Normal;
+            RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
         }
-        catch (Exception ex)
+        else
         {
-            AddSystemMessage($"Error rolling dice: {ex.Message}");
+            // Toggle on
+            _currentRollMode = RollMode.Advantage;
+            RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+            // Turn off disadvantage if it was on
+            RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
         }
     }
 
-    private async void RollDisadvantage_Click(object sender, RoutedEventArgs e)
+    private void RollDisadvantage_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentSession == null) return;
-
-        try
+        if (_currentRollMode == RollMode.Disadvantage)
         {
-            var roll = _gameService.RollWithDisadvantage(0, "Player", "Disadvantage Roll");
-            await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
-            AddDiceRollMessage(roll);
+            // Toggle off
+            _currentRollMode = RollMode.Normal;
+            RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
         }
-        catch (Exception ex)
+        else
         {
-            AddSystemMessage($"Error rolling dice: {ex.Message}");
+            // Toggle on
+            _currentRollMode = RollMode.Disadvantage;
+            RollDisButton.Background = new SolidColorBrush(Color.FromRgb(231, 76, 60)); // Red
+            // Turn off advantage if it was on
+            RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
         }
     }
 
@@ -503,8 +515,32 @@ public partial class MainWindow : Window
 
         try
         {
-            var roll = await _gameService.RollAndLogAsync(_currentSession.Id, expression);
+            Core.Models.DiceRoll roll;
+
+            if (_currentRollMode == RollMode.Advantage)
+            {
+                roll = _gameService.RollWithAdvantage(0, "Player", $"Advantage - {expression}");
+                await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
+            }
+            else if (_currentRollMode == RollMode.Disadvantage)
+            {
+                roll = _gameService.RollWithDisadvantage(0, "Player", $"Disadvantage - {expression}");
+                await _gameService.LogDiceRollAsync(_currentSession.Id, roll);
+            }
+            else
+            {
+                roll = await _gameService.RollAndLogAsync(_currentSession.Id, expression);
+            }
+
             AddDiceRollMessage(roll);
+
+            // Reset roll mode after rolling
+            if (_currentRollMode != RollMode.Normal)
+            {
+                _currentRollMode = RollMode.Normal;
+                RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+                RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            }
         }
         catch (Exception ex)
         {
