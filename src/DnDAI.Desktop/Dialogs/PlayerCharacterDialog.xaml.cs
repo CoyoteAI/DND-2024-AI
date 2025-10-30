@@ -13,11 +13,14 @@ public partial class PlayerCharacterDialog : Window
     {
         InitializeComponent();
         PopulateComboBoxes();
+
+        // Fix scroll wheel - use AddHandler with handledEventsToo = true
+        // This ensures we receive mouse wheel events even if child controls marked them as handled
+        this.AddHandler(UIElement.MouseWheelEvent, new MouseWheelEventHandler(OnMouseWheel), handledEventsToo: true);
     }
 
-    private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    private void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        // Handle mouse wheel at window level so it works regardless of focus
         if (MainScrollViewer != null)
         {
             MainScrollViewer.ScrollToVerticalOffset(MainScrollViewer.VerticalOffset - e.Delta / 3.0);

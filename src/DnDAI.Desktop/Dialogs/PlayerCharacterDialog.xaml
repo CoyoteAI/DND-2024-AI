@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add Player Character" Height="650" Width="500"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource BackgroundBrush}"
-        PreviewMouseWheel="Window_PreviewMouseWheel">
+        Background="{StaticResource BackgroundBrush}">
     <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto">
         <Grid Margin="20">
             <Grid.RowDefinitions>
