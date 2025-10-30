@@ -15,6 +15,9 @@ public static class DatabaseMigrationHelper
 
         // Create Features tables if they don't exist
         CreateFeatureTablesIfNotExist(context);
+
+        // Create Equipment tables if they don't exist
+        CreateEquipmentTablesIfNotExist(context);
     }
 
     private static void AddSkillColumnsIfNotExist(DnDContext context)
@@ -124,6 +127,89 @@ public static class DatabaseMigrationHelper
                             REFERENCES PlayerCharacters(Id) ON DELETE CASCADE,
                         CONSTRAINT FK_CharacterFeatures_Features FOREIGN KEY (FeatureId)
                             REFERENCES Features(Id) ON DELETE CASCADE
+                    )
+                END";
+            command.ExecuteNonQuery();
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    private static void CreateEquipmentTablesIfNotExist(DnDContext context)
+    {
+        var connection = context.Database.GetDbConnection();
+        connection.Open();
+
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            // Create Equipment table if it doesn't exist
+            command.CommandText = @"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Equipment')
+                BEGIN
+                    CREATE TABLE Equipment (
+                        Id int IDENTITY(1,1) PRIMARY KEY,
+                        Name nvarchar(200) NOT NULL,
+                        Description nvarchar(max) NOT NULL,
+                        Type int NOT NULL,
+                        IsStandard bit NOT NULL DEFAULT 1,
+                        CostInGold decimal(10,2) NOT NULL DEFAULT 0,
+                        Weight decimal(10,2) NOT NULL DEFAULT 0,
+
+                        -- Weapon properties
+                        WeaponCategory int NULL,
+                        Damage nvarchar(50) NULL,
+                        DamageType nvarchar(50) NULL,
+                        IsFinesse bit NOT NULL DEFAULT 0,
+                        IsVersatile bit NOT NULL DEFAULT 0,
+                        VersatileDamage nvarchar(50) NULL,
+                        Range nvarchar(50) NULL,
+
+                        -- Armor properties
+                        ArmorCategory int NULL,
+                        ArmorClass int NULL,
+                        AddDexModifier bit NULL,
+                        MaxDexModifier int NULL,
+                        StealthDisadvantage bit NOT NULL DEFAULT 0,
+                        StrengthRequirement int NULL,
+
+                        -- Magic item properties
+                        Rarity int NULL,
+                        RequiresAttunement bit NOT NULL DEFAULT 0,
+                        MaxCharges int NULL,
+                        ChargeRegeneration nvarchar(200) NULL,
+
+                        -- Additional properties
+                        PropertiesJson nvarchar(max) NULL,
+
+                        CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
+                    )
+                END";
+            command.ExecuteNonQuery();
+
+            // Create CharacterEquipment table if it doesn't exist
+            command.CommandText = @"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CharacterEquipment')
+                BEGIN
+                    CREATE TABLE CharacterEquipment (
+                        Id int IDENTITY(1,1) PRIMARY KEY,
+                        PlayerCharacterId int NOT NULL,
+                        EquipmentId int NOT NULL,
+                        Quantity int NOT NULL DEFAULT 1,
+                        IsEquipped bit NOT NULL DEFAULT 0,
+                        IsAttuned bit NOT NULL DEFAULT 0,
+                        CurrentCharges int NULL,
+                        Notes nvarchar(max) NULL,
+                        CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        CONSTRAINT FK_CharacterEquipment_PlayerCharacters FOREIGN KEY (PlayerCharacterId)
+                            REFERENCES PlayerCharacters(Id) ON DELETE CASCADE,
+                        CONSTRAINT FK_CharacterEquipment_Equipment FOREIGN KEY (EquipmentId)
+                            REFERENCES Equipment(Id) ON DELETE CASCADE
                     )
                 END";
             command.ExecuteNonQuery();
