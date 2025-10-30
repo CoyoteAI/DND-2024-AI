@@ -1251,17 +1251,19 @@ public partial class CharacterSheetWindow : Window
     private int GetSpellcastingModifier()
     {
         // Determine spellcasting ability based on class
-        string classLower = _character.Class?.ToLower() ?? "";
-
-        if (classLower.Contains("wizard") || classLower.Contains("artificer"))
-            return _abilityModifiers.GetValueOrDefault("INT", 0);
-        else if (classLower.Contains("cleric") || classLower.Contains("druid") || classLower.Contains("ranger"))
-            return _abilityModifiers.GetValueOrDefault("WIS", 0);
-        else if (classLower.Contains("bard") || classLower.Contains("sorcerer") || classLower.Contains("warlock") || classLower.Contains("paladin"))
-            return _abilityModifiers.GetValueOrDefault("CHA", 0);
-
-        // Default to INT if class not recognized
-        return _abilityModifiers.GetValueOrDefault("INT", 0);
+        return _character.Class switch
+        {
+            Core.Enums.CharacterClass.Wizard => _abilityModifiers.GetValueOrDefault("INT", 0),
+            Core.Enums.CharacterClass.Artificer => _abilityModifiers.GetValueOrDefault("INT", 0),
+            Core.Enums.CharacterClass.Cleric => _abilityModifiers.GetValueOrDefault("WIS", 0),
+            Core.Enums.CharacterClass.Druid => _abilityModifiers.GetValueOrDefault("WIS", 0),
+            Core.Enums.CharacterClass.Ranger => _abilityModifiers.GetValueOrDefault("WIS", 0),
+            Core.Enums.CharacterClass.Bard => _abilityModifiers.GetValueOrDefault("CHA", 0),
+            Core.Enums.CharacterClass.Sorcerer => _abilityModifiers.GetValueOrDefault("CHA", 0),
+            Core.Enums.CharacterClass.Warlock => _abilityModifiers.GetValueOrDefault("CHA", 0),
+            Core.Enums.CharacterClass.Paladin => _abilityModifiers.GetValueOrDefault("CHA", 0),
+            _ => _abilityModifiers.GetValueOrDefault("INT", 0) // Default to INT
+        };
     }
 
     // Helper method to find child controls
