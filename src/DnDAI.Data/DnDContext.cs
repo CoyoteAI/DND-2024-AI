@@ -40,7 +40,7 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.CurrentLocation)
                 .WithMany()
                 .HasForeignKey(e => e.CurrentLocationId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // NPC configuration
@@ -61,7 +61,7 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.CurrentLocation)
                 .WithMany(l => l.NPCs)
                 .HasForeignKey(e => e.CurrentLocationId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // PlayerCharacter configuration
@@ -115,12 +115,12 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.Session)
                 .WithMany(s => s.Events)
                 .HasForeignKey(e => e.SessionId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Location)
                 .WithMany(l => l.Events)
                 .HasForeignKey(e => e.LocationId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Session configuration
@@ -176,7 +176,7 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.Session)
                 .WithMany()
                 .HasForeignKey(e => e.SessionId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Combatant configuration
@@ -193,12 +193,12 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.PlayerCharacter)
                 .WithMany()
                 .HasForeignKey(e => e.PlayerCharacterId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.NPC)
                 .WithMany()
                 .HasForeignKey(e => e.NPCId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // StatusEffect configuration
