@@ -224,7 +224,7 @@
                                     <StackPanel>
                                         <Grid Margin="0,0,0,5">
                                             <TextBlock Text="Spell Slots" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                            <Button x:Name="RestoreSpellSlotsButton" Content="Long Rest" Height="25" Width="80"
+                                            <Button x:Name="RestoreSpellSlotsButton" Content="Long Rest" Height="25" Width="95"
                                                     HorizontalAlignment="Right" Background="#27AE60" Foreground="White"
                                                     BorderThickness="0" Click="RestoreSpellSlots_Click" Cursor="Hand" FontSize="10"/>
                                         </Grid>
@@ -237,7 +237,7 @@
                                 <!-- Spell List -->
                                 <Grid Margin="0,0,0,5">
                                     <TextBlock Text="Spells Known" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                    <Button x:Name="LearnSpellButton" Content="+ Learn Spell" Height="25" Width="100"
+                                    <Button x:Name="LearnSpellButton" Content="+ Learn Spell" Height="25" Width="120"
                                             HorizontalAlignment="Right" Background="#9B59B6" Foreground="White"
                                             BorderThickness="0" Click="LearnSpell_Click" Cursor="Hand" FontSize="10"/>
                                 </Grid>
