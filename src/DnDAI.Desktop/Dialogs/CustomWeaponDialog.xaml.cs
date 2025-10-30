@@ -197,8 +197,8 @@ public partial class CustomWeaponDialog : Window
             var removeBtn = new Button
             {
                 Content = "Remove",
-                Height = 30,
-                Width = 60,
+                Height = 35,
+                Width = 90,
                 Margin = new Thickness(0, 5, 0, 0),
                 Background = new SolidColorBrush(Color.FromRgb(231, 76, 60)),
                 Foreground = Brushes.White,
