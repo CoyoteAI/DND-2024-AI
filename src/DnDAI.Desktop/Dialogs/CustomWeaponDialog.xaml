@@ -1,7 +1,7 @@
 <Window x:Class="DnDAI.Desktop.Dialogs.CustomWeaponDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Custom Weapon" Height="650" Width="550"
+        Title="Add Custom Weapon" Height="650" Width="600"
         Background="#ECF0F1" WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
     <Border Padding="20">
