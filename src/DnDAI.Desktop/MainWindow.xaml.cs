@@ -133,10 +133,20 @@ public partial class MainWindow : Window
 
     private async void InputTextBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+        if (e.Key == Key.Enter)
         {
-            await SendMessageAsync();
-            e.Handled = true;
+            // SHIFT+ENTER = new line (don't handle, let default behavior work)
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                return; // Let the TextBox insert a new line
+            }
+
+            // ENTER (no modifiers) = send message
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                await SendMessageAsync();
+                e.Handled = true; // Prevent new line from being inserted
+            }
         }
     }
 
