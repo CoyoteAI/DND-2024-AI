@@ -15,12 +15,12 @@ public partial class PlayerCharacterDialog : Window
         PopulateComboBoxes();
     }
 
-    private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
-        var scrollViewer = sender as System.Windows.Controls.ScrollViewer;
-        if (scrollViewer != null)
+        // Handle mouse wheel at window level so it works regardless of focus
+        if (MainScrollViewer != null)
         {
-            scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3.0);
+            MainScrollViewer.ScrollToVerticalOffset(MainScrollViewer.VerticalOffset - e.Delta / 3.0);
             e.Handled = true;
         }
     }
