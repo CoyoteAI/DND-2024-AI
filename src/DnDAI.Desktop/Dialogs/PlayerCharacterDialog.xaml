@@ -4,11 +4,13 @@
         Title="Add Player Character" Height="650" Width="500"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundBrush}"
-        MouseWheel="Window_MouseWheel">
+        PreviewMouseWheel="Window_MouseWheel">
     <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   CanContentScroll="True"
-                  IsDeferredScrollingEnabled="False">
+                  IsDeferredScrollingEnabled="False"
+                  Focusable="True"
+                  FocusVisualStyle="{x:Null}">
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

@@ -17,13 +17,12 @@ public partial class PlayerCharacterDialog : Window
 
     private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
     {
-        // Simple XAML-attached handler for mouse wheel
-        if (MainScrollViewer != null)
-        {
-            double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
-            MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
-            e.Handled = true;
-        }
+        // Force scroll the ScrollViewer regardless of which control has focus
+        double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
+        MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
+
+        // Mark as handled to prevent child controls from processing it
+        e.Handled = true;
     }
 
     private void PopulateComboBoxes()
