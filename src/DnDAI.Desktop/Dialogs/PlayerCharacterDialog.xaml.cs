@@ -15,15 +15,16 @@ public partial class PlayerCharacterDialog : Window
         PopulateComboBoxes();
     }
 
-    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
     {
-        // Override OnMouseWheel to handle scrolling directly
-        if (MainScrollViewer != null)
+        // Use PreviewMouseWheel which tunnels down BEFORE child controls handle it
+        base.OnPreviewMouseWheel(e);
+
+        if (MainScrollViewer != null && !e.Handled)
         {
             MainScrollViewer.ScrollToVerticalOffset(MainScrollViewer.VerticalOffset - e.Delta / 3.0);
             e.Handled = true;
         }
-        // Don't call base to prevent default behavior
     }
 
     private void PopulateComboBoxes()
