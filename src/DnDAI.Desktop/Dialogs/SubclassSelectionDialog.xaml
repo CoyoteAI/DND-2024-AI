@@ -1,0 +1,37 @@
+<Window x:Class="DnDAI.Desktop.Dialogs.SubclassSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select Subclass" Height="250" Width="400"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" Text="Choose Your Subclass" FontSize="18" FontWeight="Bold"
+                   Foreground="#2C3E50" Margin="0,0,0,10"/>
+
+        <!-- Class Info -->
+        <TextBlock Grid.Row="1" x:Name="ClassInfoText" Text="Fighter" FontSize="14"
+                   Foreground="#7F8C8D" Margin="0,0,0,15"/>
+
+        <!-- Subclass Selection -->
+        <TextBlock Grid.Row="2" Text="Subclass:" FontWeight="Bold" Margin="0,0,0,5"/>
+        <ComboBox Grid.Row="3" x:Name="SubclassComboBox" Margin="0,0,0,15"
+                  VerticalAlignment="Top" Height="30"/>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Select" Width="80" Height="30" Margin="0,0,10,0"
+                    Background="#27AE60" Foreground="White" BorderThickness="0" Click="Select_Click"/>
+            <Button Content="Cancel" Width="80" Height="30"
+                    Background="#95A5A6" Foreground="White" BorderThickness="0" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

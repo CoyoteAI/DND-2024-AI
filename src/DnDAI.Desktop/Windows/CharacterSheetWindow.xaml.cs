@@ -578,6 +578,42 @@ public partial class CharacterSheetWindow : Window
         }
     }
 
+    private async void ChangeSubclass_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SubclassSelectionDialog(_character.Class, _character.Subclass)
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            // Update character's subclass
+            _character.Subclass = dialog.SelectedSubclass;
+
+            try
+            {
+                // Save to database
+                await _gameService.UpdatePlayerCharacterAsync(_character);
+
+                // Refresh character info display
+                string characterInfo = $"Level {_character.Level} {_character.Race} {_character.Class}";
+                if (_character.Subclass != Core.Enums.CharacterSubclass.None)
+                {
+                    characterInfo += $" ({SubclassHelper.GetFriendlyName(_character.Subclass)})";
+                }
+                CharacterInfoText.Text = characterInfo;
+
+                MessageBox.Show("Subclass updated successfully!", "Success",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating subclass: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
     private async void Initiative_Click(object sender, RoutedEventArgs e)
     {
         int dexMod = _abilityModifiers.GetValueOrDefault("DEX", 0);

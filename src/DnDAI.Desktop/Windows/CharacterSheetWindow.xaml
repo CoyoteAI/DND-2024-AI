@@ -68,8 +68,18 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock x:Name="CharacterNameText" Text="Character Name"
                                    FontSize="24" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock x:Name="CharacterInfoText" Text="Level 1 Human Fighter"
-                                   FontSize="14" Foreground="#BDC3C7" Margin="0,5,0,0"/>
+                        <Grid Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" x:Name="CharacterInfoText" Text="Level 1 Human Fighter"
+                                       FontSize="14" Foreground="#BDC3C7"/>
+                            <Button Grid.Column="1" Content="Change Subclass" Height="25" Width="130"
+                                    Background="#9B59B6" Foreground="White" BorderThickness="0"
+                                    Click="ChangeSubclass_Click" Cursor="Hand" Margin="10,0,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        </Grid>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
