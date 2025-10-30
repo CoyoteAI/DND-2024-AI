@@ -4,6 +4,7 @@ using System.Windows.Media;
 using DnDAI.Core.Models;
 using DnDAI.Services;
 using System.Text.RegularExpressions;
+using DnDAI.Desktop.Dialogs;
 
 namespace DnDAI.Desktop.Windows;
 
@@ -144,7 +145,34 @@ public partial class CharacterSheetWindow : Window
     {
         WeaponsPanel.Children.Clear();
 
-        if (string.IsNullOrWhiteSpace(_character.Equipment))
+        // Add "Add Custom Weapon" button at top
+        var addWeaponButton = new Button
+        {
+            Content = "+ Add Custom Weapon",
+            Height = 35,
+            Background = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Margin = new Thickness(0, 0, 0, 10)
+        };
+        addWeaponButton.Click += AddCustomWeapon_Click;
+        WeaponsPanel.Children.Add(addWeaponButton);
+
+        // Load custom weapons first
+        var hasCustomWeapons = _character.CustomWeapons?.Any() == true;
+        if (hasCustomWeapons)
+        {
+            foreach (var customWeapon in _character.CustomWeapons!)
+            {
+                AddCustomWeaponDisplay(customWeapon);
+            }
+        }
+
+        // Parse equipment for weapons
+        var parsedWeapons = ParseWeaponsFromEquipment(_character.Equipment ?? "");
+
+        if (!hasCustomWeapons && !parsedWeapons.Any())
         {
             WeaponsPanel.Children.Add(new TextBlock
             {
@@ -156,22 +184,8 @@ public partial class CharacterSheetWindow : Window
             return;
         }
 
-        // Parse equipment for weapons
-        var weapons = ParseWeaponsFromEquipment(_character.Equipment);
-
-        if (!weapons.Any())
-        {
-            WeaponsPanel.Children.Add(new TextBlock
-            {
-                Text = "No weapons found in equipment",
-                FontStyle = FontStyles.Italic,
-                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
-                Margin = new Thickness(5)
-            });
-            return;
-        }
-
-        foreach (var weapon in weapons)
+        // Display parsed weapons
+        foreach (var weapon in parsedWeapons)
         {
             var weaponPanel = new StackPanel
             {
@@ -441,6 +455,288 @@ public partial class CharacterSheetWindow : Window
         }
 
         await RollDice($"{weapon.Name} Damage (2H)", expression);
+    }
+
+    // Custom Weapon Display and Handling
+    private void AddCustomWeaponDisplay(CustomWeapon customWeapon)
+    {
+        var weaponPanel = new StackPanel
+        {
+            Margin = new Thickness(0, 5, 0, 10),
+            Background = new SolidColorBrush(Color.FromRgb(255, 250, 240))
+        };
+
+        var headerPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin = new Thickness(5, 5, 5, 3)
+        };
+
+        var weaponHeader = new TextBlock
+        {
+            Text = customWeapon.Name,
+            FontSize = 14,
+            FontWeight = FontWeights.Bold
+        };
+        headerPanel.Children.Add(weaponHeader);
+
+        if (customWeapon.MagicBonus > 0)
+        {
+            var bonusText = new TextBlock
+            {
+                Text = $" +{customWeapon.MagicBonus}",
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+                Margin = new Thickness(5, 0, 0, 0)
+            };
+            headerPanel.Children.Add(bonusText);
+        }
+
+        if (!string.IsNullOrWhiteSpace(customWeapon.BaseWeaponType))
+        {
+            var baseText = new TextBlock
+            {
+                Text = $" ({customWeapon.BaseWeaponType})",
+                FontSize = 11,
+                FontStyle = FontStyles.Italic,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                Margin = new Thickness(3, 2, 0, 0)
+            };
+            headerPanel.Children.Add(baseText);
+        }
+
+        weaponPanel.Children.Add(headerPanel);
+
+        // Attack and Damage buttons
+        var buttonPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin = new Thickness(5, 0, 5, 5)
+        };
+
+        // Calculate modifiers
+        int strMod = _abilityModifiers.GetValueOrDefault("STR", 0);
+        int dexMod = _abilityModifiers.GetValueOrDefault("DEX", 0);
+        int attackMod = customWeapon.IsFinesse ? Math.Max(strMod, dexMod) : strMod;
+        int attackBonus = attackMod + _proficiencyBonus + customWeapon.MagicBonus + customWeapon.AttackBonusOverride;
+        int damageMod = customWeapon.IsFinesse ? Math.Max(strMod, dexMod) : strMod;
+        int totalDamageBonus = damageMod + customWeapon.MagicBonus + customWeapon.DamageBonusOverride;
+
+        // Attack button
+        var attackButton = new Button
+        {
+            Content = $"Attack: {FormatModifier(attackBonus)}",
+            Width = 120,
+            Height = 30,
+            Margin = new Thickness(0, 0, 5, 0),
+            Background = new SolidColorBrush(Color.FromRgb(231, 76, 60)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Tag = (customWeapon, attackBonus)
+        };
+        attackButton.Click += CustomWeaponAttack_Click;
+        buttonPanel.Children.Add(attackButton);
+
+        // Damage buttons
+        if (customWeapon.IsVersatile)
+        {
+            string oneHandDamage = totalDamageBonus >= 0
+                ? $"{customWeapon.DamageDice}+{totalDamageBonus}"
+                : $"{customWeapon.DamageDice}{totalDamageBonus}";
+
+            var dmgOneHand = new Button
+            {
+                Content = $"Dmg (1H): {oneHandDamage}",
+                Width = 120,
+                Height = 30,
+                Margin = new Thickness(0, 0, 5, 0),
+                Background = new SolidColorBrush(Color.FromRgb(192, 57, 43)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Tag = (customWeapon, customWeapon.DamageDice, totalDamageBonus, false)
+            };
+            dmgOneHand.Click += CustomWeaponDamage_Click;
+            buttonPanel.Children.Add(dmgOneHand);
+
+            string twoHandDamage = totalDamageBonus >= 0
+                ? $"{customWeapon.VersatileDamageDice}+{totalDamageBonus}"
+                : $"{customWeapon.VersatileDamageDice}{totalDamageBonus}";
+
+            var dmgTwoHand = new Button
+            {
+                Content = $"Dmg (2H): {twoHandDamage}",
+                Width = 120,
+                Height = 30,
+                Margin = new Thickness(0, 0, 5, 0),
+                Background = new SolidColorBrush(Color.FromRgb(155, 39, 29)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Tag = (customWeapon, customWeapon.VersatileDamageDice, totalDamageBonus, true)
+            };
+            dmgTwoHand.Click += CustomWeaponDamage_Click;
+            buttonPanel.Children.Add(dmgTwoHand);
+        }
+        else
+        {
+            string damage = totalDamageBonus >= 0
+                ? $"{customWeapon.DamageDice}+{totalDamageBonus}"
+                : $"{customWeapon.DamageDice}{totalDamageBonus}";
+
+            var dmgButton = new Button
+            {
+                Content = $"Damage: {damage}",
+                Width = 120,
+                Height = 30,
+                Margin = new Thickness(0, 0, 5, 0),
+                Background = new SolidColorBrush(Color.FromRgb(192, 57, 43)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Tag = (customWeapon, customWeapon.DamageDice, totalDamageBonus, false)
+            };
+            dmgButton.Click += CustomWeaponDamage_Click;
+            buttonPanel.Children.Add(dmgButton);
+        }
+
+        weaponPanel.Children.Add(buttonPanel);
+
+        // Special Abilities
+        if (customWeapon.SpecialAbilities?.Any() == true)
+        {
+            var abilitiesPanel = new WrapPanel
+            {
+                Margin = new Thickness(5, 5, 5, 5)
+            };
+
+            foreach (var ability in customWeapon.SpecialAbilities)
+            {
+                var abilityButton = new Button
+                {
+                    Height = 28,
+                    Margin = new Thickness(0, 0, 5, 3),
+                    Background = new SolidColorBrush(Color.FromRgb(142, 68, 173)),
+                    Foreground = Brushes.White,
+                    BorderThickness = new Thickness(0),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = ability
+                };
+
+                string content = ability.Name;
+                if (!string.IsNullOrWhiteSpace(ability.DiceRoll))
+                {
+                    content += $": {ability.DiceRoll}";
+                    if (!string.IsNullOrWhiteSpace(ability.DamageType))
+                    {
+                        content += $" {ability.DamageType}";
+                    }
+                }
+                abilityButton.Content = content;
+                abilityButton.Click += SpecialAbility_Click;
+
+                abilitiesPanel.Children.Add(abilityButton);
+            }
+
+            weaponPanel.Children.Add(abilitiesPanel);
+        }
+
+        WeaponsPanel.Children.Add(weaponPanel);
+    }
+
+    private async void AddCustomWeapon_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new CustomWeaponDialog
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() == true && dialog.Weapon != null)
+        {
+            try
+            {
+                await _gameService.AddCustomWeaponAsync(_character.Id, dialog.Weapon);
+                MessageBox.Show($"Custom weapon '{dialog.Weapon.Name}' added successfully!",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reload character and weapons
+                var updatedCharacter = await _gameService.GetCampaignAsync(_character.CampaignId);
+                var updatedPC = updatedCharacter?.PlayerCharacters.FirstOrDefault(pc => pc.Id == _character.Id);
+                if (updatedPC != null)
+                {
+                    // Update the character reference
+                    _character.CustomWeapons.Clear();
+                    foreach (var weapon in updatedPC.CustomWeapons)
+                    {
+                        _character.CustomWeapons.Add(weapon);
+                    }
+                    LoadWeapons();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding custom weapon: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private async void CustomWeaponAttack_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not ValueTuple<CustomWeapon, int> tag)
+            return;
+
+        var weapon = tag.Item1;
+        var attackBonus = tag.Item2;
+
+        await RollD20WithModifier($"{weapon.Name} Attack", attackBonus);
+    }
+
+    private async void CustomWeaponDamage_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not ValueTuple<CustomWeapon, string, int, bool> tag)
+            return;
+
+        var weapon = tag.Item1;
+        var damageDice = tag.Item2;
+        var damageBonus = tag.Item3;
+        var isTwoHanded = tag.Item4;
+
+        string expression = damageBonus >= 0
+            ? $"{damageDice}+{damageBonus}"
+            : $"{damageDice}{damageBonus}";
+
+        string purpose = isTwoHanded
+            ? $"{weapon.Name} Damage (2H)"
+            : weapon.IsVersatile
+                ? $"{weapon.Name} Damage (1H)"
+                : $"{weapon.Name} Damage";
+
+        await RollDice(purpose, expression);
+    }
+
+    private async void SpecialAbility_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not WeaponAbility ability)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(ability.DiceRoll))
+        {
+            // Has a dice roll component
+            await RollDice(ability.Name, ability.DiceRoll);
+        }
+        else
+        {
+            // No dice roll, just show description
+            string message = $"{ability.Name}\n\n{ability.Description}";
+            if (!string.IsNullOrWhiteSpace(ability.UsageLimit))
+            {
+                message += $"\n\nUsage: {ability.UsageLimit}";
+            }
+            MessageBox.Show(message, ability.Name, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private async Task RollD20WithModifier(string purpose, int modifier)

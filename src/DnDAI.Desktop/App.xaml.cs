@@ -46,6 +46,7 @@ public partial class App : Application
                 services.AddScoped<IRepository<Location>, Repository<Location>>();
                 services.AddScoped<IRepository<Event>, Repository<Event>>();
                 services.AddScoped<IRepository<Quest>, Repository<Quest>>();
+                services.AddScoped<IRepository<CustomWeapon>, Repository<CustomWeapon>>();
                 services.AddScoped<IRepository<ConversationMessage>, Repository<ConversationMessage>>();
 
                 // Services

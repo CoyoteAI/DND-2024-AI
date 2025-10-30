@@ -37,4 +37,5 @@ public class PlayerCharacter : BaseEntity
     public string Notes { get; set; } = string.Empty;
 
     public ICollection<Event> Events { get; set; } = new List<Event>();
+    public ICollection<CustomWeapon> CustomWeapons { get; set; } = new List<CustomWeapon>();
 }

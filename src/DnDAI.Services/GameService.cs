@@ -16,6 +16,7 @@ public class GameService
     private readonly IRepository<Location> _locationRepository;
     private readonly IRepository<Event> _eventRepository;
     private readonly IRepository<Quest> _questRepository;
+    private readonly IRepository<CustomWeapon> _customWeaponRepository;
     private readonly CombatCommandParser _combatCommandParser;
 
     public GameService(
@@ -28,7 +29,8 @@ public class GameService
         IRepository<NPC> npcRepository,
         IRepository<Location> locationRepository,
         IRepository<Event> eventRepository,
-        IRepository<Quest> questRepository)
+        IRepository<Quest> questRepository,
+        IRepository<CustomWeapon> customWeaponRepository)
     {
         _llmService = llmService;
         _diceRoller = diceRoller;
@@ -40,6 +42,7 @@ public class GameService
         _locationRepository = locationRepository;
         _eventRepository = eventRepository;
         _questRepository = questRepository;
+        _customWeaponRepository = customWeaponRepository;
         _combatCommandParser = new CombatCommandParser(combatService);
     }
 
@@ -233,5 +236,27 @@ public class GameService
         }
 
         await SaveMessageAsync(sessionId, roll.RolledBy, rollDetails, "Dice Roll");
+    }
+
+    // Custom Weapon Management
+    public async Task<CustomWeapon> AddCustomWeaponAsync(int playerCharacterId, CustomWeapon weapon)
+    {
+        weapon.PlayerCharacterId = playerCharacterId;
+        await _customWeaponRepository.AddAsync(weapon);
+        return weapon;
+    }
+
+    public async Task<List<CustomWeapon>> GetCustomWeaponsAsync(int playerCharacterId)
+    {
+        var allWeapons = await _customWeaponRepository.GetAllAsync();
+        return allWeapons.Where(w => w.PlayerCharacterId == playerCharacterId).ToList();
+    }
+
+    public async Task<bool> DeleteCustomWeaponAsync(int weaponId)
+    {
+        var weapon = await _customWeaponRepository.GetByIdAsync(weaponId);
+        if (weapon == null) return false;
+        await _customWeaponRepository.DeleteAsync(weapon);
+        return true;
     }
 }
