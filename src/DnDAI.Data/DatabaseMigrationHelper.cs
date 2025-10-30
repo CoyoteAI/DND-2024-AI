@@ -46,6 +46,18 @@ public static class DatabaseMigrationHelper
                     ALTER TABLE PlayerCharacters ADD SkillExpertise nvarchar(max) NOT NULL DEFAULT ''
                 END";
             command.ExecuteNonQuery();
+
+            // Check if SavingThrowProficiencies column exists
+            command.CommandText = @"
+                IF NOT EXISTS (
+                    SELECT * FROM sys.columns
+                    WHERE object_id = OBJECT_ID(N'PlayerCharacters')
+                    AND name = 'SavingThrowProficiencies'
+                )
+                BEGIN
+                    ALTER TABLE PlayerCharacters ADD SavingThrowProficiencies nvarchar(max) NOT NULL DEFAULT ''
+                END";
+            command.ExecuteNonQuery();
         }
         finally
         {

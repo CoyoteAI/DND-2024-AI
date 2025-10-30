@@ -37,6 +37,9 @@ public class PlayerCharacter : BaseEntity
     public string SkillProficiencies { get; set; } = string.Empty;
     public string SkillExpertise { get; set; } = string.Empty;
 
+    // Saving Throws (comma-separated ability names: STR, DEX, CON, INT, WIS, CHA)
+    public string SavingThrowProficiencies { get; set; } = string.Empty;
+
     // Spell Slots (for spellcasters)
     public int SpellSlots1Current { get; set; } = 0;
     public int SpellSlots1Max { get; set; } = 0;

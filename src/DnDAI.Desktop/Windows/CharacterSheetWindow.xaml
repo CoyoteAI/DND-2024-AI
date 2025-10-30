@@ -173,7 +173,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Skills" Style="{StaticResource SectionHeader}" Margin="0"/>
-                                <Button Grid.Column="1" Content="⚙ Manage" Height="35" Width="100"
+                                <Button Grid.Column="1" Content="⚙ Manage" Height="35" Width="110"
                                         Background="#3498DB" Foreground="White" BorderThickness="0"
                                         Click="ManageSkills_Click" Cursor="Hand" VerticalAlignment="Center"/>
                             </Grid>

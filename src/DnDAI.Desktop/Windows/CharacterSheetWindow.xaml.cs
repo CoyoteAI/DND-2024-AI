@@ -151,17 +151,54 @@ public partial class CharacterSheetWindow : Window
 
     private void LoadSavingThrows()
     {
-        // For now, assume no proficiencies (can be enhanced later)
-        // In D&D 2024, each class gets 2 saving throw proficiencies
+        // Get saving throw proficiencies from character or class defaults
+        var proficientSaves = GetSavingThrowProficiencies();
         var saveButtons = SavingThrowsPanel.Children.OfType<Button>().ToList();
 
         foreach (var button in saveButtons)
         {
             string ability = button.Tag.ToString() ?? "";
             int modifier = _abilityModifiers.GetValueOrDefault(ability, 0);
-            // TODO: Add proficiency if character is proficient in this save
-            button.Content = $"{ability} Save: {FormatModifier(modifier)}";
+
+            // Add proficiency bonus if proficient
+            if (proficientSaves.Contains(ability))
+            {
+                modifier += _proficiencyBonus;
+            }
+
+            // Show proficiency indicator
+            string indicator = proficientSaves.Contains(ability) ? "★ " : "";
+            button.Content = $"{indicator}{ability} Save: {FormatModifier(modifier)}";
         }
+    }
+
+    private HashSet<string> GetSavingThrowProficiencies()
+    {
+        // If character has explicit proficiencies set, use those
+        if (!string.IsNullOrWhiteSpace(_character.SavingThrowProficiencies))
+        {
+            return _character.SavingThrowProficiencies.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim()).ToHashSet();
+        }
+
+        // Otherwise, use class defaults (D&D 2024)
+        return _character.Class switch
+        {
+            Core.Enums.CharacterClass.Barbarian => new HashSet<string> { "STR", "CON" },
+            Core.Enums.CharacterClass.Bard => new HashSet<string> { "DEX", "CHA" },
+            Core.Enums.CharacterClass.Cleric => new HashSet<string> { "WIS", "CHA" },
+            Core.Enums.CharacterClass.Druid => new HashSet<string> { "INT", "WIS" },
+            Core.Enums.CharacterClass.Fighter => new HashSet<string> { "STR", "CON" },
+            Core.Enums.CharacterClass.Monk => new HashSet<string> { "STR", "DEX" },
+            Core.Enums.CharacterClass.Paladin => new HashSet<string> { "WIS", "CHA" },
+            Core.Enums.CharacterClass.Ranger => new HashSet<string> { "STR", "DEX" },
+            Core.Enums.CharacterClass.Rogue => new HashSet<string> { "DEX", "INT" },
+            Core.Enums.CharacterClass.Sorcerer => new HashSet<string> { "CON", "CHA" },
+            Core.Enums.CharacterClass.Warlock => new HashSet<string> { "WIS", "CHA" },
+            Core.Enums.CharacterClass.Wizard => new HashSet<string> { "INT", "WIS" },
+            Core.Enums.CharacterClass.Artificer => new HashSet<string> { "CON", "INT" },
+            _ => new HashSet<string>()
+        };
     }
 
     private void LoadSkills()
@@ -456,7 +493,14 @@ public partial class CharacterSheetWindow : Window
             return;
 
         int modifier = _abilityModifiers.GetValueOrDefault(ability, 0);
-        // TODO: Add proficiency if proficient in this save
+
+        // Add proficiency bonus if proficient in this save
+        var proficientSaves = GetSavingThrowProficiencies();
+        if (proficientSaves.Contains(ability))
+        {
+            modifier += _proficiencyBonus;
+        }
+
         await RollD20WithModifier($"{ability} Saving Throw", modifier);
     }
 
