@@ -5,7 +5,10 @@
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundBrush}"
         MouseWheel="Window_MouseWheel">
-    <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="True"
+                  IsDeferredScrollingEnabled="False">
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
