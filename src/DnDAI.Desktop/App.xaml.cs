@@ -67,21 +67,21 @@ public partial class App : Application
             })
             .Build();
 
-        // Start Ollama service if configured
-        StartOllamaServiceAsync().Wait();
-
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
-
-        // Ensure database is created and apply manual migrations
+        // Ensure database is created and apply manual migrations BEFORE showing window
         using (var scope = _host.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<DnDContext>();
             DatabaseMigrationHelper.ApplyManualMigrations(dbContext);
 
-            // Seed features
+            // Seed features (only happens first time when database is empty)
             FeatureSeeder.SeedFeaturesAsync(dbContext).Wait();
         }
+
+        // Start Ollama service if configured
+        StartOllamaServiceAsync().Wait();
+
+        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        mainWindow.Show();
     }
 
     protected override void OnExit(ExitEventArgs e)
