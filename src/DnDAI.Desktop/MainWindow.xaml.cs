@@ -452,8 +452,8 @@ public partial class MainWindow : Window
 
         // Reset roll mode and button colors
         _currentRollMode = RollMode.Normal;
-        RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
-        RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+        RollAdvButton.ClearValue(Button.BackgroundProperty);
+        RollDisButton.ClearValue(Button.BackgroundProperty);
     }
 
     private async void RollD4_Click(object sender, RoutedEventArgs e) => await RollDiceAsync("1d4");
@@ -470,7 +470,7 @@ public partial class MainWindow : Window
         {
             // Toggle off
             _currentRollMode = RollMode.Normal;
-            RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            RollAdvButton.ClearValue(Button.BackgroundProperty);
         }
         else
         {
@@ -478,7 +478,7 @@ public partial class MainWindow : Window
             _currentRollMode = RollMode.Advantage;
             RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
             // Turn off disadvantage if it was on
-            RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            RollDisButton.ClearValue(Button.BackgroundProperty);
         }
     }
 
@@ -488,7 +488,7 @@ public partial class MainWindow : Window
         {
             // Toggle off
             _currentRollMode = RollMode.Normal;
-            RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            RollDisButton.ClearValue(Button.BackgroundProperty);
         }
         else
         {
@@ -496,7 +496,7 @@ public partial class MainWindow : Window
             _currentRollMode = RollMode.Disadvantage;
             RollDisButton.Background = new SolidColorBrush(Color.FromRgb(231, 76, 60)); // Red
             // Turn off advantage if it was on
-            RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            RollAdvButton.ClearValue(Button.BackgroundProperty);
         }
     }
 
@@ -538,8 +538,8 @@ public partial class MainWindow : Window
             if (_currentRollMode != RollMode.Normal)
             {
                 _currentRollMode = RollMode.Normal;
-                RollAdvButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
-                RollDisButton.Background = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+                RollAdvButton.ClearValue(Button.BackgroundProperty);
+                RollDisButton.ClearValue(Button.BackgroundProperty);
             }
         }
         catch (Exception ex)
