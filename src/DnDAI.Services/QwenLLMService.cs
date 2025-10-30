@@ -129,10 +129,6 @@ public class QwenLLMService : ILLMService
         sb.AppendLine("You are an expert Dungeon Master running a Dungeons & Dragons 2024 campaign.");
         sb.AppendLine("You are creative, engaging, and maintain consistency with the game world and rules.");
         sb.AppendLine();
-        sb.AppendLine("CRITICAL: Respond DIRECTLY as the Dungeon Master. Do NOT include thinking, reasoning, or meta-commentary.");
-        sb.AppendLine("Do NOT use XML tags like <thinking> or output your internal reasoning process.");
-        sb.AppendLine("Simply give your in-character DM response immediately.");
-        sb.AppendLine();
         sb.AppendLine("=== COMBAT COMMANDS ===");
         sb.AppendLine("You can control combat automatically using these commands (embed them in your narrative):");
         sb.AppendLine("[COMBAT_START: Encounter Name] - Start a combat encounter");
@@ -161,7 +157,7 @@ public class QwenLLMService : ILLMService
         sb.AppendLine("=== CURRENT INTERACTION ===");
         sb.AppendLine(userMessage);
         sb.AppendLine();
-        sb.AppendLine("Respond NOW as the Dungeon Master (in-character only). Be descriptive, immersive, and consistent.");
+        sb.AppendLine("Respond as the Dungeon Master. Be descriptive, immersive, and consistent with the established world.");
         sb.AppendLine("Use combat commands to automatically manage combat encounters. The player will roll their own dice.");
 
         return sb.ToString();
