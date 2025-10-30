@@ -614,6 +614,68 @@ public partial class CharacterSheetWindow : Window
         }
     }
 
+    private async void LevelUp_Click(object sender, RoutedEventArgs e)
+    {
+        // Check if already at max level
+        if (_character.Level >= 20)
+        {
+            MessageBox.Show("Your character is already at maximum level (20)!", "Maximum Level",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var dialog = new LevelUpDialog(_character)
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            // Update character
+            _character.Level = dialog.NewLevel;
+            _character.MaxHitPoints = dialog.NewMaxHP;
+            _character.CurrentHitPoints = dialog.NewMaxHP; // Restore to full on level up
+
+            // Update spell slots
+            _character.SpellSlots1Max = dialog.NewSpellSlots[0];
+            _character.SpellSlots1Current = dialog.NewSpellSlots[0];
+            _character.SpellSlots2Max = dialog.NewSpellSlots[1];
+            _character.SpellSlots2Current = dialog.NewSpellSlots[1];
+            _character.SpellSlots3Max = dialog.NewSpellSlots[2];
+            _character.SpellSlots3Current = dialog.NewSpellSlots[2];
+            _character.SpellSlots4Max = dialog.NewSpellSlots[3];
+            _character.SpellSlots4Current = dialog.NewSpellSlots[3];
+            _character.SpellSlots5Max = dialog.NewSpellSlots[4];
+            _character.SpellSlots5Current = dialog.NewSpellSlots[4];
+            _character.SpellSlots6Max = dialog.NewSpellSlots[5];
+            _character.SpellSlots6Current = dialog.NewSpellSlots[5];
+            _character.SpellSlots7Max = dialog.NewSpellSlots[6];
+            _character.SpellSlots7Current = dialog.NewSpellSlots[6];
+            _character.SpellSlots8Max = dialog.NewSpellSlots[7];
+            _character.SpellSlots8Current = dialog.NewSpellSlots[7];
+            _character.SpellSlots9Max = dialog.NewSpellSlots[8];
+            _character.SpellSlots9Current = dialog.NewSpellSlots[8];
+
+            try
+            {
+                // Save to database
+                await _gameService.UpdatePlayerCharacterAsync(_character);
+
+                // Refresh all character data
+                LoadCharacterData();
+                LoadSpells(); // Reload spells with new slots
+
+                MessageBox.Show($"Congratulations! You are now level {_character.Level}!",
+                    "Level Up Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving level up: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
     private async void Initiative_Click(object sender, RoutedEventArgs e)
     {
         int dexMod = _abilityModifiers.GetValueOrDefault("DEX", 0);

@@ -98,6 +98,10 @@
                             <TextBlock x:Name="ProfText" Text="+2" FontSize="20" FontWeight="Bold"
                                        Foreground="#2ECC71" HorizontalAlignment="Center"/>
                         </StackPanel>
+                        <Button Content="⬆ Level Up" Height="35" Width="110" Margin="20,0,0,0"
+                                Background="#E67E22" Foreground="White" BorderThickness="0"
+                                Click="LevelUp_Click" Cursor="Hand" VerticalAlignment="Center"
+                                FontWeight="Bold"/>
                     </StackPanel>
                 </Grid>
             </Border>
