@@ -37,6 +37,14 @@ public static class FeatureSeeder
         // Add background features
         features.AddRange(GetBackgroundFeatures());
 
+        // Set timestamps for all features
+        var now = DateTime.UtcNow;
+        foreach (var feature in features)
+        {
+            feature.CreatedAt = now;
+            feature.UpdatedAt = now;
+        }
+
         context.Features.AddRange(features);
         context.SaveChanges();
     }
