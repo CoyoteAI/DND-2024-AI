@@ -20,6 +20,8 @@ public class GameService
     private readonly IRepository<CustomWeapon> _customWeaponRepository;
     private readonly IRepository<Spell> _spellRepository;
     private readonly IRepository<PlayerCharacterSpell> _pcSpellRepository;
+    private readonly IRepository<Feature> _featureRepository;
+    private readonly IRepository<CharacterFeature> _characterFeatureRepository;
     private readonly CombatCommandParser _combatCommandParser;
 
     public GameService(
@@ -36,7 +38,9 @@ public class GameService
         IRepository<Quest> questRepository,
         IRepository<CustomWeapon> customWeaponRepository,
         IRepository<Spell> spellRepository,
-        IRepository<PlayerCharacterSpell> pcSpellRepository)
+        IRepository<PlayerCharacterSpell> pcSpellRepository,
+        IRepository<Feature> featureRepository,
+        IRepository<CharacterFeature> characterFeatureRepository)
     {
         _llmService = llmService;
         _diceRoller = diceRoller;
@@ -52,6 +56,8 @@ public class GameService
         _customWeaponRepository = customWeaponRepository;
         _spellRepository = spellRepository;
         _pcSpellRepository = pcSpellRepository;
+        _featureRepository = featureRepository;
+        _characterFeatureRepository = characterFeatureRepository;
         _combatCommandParser = new CombatCommandParser(combatService);
     }
 
@@ -345,5 +351,11 @@ public class GameService
             }
         }
         await _campaignRepository.SaveChangesAsync();
+    }
+
+    // Feature Management
+    public async Task<List<Feature>> GetAllFeaturesAsync()
+    {
+        return (await _featureRepository.GetAllAsync()).ToList();
     }
 }

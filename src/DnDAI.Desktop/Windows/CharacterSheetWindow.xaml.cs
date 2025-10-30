@@ -109,6 +109,9 @@ public partial class CharacterSheetWindow : Window
         // Load skills
         LoadSkills();
 
+        // Load features
+        LoadFeatures();
+
         // Load weapons from equipment
         LoadWeapons();
 
@@ -252,6 +255,144 @@ public partial class CharacterSheetWindow : Window
                 button.Content = $"{indicator}{skillName} ({ability}): {FormatModifier(modifier)}";
             }
         }
+    }
+
+    private async void LoadFeatures()
+    {
+        FeaturesPanel.Children.Clear();
+
+        // Get all features for this character based on class, level, species, and background
+        var allFeatures = await _gameService.GetAllFeaturesAsync();
+
+        // Filter features that this character should have
+        var characterFeatures = allFeatures.Where(f =>
+            (f.Source == Core.Enums.FeatureSource.Class && f.SourceName == _character.Class.ToString() && f.LevelRequirement <= _character.Level) ||
+            (f.Source == Core.Enums.FeatureSource.Species && f.SourceName == _character.Race.ToString()) ||
+            (f.Source == Core.Enums.FeatureSource.Background && f.SourceName == _character.Background)
+        ).ToList();
+
+        if (!characterFeatures.Any())
+        {
+            FeaturesPanel.Children.Add(new TextBlock
+            {
+                Text = "No features available",
+                FontStyle = FontStyles.Italic,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                Margin = new Thickness(5)
+            });
+            return;
+        }
+
+        // Group features by source
+        var groupedFeatures = characterFeatures.GroupBy(f => f.Source)
+            .OrderBy(g => g.Key);
+
+        foreach (var group in groupedFeatures)
+        {
+            // Add source header
+            var sourceHeader = new TextBlock
+            {
+                Text = GetSourceDisplayName(group.Key),
+                FontSize = 13,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(44, 62, 80)),
+                Margin = new Thickness(0, 10, 0, 5)
+            };
+            FeaturesPanel.Children.Add(sourceHeader);
+
+            // Add features from this source
+            foreach (var feature in group.OrderBy(f => f.LevelRequirement).ThenBy(f => f.Name))
+            {
+                var featurePanel = CreateFeaturePanel(feature);
+                FeaturesPanel.Children.Add(featurePanel);
+            }
+        }
+    }
+
+    private Border CreateFeaturePanel(Feature feature)
+    {
+        var border = new Border
+        {
+            Background = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(10),
+            Margin = new Thickness(0, 2, 0, 2)
+        };
+
+        var panel = new StackPanel();
+
+        // Feature name with level requirement and uses
+        var headerPanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+        var nameText = new TextBlock
+        {
+            Text = feature.Name,
+            FontWeight = FontWeights.Bold,
+            FontSize = 12,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        headerPanel.Children.Add(nameText);
+
+        // Show level requirement for class features
+        if (feature.Source == Core.Enums.FeatureSource.Class && feature.LevelRequirement > 1)
+        {
+            var levelText = new TextBlock
+            {
+                Text = $" (Lvl {feature.LevelRequirement})",
+                FontSize = 10,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 0, 0)
+            };
+            headerPanel.Children.Add(levelText);
+        }
+
+        // Show uses information
+        if (feature.MaxUsesPerShortRest.HasValue || feature.MaxUsesPerLongRest.HasValue)
+        {
+            string usesText = feature.MaxUsesPerShortRest.HasValue
+                ? $"  •  {feature.MaxUsesPerShortRest.Value}/short rest"
+                : $"  •  {feature.MaxUsesPerLongRest.Value}/long rest";
+
+            var usesTextBlock = new TextBlock
+            {
+                Text = usesText,
+                FontSize = 10,
+                FontStyle = FontStyles.Italic,
+                Foreground = new SolidColorBrush(Color.FromRgb(41, 128, 185)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 0, 0)
+            };
+            headerPanel.Children.Add(usesTextBlock);
+        }
+
+        panel.Children.Add(headerPanel);
+
+        // Feature description
+        var descText = new TextBlock
+        {
+            Text = feature.Description,
+            FontSize = 11,
+            Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 3, 0, 0)
+        };
+        panel.Children.Add(descText);
+
+        border.Child = panel;
+        return border;
+    }
+
+    private string GetSourceDisplayName(Core.Enums.FeatureSource source)
+    {
+        return source switch
+        {
+            Core.Enums.FeatureSource.Class => $"{_character.Class} Features",
+            Core.Enums.FeatureSource.Species => $"{_character.Race} Traits",
+            Core.Enums.FeatureSource.Background => $"{_character.Background} Background",
+            Core.Enums.FeatureSource.Subclass => $"{SubclassHelper.GetFriendlyName(_character.Subclass)} Features",
+            _ => "Other Features"
+        };
     }
 
     private void LoadWeapons()
