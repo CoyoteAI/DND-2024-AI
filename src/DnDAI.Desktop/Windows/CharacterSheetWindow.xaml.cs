@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using DnDAI.Core.Models;
 using DnDAI.Services;
@@ -30,7 +31,45 @@ public partial class CharacterSheetWindow : Window
         _sessionId = sessionId;
         _onRollCallback = onRollCallback ?? ((purpose, result) => { });
 
+        // Attach mouse wheel handler to all child controls
+        Loaded += (s, e) =>
+        {
+            // Recursively attach handlers to all controls that might capture mouse wheel
+            AttachMouseWheelToChildren(MainScrollViewer);
+
+            // Also attach to the ScrollViewer itself
+            MainScrollViewer.PreviewMouseWheel += InterceptMouseWheel;
+        };
+
         LoadCharacterData();
+    }
+
+    private void AttachMouseWheelToChildren(DependencyObject parent)
+    {
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+
+            // Attach handler to this child if it's a UIElement
+            if (child is UIElement element)
+            {
+                element.PreviewMouseWheel += InterceptMouseWheel;
+            }
+
+            // Recursively process children
+            AttachMouseWheelToChildren(child);
+        }
+    }
+
+    private void InterceptMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        // Calculate new offset
+        double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
+        MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
+
+        // Mark as handled to prevent child controls from processing it
+        e.Handled = true;
     }
 
     private void LoadCharacterData()
