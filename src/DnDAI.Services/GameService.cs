@@ -262,7 +262,7 @@ public class GameService
     {
         var weapon = await _customWeaponRepository.GetByIdAsync(weaponId);
         if (weapon == null) return false;
-        await _customWeaponRepository.DeleteAsync(weapon);
+        await _customWeaponRepository.DeleteAsync(weaponId);
         return true;
     }
 
