@@ -70,11 +70,11 @@ public partial class App : Application
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
 
-        // Ensure database is created
+        // Ensure database is created and apply manual migrations
         using (var scope = _host.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<DnDContext>();
-            dbContext.Database.EnsureCreated();
+            DatabaseMigrationHelper.ApplyManualMigrations(dbContext);
         }
     }
 

@@ -168,6 +168,12 @@ public partial class CharacterSheetWindow : Window
             .Where(b => b.Tag?.ToString()?.Contains('|') == true)
             .ToList();
 
+        // Parse skill proficiencies and expertise
+        var proficientSkills = _character.SkillProficiencies?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim()).ToHashSet() ?? new HashSet<string>();
+        var expertiseSkills = _character.SkillExpertise?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim()).ToHashSet() ?? new HashSet<string>();
+
         foreach (var button in skillButtons)
         {
             string tag = button.Tag.ToString() ?? "";
@@ -177,8 +183,24 @@ public partial class CharacterSheetWindow : Window
                 string skillName = parts[0];
                 string ability = parts[1];
                 int modifier = _abilityModifiers.GetValueOrDefault(ability, 0);
-                // TODO: Add proficiency bonus if character is proficient in this skill
-                button.Content = $"{skillName} ({ability}): {FormatModifier(modifier)}";
+
+                // Add proficiency bonus if proficient
+                if (proficientSkills.Contains(skillName))
+                {
+                    modifier += _proficiencyBonus;
+                }
+
+                // Add proficiency bonus again if expertise
+                if (expertiseSkills.Contains(skillName))
+                {
+                    modifier += _proficiencyBonus;
+                }
+
+                // Show proficiency indicator
+                string indicator = expertiseSkills.Contains(skillName) ? "★★ " :
+                                   proficientSkills.Contains(skillName) ? "★ " : "";
+
+                button.Content = $"{indicator}{skillName} ({ability}): {FormatModifier(modifier)}";
             }
         }
     }
@@ -446,9 +468,58 @@ public partial class CharacterSheetWindow : Window
         string skillName = parts[0];
         string ability = parts[1];
         int modifier = _abilityModifiers.GetValueOrDefault(ability, 0);
-        // TODO: Add proficiency if proficient in this skill
+
+        // Parse skill proficiencies and expertise
+        var proficientSkills = _character.SkillProficiencies?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim()).ToHashSet() ?? new HashSet<string>();
+        var expertiseSkills = _character.SkillExpertise?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim()).ToHashSet() ?? new HashSet<string>();
+
+        // Add proficiency bonus if proficient
+        if (proficientSkills.Contains(skillName))
+        {
+            modifier += _proficiencyBonus;
+        }
+
+        // Add proficiency bonus again if expertise
+        if (expertiseSkills.Contains(skillName))
+        {
+            modifier += _proficiencyBonus;
+        }
 
         await RollD20WithModifier($"{skillName} Check", modifier);
+    }
+
+    private async void ManageSkills_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SkillProficiencyDialog(_character.SkillProficiencies, _character.SkillExpertise)
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            // Update character's skill proficiencies
+            _character.SkillProficiencies = dialog.SkillProficiencies;
+            _character.SkillExpertise = dialog.SkillExpertise;
+
+            try
+            {
+                // Save to database
+                await _gameService.UpdatePlayerCharacterAsync(_character);
+
+                // Refresh skill display
+                LoadSkills();
+
+                MessageBox.Show("Skill proficiencies updated successfully!", "Success",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating skill proficiencies: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     private async void Initiative_Click(object sender, RoutedEventArgs e)

@@ -33,6 +33,10 @@ public class PlayerCharacter : BaseEntity
     public string Inventory { get; set; } = string.Empty;
     public int Gold { get; set; } = 0;
 
+    // Skills (comma-separated lists of skill names)
+    public string SkillProficiencies { get; set; } = string.Empty;
+    public string SkillExpertise { get; set; } = string.Empty;
+
     // Spell Slots (for spellcasters)
     public int SpellSlots1Current { get; set; } = 0;
     public int SpellSlots1Max { get; set; } = 0;

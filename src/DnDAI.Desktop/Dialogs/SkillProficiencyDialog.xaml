@@ -1,0 +1,35 @@
+<Window x:Class="DnDAI.Desktop.Dialogs.SkillProficiencyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manage Skill Proficiencies" Height="600" Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Instructions -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="Select Skill Proficiencies and Expertise" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+            <TextBlock Text="Check once for proficiency, twice for expertise" FontSize="11" Foreground="#7F8C8D" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- Skills List -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="SkillsPanel">
+                <!-- Skills will be added dynamically -->
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Save" Width="80" Height="30" Margin="0,0,10,0"
+                    Background="#27AE60" Foreground="White" BorderThickness="0" Click="Save_Click"/>
+            <Button Content="Cancel" Width="80" Height="30"
+                    Background="#95A5A6" Foreground="White" BorderThickness="0" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

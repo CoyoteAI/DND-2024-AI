@@ -255,6 +255,11 @@ public class GameService
         return playerCharacter;
     }
 
+    public async Task UpdatePlayerCharacterAsync(PlayerCharacter playerCharacter)
+    {
+        await _playerCharacterRepository.UpdateAsync(playerCharacter);
+    }
+
     // Custom Weapon Management
     public async Task<CustomWeapon> AddCustomWeaponAsync(int playerCharacterId, CustomWeapon weapon)
     {
