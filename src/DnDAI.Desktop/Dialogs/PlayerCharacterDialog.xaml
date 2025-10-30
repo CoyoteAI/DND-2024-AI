@@ -108,7 +108,7 @@
             </GroupBox>
 
             <!-- Equipment -->
-            <GroupBox Grid.Row="4" Header="Equipment & Inventory" Padding="10" Margin="0,0,0,10">
+            <GroupBox Grid.Row="4" Header="Equipment &amp; Inventory" Padding="10" Margin="0,0,0,10">
                 <StackPanel>
                     <TextBlock Text="Equipment:" FontWeight="Bold" Margin="0,0,0,5"/>
                     <TextBox x:Name="EquipmentTextBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
