@@ -75,6 +75,9 @@ public partial class App : Application
 
             // Seed features (only happens first time when database is empty)
             FeatureSeeder.SeedFeatures(dbContext);
+
+            // Seed equipment (only happens first time when database is empty)
+            EquipmentSeeder.SeedEquipment(dbContext);
         }
 
         // Start Ollama service if configured
