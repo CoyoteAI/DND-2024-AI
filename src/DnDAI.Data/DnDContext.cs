@@ -24,6 +24,8 @@ public class DnDContext : DbContext
     public DbSet<WeaponAbility> WeaponAbilities { get; set; }
     public DbSet<Spell> Spells { get; set; }
     public DbSet<PlayerCharacterSpell> PlayerCharacterSpells { get; set; }
+    public DbSet<Feature> Features { get; set; }
+    public DbSet<CharacterFeature> CharacterFeatures { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

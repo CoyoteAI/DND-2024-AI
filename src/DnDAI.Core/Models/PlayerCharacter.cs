@@ -67,4 +67,5 @@ public class PlayerCharacter : BaseEntity
     public ICollection<Event> Events { get; set; } = new List<Event>();
     public ICollection<CustomWeapon> CustomWeapons { get; set; } = new List<CustomWeapon>();
     public ICollection<PlayerCharacterSpell> PlayerCharacterSpells { get; set; } = new List<PlayerCharacterSpell>();
+    public ICollection<CharacterFeature> CharacterFeatures { get; set; } = new List<CharacterFeature>();
 }
