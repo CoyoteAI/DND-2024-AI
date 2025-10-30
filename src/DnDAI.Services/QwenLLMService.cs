@@ -45,17 +45,60 @@ public class QwenLLMService : ILLMService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Sending request to: {_settings.ApiUrl}/api/generate");
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Model: {_settings.ModelName}");
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Prompt length: {fullPrompt.Length} characters");
+
             var response = await _httpClient.PostAsync($"{_settings.ApiUrl}/api/generate", content);
-            response.EnsureSuccessStatusCode();
+
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Response status: {response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[Qwen] Error response: {errorContent}");
+                return $"Ollama API Error ({response.StatusCode}): {errorContent}";
+            }
 
             var responseJson = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Response length: {responseJson.Length} characters");
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Raw response: {responseJson.Substring(0, Math.Min(500, responseJson.Length))}...");
+
             var qwenResponse = JsonConvert.DeserializeObject<QwenResponse>(responseJson);
 
-            return qwenResponse?.Response ?? "I apologize, but I couldn't generate a response.";
+            if (qwenResponse == null)
+            {
+                System.Diagnostics.Debug.WriteLine("[Qwen] Failed to deserialize response");
+                return "Error: Failed to parse Ollama response. Check the debug output.";
+            }
+
+            if (string.IsNullOrEmpty(qwenResponse.Response))
+            {
+                System.Diagnostics.Debug.WriteLine("[Qwen] Response field is empty");
+                return "Error: Ollama returned an empty response. This might mean:\n" +
+                       "1. The model name is incorrect (check 'ollama list')\n" +
+                       "2. The model needs to be pulled (run 'ollama pull " + _settings.ModelName + "')\n" +
+                       "3. Ollama is having issues generating content";
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Success! Response length: {qwenResponse.Response.Length} characters");
+            return qwenResponse.Response;
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Qwen] HTTP Error: {ex.Message}");
+            return $"Connection Error: Cannot reach Ollama at {_settings.ApiUrl}. Make sure Ollama is running.\n\nDetails: {ex.Message}";
+        }
+        catch (TaskCanceledException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Timeout: {ex.Message}");
+            return $"Timeout Error: Ollama took longer than {_settings.TimeoutSeconds} seconds to respond. The prompt might be too long or the model is slow.";
         }
         catch (Exception ex)
         {
-            return $"Error communicating with Qwen: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Unexpected error: {ex.GetType().Name} - {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[Qwen] Stack trace: {ex.StackTrace}");
+            return $"Unexpected Error: {ex.GetType().Name}\n{ex.Message}\n\nCheck the debug output window for details.";
         }
     }
 
