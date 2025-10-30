@@ -20,6 +20,8 @@ public class DnDContext : DbContext
     public DbSet<CombatEncounter> CombatEncounters { get; set; }
     public DbSet<Combatant> Combatants { get; set; }
     public DbSet<StatusEffect> StatusEffects { get; set; }
+    public DbSet<CustomWeapon> CustomWeapons { get; set; }
+    public DbSet<WeaponAbility> WeaponAbilities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -207,6 +209,38 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.Combatant)
                 .WithMany(c => c.StatusEffects)
                 .HasForeignKey(e => e.CombatantId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // CustomWeapon configuration
+        modelBuilder.Entity<CustomWeapon>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.BaseWeaponType).HasMaxLength(100);
+            entity.Property(e => e.DamageDice).HasMaxLength(50);
+            entity.Property(e => e.VersatileDamageDice).HasMaxLength(50);
+
+            entity.HasOne(e => e.PlayerCharacter)
+                .WithMany()
+                .HasForeignKey(e => e.PlayerCharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // WeaponAbility configuration
+        modelBuilder.Entity<WeaponAbility>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.DiceRoll).HasMaxLength(50);
+            entity.Property(e => e.DamageType).HasMaxLength(50);
+            entity.Property(e => e.UsageLimit).HasMaxLength(100);
+            entity.Property(e => e.ActionType).HasMaxLength(50);
+
+            entity.HasOne(e => e.CustomWeapon)
+                .WithMany(w => w.SpecialAbilities)
+                .HasForeignKey(e => e.CustomWeaponId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
