@@ -224,7 +224,7 @@
                             </Grid>
 
                             <!-- Features -->
-                            <TextBlock Text="Features & Abilities" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
+                            <TextBlock Text="Features &amp; Abilities" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
                             <TextBlock Text="Class, species, and background features" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,5"/>
                             <StackPanel x:Name="FeaturesPanel">
                                 <!-- Features will be added dynamically -->
