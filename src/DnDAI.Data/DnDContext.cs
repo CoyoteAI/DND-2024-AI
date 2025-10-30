@@ -26,6 +26,8 @@ public class DnDContext : DbContext
     public DbSet<PlayerCharacterSpell> PlayerCharacterSpells { get; set; }
     public DbSet<Feature> Features { get; set; }
     public DbSet<CharacterFeature> CharacterFeatures { get; set; }
+    public DbSet<Equipment> Equipment { get; set; }
+    public DbSet<CharacterEquipment> CharacterEquipment { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -308,6 +310,35 @@ public class DnDContext : DbContext
 
             // Prevent duplicate spell entries for same character
             entity.HasIndex(e => new { e.PlayerCharacterId, e.SpellId }).IsUnique();
+        });
+
+        // Equipment configuration
+        modelBuilder.Entity<Equipment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(2000);
+            entity.Property(e => e.CostInGold).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Weight).HasColumnType("decimal(10,2)");
+        });
+
+        // CharacterEquipment configuration
+        modelBuilder.Entity<CharacterEquipment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.PlayerCharacter)
+                .WithMany(pc => pc.CharacterEquipment)
+                .HasForeignKey(e => e.PlayerCharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Equipment)
+                .WithMany(eq => eq.CharacterEquipment)
+                .HasForeignKey(e => e.EquipmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Prevent duplicate equipment entries for same character
+            entity.HasIndex(e => new { e.PlayerCharacterId, e.EquipmentId }).IsUnique();
         });
     }
 }
