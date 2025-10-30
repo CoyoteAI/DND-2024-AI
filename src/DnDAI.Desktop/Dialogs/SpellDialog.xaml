@@ -1,0 +1,217 @@
+<Window x:Class="DnDAI.Desktop.Dialogs.SpellDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Spell" Height="700" Width="600"
+        Background="#ECF0F1" WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <Border Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Text="Add/Create Spell"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="#2C3E50" Margin="0,0,0,15"/>
+
+            <!-- Form -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Spell Name -->
+                    <TextBlock Text="Spell Name *" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="NameTextBox" Height="30" Padding="5" Margin="0,0,0,15"/>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Level *" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="LevelComboBox" Height="30">
+                                <ComboBoxItem Content="Cantrip (0)" Tag="0" IsSelected="True"/>
+                                <ComboBoxItem Content="1st Level" Tag="1"/>
+                                <ComboBoxItem Content="2nd Level" Tag="2"/>
+                                <ComboBoxItem Content="3rd Level" Tag="3"/>
+                                <ComboBoxItem Content="4th Level" Tag="4"/>
+                                <ComboBoxItem Content="5th Level" Tag="5"/>
+                                <ComboBoxItem Content="6th Level" Tag="6"/>
+                                <ComboBoxItem Content="7th Level" Tag="7"/>
+                                <ComboBoxItem Content="8th Level" Tag="8"/>
+                                <ComboBoxItem Content="9th Level" Tag="9"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="School *" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="SchoolComboBox" Height="30">
+                                <ComboBoxItem Content="Abjuration" IsSelected="True"/>
+                                <ComboBoxItem Content="Conjuration"/>
+                                <ComboBoxItem Content="Divination"/>
+                                <ComboBoxItem Content="Enchantment"/>
+                                <ComboBoxItem Content="Evocation"/>
+                                <ComboBoxItem Content="Illusion"/>
+                                <ComboBoxItem Content="Necromancy"/>
+                                <ComboBoxItem Content="Transmutation"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Casting Time" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="CastingTimeComboBox" Height="30" IsEditable="True" Text="1 action">
+                                <ComboBoxItem Content="1 action"/>
+                                <ComboBoxItem Content="1 bonus action"/>
+                                <ComboBoxItem Content="1 reaction"/>
+                                <ComboBoxItem Content="1 minute"/>
+                                <ComboBoxItem Content="10 minutes"/>
+                                <ComboBoxItem Content="1 hour"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Range" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="RangeComboBox" Height="30" IsEditable="True" Text="Self">
+                                <ComboBoxItem Content="Self"/>
+                                <ComboBoxItem Content="Touch"/>
+                                <ComboBoxItem Content="30 feet"/>
+                                <ComboBoxItem Content="60 feet"/>
+                                <ComboBoxItem Content="90 feet"/>
+                                <ComboBoxItem Content="120 feet"/>
+                                <ComboBoxItem Content="150 feet"/>
+                                <ComboBoxItem Content="1 mile"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Components -->
+                    <TextBlock Text="Components" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <CheckBox x:Name="VerbalCheckBox" Content="V" Margin="0,0,15,0" IsChecked="True"/>
+                        <CheckBox x:Name="SomaticCheckBox" Content="S" Margin="0,0,15,0" IsChecked="True"/>
+                        <CheckBox x:Name="MaterialCheckBox" Content="M" Checked="MaterialCheckBox_Checked" Unchecked="MaterialCheckBox_Unchecked"/>
+                    </StackPanel>
+                    <TextBox x:Name="MaterialTextBox" Height="30" Padding="5" Margin="0,0,0,15"
+                             Visibility="Collapsed" Text="(material components)"/>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Duration" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="DurationComboBox" Height="30" IsEditable="True" Text="Instantaneous">
+                                <ComboBoxItem Content="Instantaneous"/>
+                                <ComboBoxItem Content="1 round"/>
+                                <ComboBoxItem Content="1 minute"/>
+                                <ComboBoxItem Content="10 minutes"/>
+                                <ComboBoxItem Content="1 hour"/>
+                                <ComboBoxItem Content="8 hours"/>
+                                <ComboBoxItem Content="24 hours"/>
+                                <ComboBoxItem Content="Until dispelled"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Flags" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <StackPanel>
+                                <CheckBox x:Name="ConcentrationCheckBox" Content="Concentration"/>
+                                <CheckBox x:Name="RitualCheckBox" Content="Ritual"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Description -->
+                    <TextBlock Text="Description *" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="DescriptionTextBox" Height="80" TextWrapping="Wrap"
+                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="5" Margin="0,0,0,15"/>
+
+                    <!-- Combat Properties -->
+                    <TextBlock Text="Combat Properties (Optional)" FontWeight="Bold" Margin="0,10,0,5"/>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Damage Dice" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBox x:Name="DamageDiceTextBox" Height="30" Padding="5"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Damage Type" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="DamageTypeComboBox" Height="30">
+                                <ComboBoxItem Content="(None)" IsSelected="True"/>
+                                <ComboBoxItem Content="fire"/>
+                                <ComboBoxItem Content="cold"/>
+                                <ComboBoxItem Content="lightning"/>
+                                <ComboBoxItem Content="thunder"/>
+                                <ComboBoxItem Content="acid"/>
+                                <ComboBoxItem Content="poison"/>
+                                <ComboBoxItem Content="force"/>
+                                <ComboBoxItem Content="necrotic"/>
+                                <ComboBoxItem Content="radiant"/>
+                                <ComboBoxItem Content="psychic"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Attack Type" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="AttackTypeComboBox" Height="30">
+                                <ComboBoxItem Content="(None)" IsSelected="True"/>
+                                <ComboBoxItem Content="melee spell attack"/>
+                                <ComboBoxItem Content="ranged spell attack"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Save Type" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <ComboBox x:Name="SaveTypeComboBox" Height="30">
+                                <ComboBoxItem Content="(None)" IsSelected="True"/>
+                                <ComboBoxItem Content="STR"/>
+                                <ComboBoxItem Content="DEX"/>
+                                <ComboBoxItem Content="CON"/>
+                                <ComboBoxItem Content="INT"/>
+                                <ComboBoxItem Content="WIS"/>
+                                <ComboBoxItem Content="CHA"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button Content="Cancel" Width="100" Height="35" Margin="0,0,10,0" Click="Cancel_Click"/>
+                <Button Content="Add Spell" Width="120" Height="35"
+                        Background="#27AE60" Foreground="White" BorderThickness="0" Click="Save_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

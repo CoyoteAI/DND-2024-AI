@@ -61,6 +61,9 @@ public partial class CharacterSheetWindow : Window
         // Load weapons from equipment
         LoadWeapons();
 
+        // Load spells
+        LoadSpells();
+
         // Update initiative
         InitiativeText.Text = $"Roll Initiative: {FormatModifier(dexMod)}";
     }
@@ -772,6 +775,493 @@ public partial class CharacterSheetWindow : Window
         {
             MessageBox.Show($"Error rolling dice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    // Spell System Methods
+    private void LoadSpells()
+    {
+        // Check if character has any spell slots or known spells
+        bool hasSpellSlots = HasAnySpellSlots();
+        bool hasSpells = _character.PlayerCharacterSpells?.Any() == true;
+
+        if (!hasSpellSlots && !hasSpells)
+        {
+            SpellcastingSection.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        SpellcastingSection.Visibility = Visibility.Visible;
+
+        // Load spell slots
+        LoadSpellSlots();
+
+        // Load learned spells
+        LoadLearnedSpells();
+    }
+
+    private bool HasAnySpellSlots()
+    {
+        return _character.SpellSlots1Max > 0 ||
+               _character.SpellSlots2Max > 0 ||
+               _character.SpellSlots3Max > 0 ||
+               _character.SpellSlots4Max > 0 ||
+               _character.SpellSlots5Max > 0 ||
+               _character.SpellSlots6Max > 0 ||
+               _character.SpellSlots7Max > 0 ||
+               _character.SpellSlots8Max > 0 ||
+               _character.SpellSlots9Max > 0;
+    }
+
+    private void LoadSpellSlots()
+    {
+        SpellSlotsPanel.Children.Clear();
+
+        for (int level = 1; level <= 9; level++)
+        {
+            var currentProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Current");
+            var maxProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Max");
+
+            if (currentProp != null && maxProp != null)
+            {
+                int current = (int)(currentProp.GetValue(_character) ?? 0);
+                int max = (int)(maxProp.GetValue(_character) ?? 0);
+
+                if (max > 0)
+                {
+                    var slotPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(0, 2, 0, 2)
+                    };
+
+                    var levelText = new TextBlock
+                    {
+                        Text = $"Level {level}:",
+                        Width = 60,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        FontSize = 11
+                    };
+                    slotPanel.Children.Add(levelText);
+
+                    // Slot circles
+                    for (int i = 0; i < max; i++)
+                    {
+                        var circle = new System.Windows.Shapes.Ellipse
+                        {
+                            Width = 16,
+                            Height = 16,
+                            Margin = new Thickness(2, 0, 2, 0),
+                            Stroke = Brushes.Gray,
+                            StrokeThickness = 2,
+                            Fill = i < current
+                                ? new SolidColorBrush(Color.FromRgb(155, 89, 182))
+                                : Brushes.Transparent
+                        };
+                        slotPanel.Children.Add(circle);
+                    }
+
+                    var countText = new TextBlock
+                    {
+                        Text = $" {current}/{max}",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        FontSize = 11,
+                        Margin = new Thickness(5, 0, 0, 0),
+                        Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141))
+                    };
+                    slotPanel.Children.Add(countText);
+
+                    SpellSlotsPanel.Children.Add(slotPanel);
+                }
+            }
+        }
+    }
+
+    private void LoadLearnedSpells()
+    {
+        SpellsPanel.Children.Clear();
+
+        if (_character.PlayerCharacterSpells == null || !_character.PlayerCharacterSpells.Any())
+        {
+            SpellsPanel.Children.Add(new TextBlock
+            {
+                Text = "No spells learned",
+                FontStyle = FontStyles.Italic,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                Margin = new Thickness(5)
+            });
+            return;
+        }
+
+        // Group spells by level
+        var spellsByLevel = _character.PlayerCharacterSpells
+            .OrderBy(pcs => pcs.Spell.Level)
+            .ThenBy(pcs => pcs.Spell.Name)
+            .GroupBy(pcs => pcs.Spell.Level);
+
+        foreach (var levelGroup in spellsByLevel)
+        {
+            int level = levelGroup.Key;
+            string levelHeader = level == 0 ? "Cantrips" : $"Level {level} Spells";
+
+            var headerText = new TextBlock
+            {
+                Text = levelHeader,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
+                Margin = new Thickness(0, 10, 0, 5)
+            };
+            SpellsPanel.Children.Add(headerText);
+
+            foreach (var pcSpell in levelGroup)
+            {
+                AddSpellDisplay(pcSpell);
+            }
+        }
+    }
+
+    private void AddSpellDisplay(PlayerCharacterSpell pcSpell)
+    {
+        var spell = pcSpell.Spell;
+
+        var spellPanel = new Border
+        {
+            Background = new SolidColorBrush(Color.FromRgb(250, 250, 255)),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(8),
+            Margin = new Thickness(0, 2, 0, 2)
+        };
+
+        var content = new StackPanel();
+
+        // Spell name and components
+        var headerPanel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal
+        };
+
+        var nameText = new TextBlock
+        {
+            Text = spell.Name,
+            FontWeight = FontWeights.Bold,
+            FontSize = 12,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        headerPanel.Children.Add(nameText);
+
+        // Components indicator
+        var components = new List<string>();
+        if (spell.HasVerbal) components.Add("V");
+        if (spell.HasSomatic) components.Add("S");
+        if (spell.HasMaterial) components.Add("M");
+
+        if (components.Any())
+        {
+            var compText = new TextBlock
+            {
+                Text = $" ({string.Join(", ", components)})",
+                FontSize = 10,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 0, 0)
+            };
+            headerPanel.Children.Add(compText);
+        }
+
+        // Concentration and Ritual indicators
+        if (spell.RequiresConcentration)
+        {
+            var concText = new TextBlock
+            {
+                Text = " [C]",
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(230, 126, 34)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(3, 0, 0, 0)
+            };
+            headerPanel.Children.Add(concText);
+        }
+
+        if (spell.IsRitual)
+        {
+            var ritualText = new TextBlock
+            {
+                Text = " [R]",
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(3, 0, 0, 0)
+            };
+            headerPanel.Children.Add(ritualText);
+        }
+
+        content.Children.Add(headerPanel);
+
+        // Spell details (school, range, casting time)
+        var detailsText = new TextBlock
+        {
+            Text = $"{spell.School} • {spell.Range} • {spell.CastingTime}",
+            FontSize = 10,
+            Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+            Margin = new Thickness(0, 2, 0, 5)
+        };
+        content.Children.Add(detailsText);
+
+        // Action buttons
+        var buttonPanel = new WrapPanel
+        {
+            Orientation = Orientation.Horizontal
+        };
+
+        // Cast button
+        var castButton = new Button
+        {
+            Content = spell.Level == 0 ? "Cast Cantrip" : $"Cast (Level {spell.Level})",
+            Height = 26,
+            Margin = new Thickness(0, 0, 5, 0),
+            Background = new SolidColorBrush(Color.FromRgb(155, 89, 182)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Padding = new Thickness(10, 3, 10, 3),
+            Tag = pcSpell
+        };
+        castButton.Click += CastSpell_Click;
+        buttonPanel.Children.Add(castButton);
+
+        // Info button
+        var infoButton = new Button
+        {
+            Content = "ℹ️ Info",
+            Height = 26,
+            Margin = new Thickness(0, 0, 5, 0),
+            Background = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Padding = new Thickness(8, 3, 8, 3),
+            Tag = spell
+        };
+        infoButton.Click += SpellInfo_Click;
+        buttonPanel.Children.Add(infoButton);
+
+        content.Children.Add(buttonPanel);
+
+        spellPanel.Child = content;
+        SpellsPanel.Children.Add(spellPanel);
+    }
+
+    private async void CastSpell_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not PlayerCharacterSpell pcSpell)
+            return;
+
+        var spell = pcSpell.Spell;
+
+        // Check and consume spell slot (if not a cantrip)
+        if (spell.Level > 0)
+        {
+            var currentProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{spell.Level}Current");
+            int current = (int)(currentProp?.GetValue(_character) ?? 0);
+
+            if (current <= 0)
+            {
+                MessageBox.Show($"No level {spell.Level} spell slots remaining!",
+                    "Cannot Cast Spell", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Consume spell slot
+            bool success = await _gameService.UseSpellSlotAsync(_character.Id, spell.Level);
+            if (success)
+            {
+                currentProp?.SetValue(_character, current - 1);
+                LoadSpellSlots(); // Refresh display
+            }
+        }
+
+        // Handle different spell types
+        if (!string.IsNullOrWhiteSpace(spell.AttackType))
+        {
+            // Spell attack roll
+            int spellcastingMod = GetSpellcastingModifier();
+            int attackBonus = spellcastingMod + _proficiencyBonus;
+            await RollD20WithModifier($"{spell.Name} Spell Attack", attackBonus);
+        }
+
+        // Roll damage if applicable
+        if (!string.IsNullOrWhiteSpace(spell.DamageDice))
+        {
+            int spellcastingMod = GetSpellcastingModifier();
+            string expression = spell.DamageDice;
+
+            // Some spells add spellcasting modifier to damage
+            if (spell.Level == 0 || spell.Name.Contains("Magic Missile"))
+            {
+                expression = spellcastingMod > 0
+                    ? $"{spell.DamageDice}+{spellcastingMod}"
+                    : spell.DamageDice;
+            }
+
+            string damageType = !string.IsNullOrWhiteSpace(spell.DamageType)
+                ? $" {spell.DamageType}"
+                : "";
+            await RollDice($"{spell.Name} Damage{damageType}", expression);
+        }
+
+        // Show save DC if applicable
+        if (!string.IsNullOrWhiteSpace(spell.SaveType))
+        {
+            int spellcastingMod = GetSpellcastingModifier();
+            int saveDC = 8 + _proficiencyBonus + spellcastingMod;
+            MessageBox.Show($"{spell.Name}\n\nTarget must make a DC {saveDC} {spell.SaveType} saving throw.",
+                "Spell Cast", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // If spell has no attack, damage, or save, just show it was cast
+        if (string.IsNullOrWhiteSpace(spell.AttackType) &&
+            string.IsNullOrWhiteSpace(spell.DamageDice) &&
+            string.IsNullOrWhiteSpace(spell.SaveType))
+        {
+            MessageBox.Show($"You cast {spell.Name}!\n\n{spell.Description}",
+                "Spell Cast", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    private void SpellInfo_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not Spell spell)
+            return;
+
+        var components = new List<string>();
+        if (spell.HasVerbal) components.Add("V");
+        if (spell.HasSomatic) components.Add("S");
+        if (spell.HasMaterial)
+        {
+            string matComp = !string.IsNullOrWhiteSpace(spell.MaterialComponents)
+                ? $"M ({spell.MaterialComponents})"
+                : "M";
+            components.Add(matComp);
+        }
+
+        string info = $"{spell.Name}\n";
+        info += $"Level {spell.Level} {spell.School}\n\n";
+        info += $"Casting Time: {spell.CastingTime}\n";
+        info += $"Range: {spell.Range}\n";
+        info += $"Components: {string.Join(", ", components)}\n";
+        info += $"Duration: {spell.Duration}\n";
+        if (spell.RequiresConcentration) info += "Concentration: Yes\n";
+        if (spell.IsRitual) info += "Ritual: Yes\n";
+        info += $"\n{spell.Description}";
+
+        if (!string.IsNullOrWhiteSpace(spell.AtHigherLevels))
+        {
+            info += $"\n\nAt Higher Levels: {spell.AtHigherLevels}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(spell.DamageDice))
+        {
+            info += $"\n\nDamage: {spell.DamageDice}";
+            if (!string.IsNullOrWhiteSpace(spell.DamageType))
+                info += $" {spell.DamageType}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(spell.SaveType))
+        {
+            int spellcastingMod = GetSpellcastingModifier();
+            int saveDC = 8 + _proficiencyBonus + spellcastingMod;
+            info += $"\n\nSave: DC {saveDC} {spell.SaveType}";
+        }
+
+        MessageBox.Show(info, spell.Name, MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private async void LearnSpell_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SpellDialog
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() == true && dialog.Spell != null)
+        {
+            try
+            {
+                // Save spell and link to character
+                var createdSpell = await _gameService.CreateSpellAsync(dialog.Spell);
+                await _gameService.LearnSpellAsync(_character.Id, createdSpell.Id, isPrepared: true);
+
+                MessageBox.Show($"Spell '{createdSpell.Name}' learned successfully!",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reload character and spells
+                var updatedCharacter = await _gameService.GetCampaignAsync(_character.CampaignId);
+                var updatedPC = updatedCharacter?.PlayerCharacters.FirstOrDefault(pc => pc.Id == _character.Id);
+                if (updatedPC != null)
+                {
+                    _character.PlayerCharacterSpells.Clear();
+                    foreach (var pcSpell in updatedPC.PlayerCharacterSpells)
+                    {
+                        _character.PlayerCharacterSpells.Add(pcSpell);
+                    }
+                    LoadSpells();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error learning spell: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private async void RestoreSpellSlots_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await _gameService.RestoreSpellSlotsAsync(_character.Id);
+
+            // Update local character object
+            for (int level = 1; level <= 9; level++)
+            {
+                var currentProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Current");
+                var maxProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Max");
+
+                if (currentProp != null && maxProp != null)
+                {
+                    int max = (int)(maxProp.GetValue(_character) ?? 0);
+                    currentProp.SetValue(_character, max);
+                }
+            }
+
+            LoadSpellSlots();
+
+            MessageBox.Show("All spell slots restored!",
+                "Long Rest", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error restoring spell slots: {ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private int GetSpellcastingModifier()
+    {
+        // Determine spellcasting ability based on class
+        string classLower = _character.Class?.ToLower() ?? "";
+
+        if (classLower.Contains("wizard") || classLower.Contains("artificer"))
+            return _abilityModifiers.GetValueOrDefault("INT", 0);
+        else if (classLower.Contains("cleric") || classLower.Contains("druid") || classLower.Contains("ranger"))
+            return _abilityModifiers.GetValueOrDefault("WIS", 0);
+        else if (classLower.Contains("bard") || classLower.Contains("sorcerer") || classLower.Contains("warlock") || classLower.Contains("paladin"))
+            return _abilityModifiers.GetValueOrDefault("CHA", 0);
+
+        // Default to INT if class not recognized
+        return _abilityModifiers.GetValueOrDefault("INT", 0);
     }
 
     // Helper method to find child controls

@@ -22,6 +22,8 @@ public class DnDContext : DbContext
     public DbSet<StatusEffect> StatusEffects { get; set; }
     public DbSet<CustomWeapon> CustomWeapons { get; set; }
     public DbSet<WeaponAbility> WeaponAbilities { get; set; }
+    public DbSet<Spell> Spells { get; set; }
+    public DbSet<PlayerCharacterSpell> PlayerCharacterSpells { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -242,6 +244,41 @@ public class DnDContext : DbContext
                 .WithMany(w => w.SpecialAbilities)
                 .HasForeignKey(e => e.CustomWeaponId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Spell configuration
+        modelBuilder.Entity<Spell>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.School).HasMaxLength(50);
+            entity.Property(e => e.CastingTime).HasMaxLength(100);
+            entity.Property(e => e.Range).HasMaxLength(100);
+            entity.Property(e => e.Duration).HasMaxLength(100);
+            entity.Property(e => e.MaterialComponents).HasMaxLength(500);
+            entity.Property(e => e.DamageType).HasMaxLength(50);
+            entity.Property(e => e.SaveType).HasMaxLength(50);
+            entity.Property(e => e.AttackType).HasMaxLength(50);
+            entity.Property(e => e.Source).HasMaxLength(100);
+        });
+
+        // PlayerCharacterSpell configuration
+        modelBuilder.Entity<PlayerCharacterSpell>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.PlayerCharacter)
+                .WithMany(pc => pc.PlayerCharacterSpells)
+                .HasForeignKey(e => e.PlayerCharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Spell)
+                .WithMany(s => s.PlayerCharacterSpells)
+                .HasForeignKey(e => e.SpellId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Prevent duplicate spell entries for same character
+            entity.HasIndex(e => new { e.PlayerCharacterId, e.SpellId }).IsUnique();
         });
     }
 }

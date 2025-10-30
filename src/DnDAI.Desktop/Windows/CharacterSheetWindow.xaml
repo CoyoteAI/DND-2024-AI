@@ -214,6 +214,41 @@
                                     BorderThickness="0" Click="Initiative_Click" Cursor="Hand">
                                 <TextBlock x:Name="InitiativeText" Text="Roll Initiative: +0" FontSize="14" FontWeight="Bold"/>
                             </Button>
+
+                            <!-- Spellcasting -->
+                            <StackPanel x:Name="SpellcastingSection" Visibility="Collapsed">
+                                <TextBlock Text="Spellcasting" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
+
+                                <!-- Spell Slots -->
+                                <Border Background="#F8F9FA" CornerRadius="5" Padding="10" Margin="0,5,0,10">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,5">
+                                            <TextBlock Text="Spell Slots" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                            <Button x:Name="RestoreSpellSlotsButton" Content="Long Rest" Height="25" Width="80"
+                                                    HorizontalAlignment="Right" Background="#27AE60" Foreground="White"
+                                                    BorderThickness="0" Click="RestoreSpellSlots_Click" Cursor="Hand" FontSize="10"/>
+                                        </Grid>
+                                        <StackPanel x:Name="SpellSlotsPanel">
+                                            <!-- Spell slot indicators will be added dynamically -->
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Spell List -->
+                                <Grid Margin="0,0,0,5">
+                                    <TextBlock Text="Spells Known" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
+                                    <Button x:Name="LearnSpellButton" Content="+ Learn Spell" Height="25" Width="100"
+                                            HorizontalAlignment="Right" Background="#9B59B6" Foreground="White"
+                                            BorderThickness="0" Click="LearnSpell_Click" Cursor="Hand" FontSize="10"/>
+                                </Grid>
+
+                                <ScrollViewer MaxHeight="400" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel x:Name="SpellsPanel">
+                                        <!-- Spells will be added dynamically grouped by level -->
+                                        <TextBlock Text="No spells learned" FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>

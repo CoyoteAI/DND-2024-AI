@@ -33,9 +33,30 @@ public class PlayerCharacter : BaseEntity
     public string Inventory { get; set; } = string.Empty;
     public int Gold { get; set; } = 0;
 
+    // Spell Slots (for spellcasters)
+    public int SpellSlots1Current { get; set; } = 0;
+    public int SpellSlots1Max { get; set; } = 0;
+    public int SpellSlots2Current { get; set; } = 0;
+    public int SpellSlots2Max { get; set; } = 0;
+    public int SpellSlots3Current { get; set; } = 0;
+    public int SpellSlots3Max { get; set; } = 0;
+    public int SpellSlots4Current { get; set; } = 0;
+    public int SpellSlots4Max { get; set; } = 0;
+    public int SpellSlots5Current { get; set; } = 0;
+    public int SpellSlots5Max { get; set; } = 0;
+    public int SpellSlots6Current { get; set; } = 0;
+    public int SpellSlots6Max { get; set; } = 0;
+    public int SpellSlots7Current { get; set; } = 0;
+    public int SpellSlots7Max { get; set; } = 0;
+    public int SpellSlots8Current { get; set; } = 0;
+    public int SpellSlots8Max { get; set; } = 0;
+    public int SpellSlots9Current { get; set; } = 0;
+    public int SpellSlots9Max { get; set; } = 0;
+
     public bool IsAlive { get; set; } = true;
     public string Notes { get; set; } = string.Empty;
 
     public ICollection<Event> Events { get; set; } = new List<Event>();
     public ICollection<CustomWeapon> CustomWeapons { get; set; } = new List<CustomWeapon>();
+    public ICollection<PlayerCharacterSpell> PlayerCharacterSpells { get; set; } = new List<PlayerCharacterSpell>();
 }

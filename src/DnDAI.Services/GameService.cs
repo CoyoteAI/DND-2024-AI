@@ -17,6 +17,8 @@ public class GameService
     private readonly IRepository<Event> _eventRepository;
     private readonly IRepository<Quest> _questRepository;
     private readonly IRepository<CustomWeapon> _customWeaponRepository;
+    private readonly IRepository<Spell> _spellRepository;
+    private readonly IRepository<PlayerCharacterSpell> _pcSpellRepository;
     private readonly CombatCommandParser _combatCommandParser;
 
     public GameService(
@@ -30,7 +32,9 @@ public class GameService
         IRepository<Location> locationRepository,
         IRepository<Event> eventRepository,
         IRepository<Quest> questRepository,
-        IRepository<CustomWeapon> customWeaponRepository)
+        IRepository<CustomWeapon> customWeaponRepository,
+        IRepository<Spell> spellRepository,
+        IRepository<PlayerCharacterSpell> pcSpellRepository)
     {
         _llmService = llmService;
         _diceRoller = diceRoller;
@@ -43,6 +47,8 @@ public class GameService
         _eventRepository = eventRepository;
         _questRepository = questRepository;
         _customWeaponRepository = customWeaponRepository;
+        _spellRepository = spellRepository;
+        _pcSpellRepository = pcSpellRepository;
         _combatCommandParser = new CombatCommandParser(combatService);
     }
 
@@ -258,5 +264,70 @@ public class GameService
         if (weapon == null) return false;
         await _customWeaponRepository.DeleteAsync(weapon);
         return true;
+    }
+
+    // Spell Management
+    public async Task<Spell> CreateSpellAsync(Spell spell)
+    {
+        await _spellRepository.AddAsync(spell);
+        return spell;
+    }
+
+    public async Task<List<Spell>> GetAllSpellsAsync()
+    {
+        return (await _spellRepository.GetAllAsync()).ToList();
+    }
+
+    public async Task<PlayerCharacterSpell> LearnSpellAsync(int playerCharacterId, int spellId, bool isPrepared = false)
+    {
+        var pcSpell = new PlayerCharacterSpell
+        {
+            PlayerCharacterId = playerCharacterId,
+            SpellId = spellId,
+            IsPrepared = isPrepared
+        };
+        await _pcSpellRepository.AddAsync(pcSpell);
+        return pcSpell;
+    }
+
+    public async Task<bool> UseSpellSlotAsync(int playerCharacterId, int spellLevel)
+    {
+        var pc = await _campaignRepository.GetAllAsync();
+        var character = pc.SelectMany(c => c.PlayerCharacters).FirstOrDefault(p => p.Id == playerCharacterId);
+        if (character == null) return false;
+
+        // Deduct spell slot based on level
+        var slotProperty = typeof(PlayerCharacter).GetProperty($"SpellSlots{spellLevel}Current");
+        if (slotProperty != null)
+        {
+            int current = (int)(slotProperty.GetValue(character) ?? 0);
+            if (current > 0)
+            {
+                slotProperty.SetValue(character, current - 1);
+                await _campaignRepository.SaveChangesAsync();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public async Task RestoreSpellSlotsAsync(int playerCharacterId)
+    {
+        var pc = await _campaignRepository.GetAllAsync();
+        var character = pc.SelectMany(c => c.PlayerCharacters).FirstOrDefault(p => p.Id == playerCharacterId);
+        if (character == null) return;
+
+        // Restore all spell slots to max
+        for (int level = 1; level <= 9; level++)
+        {
+            var currentProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Current");
+            var maxProp = typeof(PlayerCharacter).GetProperty($"SpellSlots{level}Max");
+            if (currentProp != null && maxProp != null)
+            {
+                int max = (int)(maxProp.GetValue(character) ?? 0);
+                currentProp.SetValue(character, max);
+            }
+        }
+        await _campaignRepository.SaveChangesAsync();
     }
 }
