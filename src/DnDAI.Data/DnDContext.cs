@@ -121,6 +121,33 @@ public class DnDContext : DbContext
                 .WithMany(l => l.Events)
                 .HasForeignKey(e => e.LocationId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure many-to-many relationships to avoid cascade conflicts
+            entity.HasMany(e => e.NPCs)
+                .WithMany(n => n.Events)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EventNPC",
+                    j => j.HasOne<NPC>()
+                        .WithMany()
+                        .HasForeignKey("NPCsId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j.HasOne<Event>()
+                        .WithMany()
+                        .HasForeignKey("EventsId")
+                        .OnDelete(DeleteBehavior.Cascade));
+
+            entity.HasMany(e => e.PlayerCharacters)
+                .WithMany(pc => pc.Events)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EventPlayerCharacter",
+                    j => j.HasOne<PlayerCharacter>()
+                        .WithMany()
+                        .HasForeignKey("PlayerCharactersId")
+                        .OnDelete(DeleteBehavior.Restrict),
+                    j => j.HasOne<Event>()
+                        .WithMany()
+                        .HasForeignKey("EventsId")
+                        .OnDelete(DeleteBehavior.Cascade));
         });
 
         // Session configuration
