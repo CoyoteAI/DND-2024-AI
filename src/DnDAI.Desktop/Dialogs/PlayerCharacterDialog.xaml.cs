@@ -13,14 +13,28 @@ public partial class PlayerCharacterDialog : Window
     {
         InitializeComponent();
         PopulateComboBoxes();
+
+        // Attach mouse wheel handler to all child controls to intercept before they handle it
+        Loaded += (s, e) =>
+        {
+            // Add handler to the main grid to catch all mouse wheel events from children
+            var mainGrid = Content as Grid;
+            if (mainGrid != null)
+            {
+                mainGrid.AddHandler(MouseWheelEvent, new MouseWheelEventHandler(InterceptMouseWheel), handledEventsToo: true);
+            }
+
+            // Give focus to ScrollViewer so Page Up/Down work
+            MainScrollViewer.Focus();
+        };
     }
 
-    private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
+    private void InterceptMouseWheel(object sender, MouseWheelEventArgs e)
     {
         // Debug: Show that this is being called
-        System.Diagnostics.Debug.WriteLine($"Mouse wheel event: Delta={e.Delta}, Offset={MainScrollViewer.VerticalOffset}");
+        System.Diagnostics.Debug.WriteLine($"Intercepted mouse wheel: Delta={e.Delta}, Offset={MainScrollViewer.VerticalOffset}");
 
-        // Force scroll the ScrollViewer regardless of which control has focus
+        // Calculate new offset
         double offset = MainScrollViewer.VerticalOffset - (e.Delta / 3.0);
         MainScrollViewer.ScrollToVerticalOffset(Math.Max(0, offset));
 
@@ -28,6 +42,12 @@ public partial class PlayerCharacterDialog : Window
         e.Handled = true;
 
         System.Diagnostics.Debug.WriteLine($"After scroll: Offset={MainScrollViewer.VerticalOffset}");
+    }
+
+    private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        // Fallback handler
+        InterceptMouseWheel(sender, e);
     }
 
     private void PopulateComboBoxes()
