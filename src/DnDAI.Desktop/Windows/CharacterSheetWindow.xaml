@@ -173,7 +173,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Skills" Style="{StaticResource SectionHeader}" Margin="0"/>
-                                <Button Grid.Column="1" Content="⚙ Manage" Height="25" Width="100"
+                                <Button Grid.Column="1" Content="⚙ Manage" Height="30" Width="100"
                                         Background="#3498DB" Foreground="White" BorderThickness="0"
                                         Click="ManageSkills_Click" Cursor="Hand" VerticalAlignment="Center"/>
                             </Grid>
@@ -233,7 +233,7 @@
                                     <StackPanel>
                                         <Grid Margin="0,0,0,5">
                                             <TextBlock Text="Spell Slots" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                            <Button x:Name="RestoreSpellSlotsButton" Content="Long Rest" Height="25" Width="110"
+                                            <Button x:Name="RestoreSpellSlotsButton" Content="Long Rest" Height="30" Width="110"
                                                     HorizontalAlignment="Right" Background="#27AE60" Foreground="White"
                                                     BorderThickness="0" Click="RestoreSpellSlots_Click" Cursor="Hand" FontSize="10"/>
                                         </Grid>
@@ -246,7 +246,7 @@
                                 <!-- Spell List -->
                                 <Grid Margin="0,0,0,5">
                                     <TextBlock Text="Spells Known" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"/>
-                                    <Button x:Name="LearnSpellButton" Content="+ Learn Spell" Height="25" Width="135"
+                                    <Button x:Name="LearnSpellButton" Content="+ Learn Spell" Height="30" Width="135"
                                             HorizontalAlignment="Right" Background="#9B59B6" Foreground="White"
                                             BorderThickness="0" Click="LearnSpell_Click" Cursor="Hand" FontSize="10"/>
                                 </Grid>
