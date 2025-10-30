@@ -58,7 +58,7 @@
                 <Button Content="Add Quest" Click="AddQuest_Click" Margin="0,0,0,5"
                         x:Name="AddQuestButton" IsEnabled="False"/>
                 <Button Content="View Campaign" Click="ViewCampaign_Click" Margin="0,0,0,5"
-                        x:Name="ViewCampaignButton" IsEnabled="False"/>
+                        Height="30" x:Name="ViewCampaignButton" IsEnabled="False"/>
 
                 <Separator Margin="0,10"/>
 
@@ -109,13 +109,13 @@
                                    x:Name="RollD6Button" IsEnabled="False"/>
                             <Button Content="d8" Width="50" Margin="0,0,5,0" Click="RollD8_Click"
                                    x:Name="RollD8Button" IsEnabled="False"/>
-                            <Button Content="d10" Width="50" Margin="0,0,5,0" Click="RollD10_Click"
+                            <Button Content="d10" Width="60" Margin="0,0,5,0" Click="RollD10_Click"
                                    x:Name="RollD10Button" IsEnabled="False"/>
-                            <Button Content="d12" Width="50" Margin="0,0,5,0" Click="RollD12_Click"
+                            <Button Content="d12" Width="60" Margin="0,0,5,0" Click="RollD12_Click"
                                    x:Name="RollD12Button" IsEnabled="False"/>
-                            <Button Content="d20" Width="50" Margin="0,0,5,0" Click="RollD20_Click"
+                            <Button Content="d20" Width="60" Margin="0,0,5,0" Click="RollD20_Click"
                                    x:Name="RollD20Button" IsEnabled="False"/>
-                            <Button Content="d100" Width="55" Margin="0,0,10,0" Click="RollD100_Click"
+                            <Button Content="d100" Width="65" Margin="0,0,10,0" Click="RollD100_Click"
                                    x:Name="RollD100Button" IsEnabled="False"/>
                             <Button Content="ADV" Width="50" Margin="0,0,5,0" Click="RollAdvantage_Click"
                                    x:Name="RollAdvButton" IsEnabled="False" ToolTip="Roll with Advantage"/>
