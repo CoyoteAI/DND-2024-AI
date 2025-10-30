@@ -261,6 +261,7 @@ public partial class MainWindow : Window
     private void EnableCampaignButtons()
     {
         StartSessionButton.IsEnabled = true;
+        AddPlayerCharacterButton.IsEnabled = true;
         StartCombatButton.IsEnabled = true;
         CharacterSheetButton.IsEnabled = true;
         AddNPCButton.IsEnabled = true;
@@ -337,6 +338,30 @@ public partial class MainWindow : Window
         {
             MessageBox.Show($"Error opening character sheet: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void AddPlayerCharacter_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentCampaign == null) return;
+
+        var dialog = new Dialogs.PlayerCharacterDialog
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true && dialog.Character != null)
+        {
+            try
+            {
+                await _gameService.AddPlayerCharacterAsync(_currentCampaign.Id, dialog.Character);
+                AddSystemMessage($"Player Character '{dialog.Character.Name}' (played by {dialog.Character.PlayerName}) added to the campaign.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding player character: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 

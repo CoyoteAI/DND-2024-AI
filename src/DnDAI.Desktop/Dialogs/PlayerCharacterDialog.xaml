@@ -1,0 +1,190 @@
+<Window x:Class="DnDAI.Desktop.Dialogs.PlayerCharacterDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Player Character" Height="650" Width="500"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Basic Info -->
+            <GroupBox Grid.Row="0" Header="Basic Information" Padding="10" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Character Name:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="NameTextBox" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Player Name:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="PlayerNameTextBox" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Level:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="LevelTextBox" Text="1" Margin="0,0,0,10"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Race, Class, Alignment -->
+            <GroupBox Grid.Row="1" Header="Character Details" Padding="10" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Race:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="RaceComboBox" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Class:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="ClassComboBox" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Alignment:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="AlignmentComboBox" Margin="0,0,0,10"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Ability Scores -->
+            <GroupBox Grid.Row="2" Header="Ability Scores" Padding="10" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- STR -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,5,5">
+                        <TextBlock Text="STR:" FontWeight="Bold"/>
+                        <TextBox x:Name="StrengthTextBox" Text="10"/>
+                    </StackPanel>
+
+                    <!-- DEX -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="5,0,5,5">
+                        <TextBlock Text="DEX:" FontWeight="Bold"/>
+                        <TextBox x:Name="DexterityTextBox" Text="10"/>
+                    </StackPanel>
+
+                    <!-- CON -->
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="5,0,0,5">
+                        <TextBlock Text="CON:" FontWeight="Bold"/>
+                        <TextBox x:Name="ConstitutionTextBox" Text="10"/>
+                    </StackPanel>
+
+                    <!-- INT -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,5,0">
+                        <TextBlock Text="INT:" FontWeight="Bold"/>
+                        <TextBox x:Name="IntelligenceTextBox" Text="10"/>
+                    </StackPanel>
+
+                    <!-- WIS -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,5,0">
+                        <TextBlock Text="WIS:" FontWeight="Bold"/>
+                        <TextBox x:Name="WisdomTextBox" Text="10"/>
+                    </StackPanel>
+
+                    <!-- CHA -->
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="5,0,0,0">
+                        <TextBlock Text="CHA:" FontWeight="Bold"/>
+                        <TextBox x:Name="CharismaTextBox" Text="10"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- Hit Points -->
+            <GroupBox Grid.Row="3" Header="Hit Points" Padding="10" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Max HP:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="MaxHPTextBox" Text="10" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Current HP:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="CurrentHPTextBox" Text="10"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Equipment -->
+            <GroupBox Grid.Row="4" Header="Equipment & Inventory" Padding="10" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Equipment:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="EquipmentTextBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Gold:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="GoldTextBox" Text="0"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Background/Backstory -->
+            <GroupBox Grid.Row="5" Header="Background" Padding="10" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Background:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="BackgroundTextBox" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Backstory:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="BackstoryTextBox" Height="80" TextWrapping="Wrap" AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Spell Slots (for spellcasters) -->
+            <GroupBox Grid.Row="6" Header="Spell Slots (Optional - for spellcasters)" Padding="10" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Level 1-3 -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Lvl 1:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="SpellSlots1TextBox" Text="0" Margin="0,0,10,5"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Lvl 2:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="0" Grid.Column="3" x:Name="SpellSlots2TextBox" Text="0" Margin="0,0,10,5"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Lvl 3:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="0" Grid.Column="5" x:Name="SpellSlots3TextBox" Text="0" Margin="0,0,0,5"/>
+
+                    <!-- Level 4-6 -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Lvl 4:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="SpellSlots4TextBox" Text="0" Margin="0,0,10,5"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Lvl 5:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="1" Grid.Column="3" x:Name="SpellSlots5TextBox" Text="0" Margin="0,0,10,5"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="4" Text="Lvl 6:" Margin="0,0,5,5"/>
+                    <TextBox Grid.Row="1" Grid.Column="5" x:Name="SpellSlots6TextBox" Text="0" Margin="0,0,0,5"/>
+
+                    <!-- Level 7-9 -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Lvl 7:" Margin="0,0,5,0"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="SpellSlots7TextBox" Text="0" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Lvl 8:" Margin="0,0,5,0"/>
+                    <TextBox Grid.Row="2" Grid.Column="3" x:Name="SpellSlots8TextBox" Text="0" Margin="0,0,10,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="4" Text="Lvl 9:" Margin="0,0,5,0"/>
+                    <TextBox Grid.Row="2" Grid.Column="5" x:Name="SpellSlots9TextBox" Text="0" Margin="0,0,0,0"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button Content="Create" Width="100" Margin="0,0,10,0" Click="Create_Click"/>
+                <Button Content="Cancel" Width="100" Click="Cancel_Click"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>

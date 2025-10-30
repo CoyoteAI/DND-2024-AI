@@ -13,6 +13,7 @@ public class GameService
     private readonly SessionRepository _sessionRepository;
     private readonly IRepository<ConversationMessage> _messageRepository;
     private readonly IRepository<NPC> _npcRepository;
+    private readonly IRepository<PlayerCharacter> _playerCharacterRepository;
     private readonly IRepository<Location> _locationRepository;
     private readonly IRepository<Event> _eventRepository;
     private readonly IRepository<Quest> _questRepository;
@@ -29,6 +30,7 @@ public class GameService
         SessionRepository sessionRepository,
         IRepository<ConversationMessage> messageRepository,
         IRepository<NPC> npcRepository,
+        IRepository<PlayerCharacter> playerCharacterRepository,
         IRepository<Location> locationRepository,
         IRepository<Event> eventRepository,
         IRepository<Quest> questRepository,
@@ -43,6 +45,7 @@ public class GameService
         _sessionRepository = sessionRepository;
         _messageRepository = messageRepository;
         _npcRepository = npcRepository;
+        _playerCharacterRepository = playerCharacterRepository;
         _locationRepository = locationRepository;
         _eventRepository = eventRepository;
         _questRepository = questRepository;
@@ -242,6 +245,14 @@ public class GameService
         }
 
         await SaveMessageAsync(sessionId, roll.RolledBy, rollDetails, "Dice Roll");
+    }
+
+    // Player Character Management
+    public async Task<PlayerCharacter> AddPlayerCharacterAsync(int campaignId, PlayerCharacter playerCharacter)
+    {
+        playerCharacter.CampaignId = campaignId;
+        await _playerCharacterRepository.AddAsync(playerCharacter);
+        return playerCharacter;
     }
 
     // Custom Weapon Management
