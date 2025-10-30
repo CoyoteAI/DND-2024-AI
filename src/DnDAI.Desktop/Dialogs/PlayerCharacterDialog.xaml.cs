@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using DnDAI.Core.Models;
 using DnDAI.Core.Enums;
+using DnDAI.Core.Helpers;
 
 namespace DnDAI.Desktop.Dialogs;
 
@@ -76,9 +77,32 @@ public partial class PlayerCharacterDialog : Window
         ClassComboBox.ItemsSource = Enum.GetValues(typeof(CharacterClass));
         ClassComboBox.SelectedIndex = 0;
 
+        // Populate Subclass (will be updated when class changes)
+        UpdateSubclassComboBox();
+
         // Populate Alignment
         AlignmentComboBox.ItemsSource = Enum.GetValues(typeof(Alignment));
         AlignmentComboBox.SelectedIndex = 0;
+    }
+
+    private void ClassComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        UpdateSubclassComboBox();
+    }
+
+    private void UpdateSubclassComboBox()
+    {
+        if (ClassComboBox.SelectedItem is CharacterClass selectedClass)
+        {
+            var subclasses = SubclassHelper.GetSubclassesForClass(selectedClass);
+
+            // Add "None" option at the beginning
+            var subclassOptions = new List<CharacterSubclass> { CharacterSubclass.None };
+            subclassOptions.AddRange(subclasses);
+
+            SubclassComboBox.ItemsSource = subclassOptions;
+            SubclassComboBox.SelectedIndex = 0; // Default to "None"
+        }
     }
 
     private void Create_Click(object sender, RoutedEventArgs e)
@@ -149,6 +173,7 @@ public partial class PlayerCharacterDialog : Window
             Level = level,
             Race = (CharacterRace)RaceComboBox.SelectedItem,
             Class = (CharacterClass)ClassComboBox.SelectedItem,
+            Subclass = (CharacterSubclass)SubclassComboBox.SelectedItem,
             Alignment = (Alignment)AlignmentComboBox.SelectedItem,
             MaxHitPoints = maxHP,
             CurrentHitPoints = currentHP,

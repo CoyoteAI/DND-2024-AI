@@ -44,7 +44,10 @@
                     <ComboBox x:Name="RaceComboBox" Margin="0,0,0,10"/>
 
                     <TextBlock Text="Class:" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="ClassComboBox" Margin="0,0,0,10"/>
+                    <ComboBox x:Name="ClassComboBox" Margin="0,0,0,10" SelectionChanged="ClassComboBox_SelectionChanged"/>
+
+                    <TextBlock Text="Subclass (Optional):" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="SubclassComboBox" Margin="0,0,0,10"/>
 
                     <TextBlock Text="Alignment:" FontWeight="Bold" Margin="0,0,0,5"/>
                     <ComboBox x:Name="AlignmentComboBox" Margin="0,0,0,10"/>

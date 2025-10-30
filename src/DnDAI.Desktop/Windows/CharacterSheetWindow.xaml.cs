@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using DnDAI.Core.Models;
+using DnDAI.Core.Helpers;
 using DnDAI.Services;
 using System.Text.RegularExpressions;
 using DnDAI.Desktop.Dialogs;
@@ -79,7 +80,15 @@ public partial class CharacterSheetWindow : Window
     {
         // Header
         CharacterNameText.Text = _character.Name;
-        CharacterInfoText.Text = $"Level {_character.Level} {_character.Race} {_character.Class}";
+
+        // Build character info with optional subclass
+        string characterInfo = $"Level {_character.Level} {_character.Race} {_character.Class}";
+        if (_character.Subclass != Core.Enums.CharacterSubclass.None)
+        {
+            characterInfo += $" ({SubclassHelper.GetFriendlyName(_character.Subclass)})";
+        }
+        CharacterInfoText.Text = characterInfo;
+
         HPText.Text = $"{_character.CurrentHitPoints}/{_character.MaxHitPoints}";
 
         // Calculate proficiency bonus

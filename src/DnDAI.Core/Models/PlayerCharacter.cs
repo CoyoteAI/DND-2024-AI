@@ -11,6 +11,7 @@ public class PlayerCharacter : BaseEntity
     public string PlayerName { get; set; } = string.Empty;
     public CharacterRace Race { get; set; }
     public CharacterClass Class { get; set; }
+    public CharacterSubclass Subclass { get; set; } = CharacterSubclass.None;
     public Alignment Alignment { get; set; }
 
     public string Background { get; set; } = string.Empty;

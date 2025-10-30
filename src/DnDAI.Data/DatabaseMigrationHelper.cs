@@ -58,6 +58,18 @@ public static class DatabaseMigrationHelper
                     ALTER TABLE PlayerCharacters ADD SavingThrowProficiencies nvarchar(max) NOT NULL DEFAULT ''
                 END";
             command.ExecuteNonQuery();
+
+            // Check if Subclass column exists
+            command.CommandText = @"
+                IF NOT EXISTS (
+                    SELECT * FROM sys.columns
+                    WHERE object_id = OBJECT_ID(N'PlayerCharacters')
+                    AND name = 'Subclass'
+                )
+                BEGIN
+                    ALTER TABLE PlayerCharacters ADD Subclass int NOT NULL DEFAULT 0
+                END";
+            command.ExecuteNonQuery();
         }
         finally
         {
