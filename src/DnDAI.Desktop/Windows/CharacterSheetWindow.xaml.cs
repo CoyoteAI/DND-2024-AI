@@ -39,6 +39,9 @@ public partial class CharacterSheetWindow : Window
 
             // Also attach to the ScrollViewer itself
             MainScrollViewer.PreviewMouseWheel += InterceptMouseWheel;
+
+            // Reload skills after window is fully loaded (visual tree is ready)
+            LoadSkills();
         };
 
         LoadCharacterData();
