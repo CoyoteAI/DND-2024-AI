@@ -85,7 +85,7 @@
                         </ScrollViewer>
                     </Border>
                     <Button Content="+ Add Special Ability" Click="AddAbility_Click"
-                            Height="30" Background="#3498DB" Foreground="White" BorderThickness="0"/>
+                            Height="35" Background="#3498DB" Foreground="White" BorderThickness="0"/>
 
                     <!-- Notes -->
                     <TextBlock Text="Notes" FontWeight="Bold" Margin="0,15,0,5"/>
