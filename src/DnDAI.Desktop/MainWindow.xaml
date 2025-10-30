@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="D&amp;D AI Dungeon Master" Height="700" Width="1200"
+        WindowStartupLocation="CenterScreen"
         Background="{StaticResource BackgroundBrush}">
     <Grid Margin="10">
         <Grid.RowDefinitions>
