@@ -12,6 +12,9 @@ public static class DatabaseMigrationHelper
 
         // Add SkillProficiencies and SkillExpertise columns if they don't exist
         AddSkillColumnsIfNotExist(context);
+
+        // Create Features tables if they don't exist
+        CreateFeatureTablesIfNotExist(context);
     }
 
     private static void AddSkillColumnsIfNotExist(DnDContext context)
@@ -68,6 +71,60 @@ public static class DatabaseMigrationHelper
                 )
                 BEGIN
                     ALTER TABLE PlayerCharacters ADD Subclass int NOT NULL DEFAULT 0
+                END";
+            command.ExecuteNonQuery();
+        }
+        finally
+        {
+            connection.Close();
+        }
+    }
+
+    private static void CreateFeatureTablesIfNotExist(DnDContext context)
+    {
+        var connection = context.Database.GetDbConnection();
+        connection.Open();
+
+        try
+        {
+            using var command = connection.CreateCommand();
+
+            // Create Features table if it doesn't exist
+            command.CommandText = @"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Features')
+                BEGIN
+                    CREATE TABLE Features (
+                        Id int IDENTITY(1,1) PRIMARY KEY,
+                        Name nvarchar(200) NOT NULL,
+                        Description nvarchar(max) NOT NULL,
+                        Source int NOT NULL,
+                        SourceName nvarchar(100) NOT NULL,
+                        LevelRequirement int NOT NULL DEFAULT 1,
+                        MaxUsesPerShortRest int NULL,
+                        MaxUsesPerLongRest int NULL,
+                        RechargeType int NOT NULL DEFAULT 0,
+                        CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
+                    )
+                END";
+            command.ExecuteNonQuery();
+
+            // Create CharacterFeatures table if it doesn't exist
+            command.CommandText = @"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CharacterFeatures')
+                BEGIN
+                    CREATE TABLE CharacterFeatures (
+                        Id int IDENTITY(1,1) PRIMARY KEY,
+                        PlayerCharacterId int NOT NULL,
+                        FeatureId int NOT NULL,
+                        CurrentUses int NULL,
+                        CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        CONSTRAINT FK_CharacterFeatures_PlayerCharacters FOREIGN KEY (PlayerCharacterId)
+                            REFERENCES PlayerCharacters(Id) ON DELETE CASCADE,
+                        CONSTRAINT FK_CharacterFeatures_Features FOREIGN KEY (FeatureId)
+                            REFERENCES Features(Id) ON DELETE CASCADE
+                    )
                 END";
             command.ExecuteNonQuery();
         }

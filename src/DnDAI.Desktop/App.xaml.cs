@@ -7,6 +7,7 @@ using DnDAI.Core.Interfaces;
 using DnDAI.Core.Models;
 using DnDAI.Data;
 using DnDAI.Data.Repositories;
+using DnDAI.Data.Seeding;
 using DnDAI.Services;
 using DnDAI.Services.Configuration;
 
@@ -50,6 +51,8 @@ public partial class App : Application
                 services.AddScoped<IRepository<Spell>, Repository<Spell>>();
                 services.AddScoped<IRepository<PlayerCharacterSpell>, Repository<PlayerCharacterSpell>>();
                 services.AddScoped<IRepository<ConversationMessage>, Repository<ConversationMessage>>();
+                services.AddScoped<IRepository<Feature>, Repository<Feature>>();
+                services.AddScoped<IRepository<CharacterFeature>, Repository<CharacterFeature>>();
 
                 // Services
                 services.AddSingleton<IOllamaService, OllamaService>();
@@ -75,6 +78,9 @@ public partial class App : Application
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<DnDContext>();
             DatabaseMigrationHelper.ApplyManualMigrations(dbContext);
+
+            // Seed features
+            FeatureSeeder.SeedFeaturesAsync(dbContext).Wait();
         }
     }
 
