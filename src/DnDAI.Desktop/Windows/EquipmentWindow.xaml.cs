@@ -11,6 +11,7 @@ public partial class EquipmentWindow : Window
     private readonly PlayerCharacter _character;
     private readonly GameService _gameService;
     private List<CharacterEquipment> _characterEquipment = new();
+    private List<CustomWeapon> _customWeapons = new();
 
     public EquipmentWindow(PlayerCharacter character, GameService gameService)
     {
@@ -42,6 +43,9 @@ public partial class EquipmentWindow : Window
             {
                 charEquip.Equipment = allEquipment.FirstOrDefault(e => e.Id == charEquip.EquipmentId)!;
             }
+
+            // Load custom weapons (legacy system)
+            _customWeapons = await _gameService.GetCustomWeaponsAsync(_character.Id);
 
             DisplayEquipment();
         }
@@ -80,7 +84,7 @@ public partial class EquipmentWindow : Window
         }
 
         // Display inventory items
-        if (!inventory.Any())
+        if (!inventory.Any() && !_customWeapons.Any())
         {
             InventoryPanel.Children.Add(new TextBlock
             {
@@ -95,6 +99,12 @@ public partial class EquipmentWindow : Window
             foreach (var item in inventory)
             {
                 InventoryPanel.Children.Add(CreateEquipmentPanel(item, false));
+            }
+
+            // Display custom weapons (legacy system)
+            foreach (var weapon in _customWeapons)
+            {
+                InventoryPanel.Children.Add(CreateCustomWeaponPanel(weapon));
             }
         }
     }
@@ -240,6 +250,85 @@ public partial class EquipmentWindow : Window
             catch (Exception ex)
             {
                 MessageBox.Show($"Error removing equipment: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private Border CreateCustomWeaponPanel(CustomWeapon weapon)
+    {
+        var border = new Border
+        {
+            Background = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(10),
+            Margin = new Thickness(0, 3, 0, 3)
+        };
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        // Left side: Weapon info
+        var leftPanel = new StackPanel();
+
+        var nameText = new TextBlock
+        {
+            Text = $"{weapon.Name} (Custom Weapon)",
+            FontWeight = FontWeights.Bold,
+            FontSize = 13
+        };
+        leftPanel.Children.Add(nameText);
+
+        // Weapon details
+        var detailsText = new TextBlock
+        {
+            Text = $"{weapon.DamageDice} + {weapon.MagicBonus}",
+            FontSize = 11,
+            Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
+            Margin = new Thickness(0, 3, 0, 0)
+        };
+        leftPanel.Children.Add(detailsText);
+
+        Grid.SetColumn(leftPanel, 0);
+        grid.Children.Add(leftPanel);
+
+        // Right side: Remove button
+        var deleteButton = new Button
+        {
+            Content = "Remove",
+            Width = 80,
+            Height = 30,
+            Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand
+        };
+        deleteButton.Click += (s, e) => RemoveCustomWeapon_Click(weapon);
+
+        Grid.SetColumn(deleteButton, 1);
+        grid.Children.Add(deleteButton);
+
+        border.Child = grid;
+        return border;
+    }
+
+    private async void RemoveCustomWeapon_Click(CustomWeapon weapon)
+    {
+        var result = MessageBox.Show($"Remove {weapon.Name} from inventory?",
+            "Confirm Removal", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            try
+            {
+                await _gameService.DeleteCustomWeaponAsync(weapon.Id);
+                _customWeapons.Remove(weapon);
+                DisplayEquipment();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error removing weapon: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
