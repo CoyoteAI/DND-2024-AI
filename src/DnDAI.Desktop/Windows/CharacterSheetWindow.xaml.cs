@@ -208,21 +208,59 @@ public partial class CharacterSheetWindow : Window
             attackButton.Click += WeaponAttack_Click;
             buttonPanel.Children.Add(attackButton);
 
-            // Damage button
-            var damageButton = new Button
+            // Damage button(s)
+            if (weapon.IsVersatile)
             {
-                Content = $"Damage: {weapon.Damage}",
-                Width = 120,
-                Height = 30,
-                Margin = new Thickness(5, 0, 5, 0),
-                Background = new SolidColorBrush(Color.FromRgb(192, 57, 43)),
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                Tag = weapon
-            };
-            damageButton.Click += WeaponDamage_Click;
-            buttonPanel.Children.Add(damageButton);
+                // One-handed damage button
+                var damageOneHandButton = new Button
+                {
+                    Content = $"Dmg (1H): {weapon.Damage}",
+                    Width = 120,
+                    Height = 30,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Background = new SolidColorBrush(Color.FromRgb(192, 57, 43)),
+                    Foreground = Brushes.White,
+                    BorderThickness = new Thickness(0),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = weapon
+                };
+                damageOneHandButton.Click += WeaponDamage_Click;
+                buttonPanel.Children.Add(damageOneHandButton);
+
+                // Two-handed damage button (versatile)
+                var damageTwoHandButton = new Button
+                {
+                    Content = $"Dmg (2H): {weapon.VersatileDamage}",
+                    Width = 120,
+                    Height = 30,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Background = new SolidColorBrush(Color.FromRgb(155, 39, 29)),
+                    Foreground = Brushes.White,
+                    BorderThickness = new Thickness(0),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = (weapon, true) // tuple to indicate two-handed
+                };
+                damageTwoHandButton.Click += WeaponDamageTwoHanded_Click;
+                buttonPanel.Children.Add(damageTwoHandButton);
+            }
+            else
+            {
+                // Standard single damage button
+                var damageButton = new Button
+                {
+                    Content = $"Damage: {weapon.Damage}",
+                    Width = 120,
+                    Height = 30,
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Background = new SolidColorBrush(Color.FromRgb(192, 57, 43)),
+                    Foreground = Brushes.White,
+                    BorderThickness = new Thickness(0),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = weapon
+                };
+                damageButton.Click += WeaponDamage_Click;
+                buttonPanel.Children.Add(damageButton);
+            }
 
             weaponPanel.Children.Add(buttonPanel);
             WeaponsPanel.Children.Add(weaponPanel);
@@ -233,29 +271,30 @@ public partial class CharacterSheetWindow : Window
     {
         var weapons = new List<Weapon>();
 
-        // Common weapon patterns
-        var weaponPatterns = new Dictionary<string, (string damage, bool finesse)>
+        // Common weapon patterns: (one-handed damage, finesse, versatile two-handed damage)
+        var weaponPatterns = new Dictionary<string, (string damage, bool finesse, string? versatile)>
         {
-            { "longsword", ("1d8", false) },
-            { "shortsword", ("1d6", true) },
-            { "greatsword", ("2d6", false) },
-            { "rapier", ("1d8", true) },
-            { "dagger", ("1d4", true) },
-            { "handaxe", ("1d6", false) },
-            { "battleaxe", ("1d8", false) },
-            { "greataxe", ("1d12", false) },
-            { "mace", ("1d6", false) },
-            { "warhammer", ("1d8", false) },
-            { "maul", ("2d6", false) },
-            { "spear", ("1d6", false) },
-            { "quarterstaff", ("1d6", false) },
-            { "club", ("1d4", false) },
-            { "greatclub", ("1d8", false) },
-            { "shortbow", ("1d6", true) },
-            { "longbow", ("1d8", true) },
-            { "crossbow", ("1d8", true) },
-            { "light crossbow", ("1d8", true) },
-            { "heavy crossbow", ("1d10", true) }
+            { "longsword", ("1d8", false, "1d10") },
+            { "shortsword", ("1d6", true, null) },
+            { "greatsword", ("2d6", false, null) },
+            { "rapier", ("1d8", true, null) },
+            { "dagger", ("1d4", true, null) },
+            { "handaxe", ("1d6", false, null) },
+            { "battleaxe", ("1d8", false, "1d10") },
+            { "greataxe", ("1d12", false, null) },
+            { "mace", ("1d6", false, null) },
+            { "warhammer", ("1d8", false, "1d10") },
+            { "maul", ("2d6", false, null) },
+            { "spear", ("1d6", false, "1d8") },
+            { "trident", ("1d6", false, "1d8") },
+            { "quarterstaff", ("1d6", false, "1d8") },
+            { "club", ("1d4", false, null) },
+            { "greatclub", ("1d8", false, null) },
+            { "shortbow", ("1d6", true, null) },
+            { "longbow", ("1d8", true, null) },
+            { "crossbow", ("1d8", true, null) },
+            { "light crossbow", ("1d8", true, null) },
+            { "heavy crossbow", ("1d10", true, null) }
         };
 
         string lowerEquip = equipment.ToLower();
@@ -267,6 +306,7 @@ public partial class CharacterSheetWindow : Window
                 string weaponName = char.ToUpper(kvp.Key[0]) + kvp.Key.Substring(1);
                 string damage = kvp.Value.damage;
                 bool isFinesse = kvp.Value.finesse;
+                string? versatileDamage = kvp.Value.versatile;
 
                 // Calculate attack bonus
                 int strMod = _abilityModifiers.GetValueOrDefault("STR", 0);
@@ -278,14 +318,27 @@ public partial class CharacterSheetWindow : Window
                 int damageMod = isFinesse ? Math.Max(strMod, dexMod) : strMod;
                 string damageString = damageMod >= 0 ? $"{damage}+{damageMod}" : $"{damage}{damageMod}";
 
-                weapons.Add(new Weapon
+                var weapon = new Weapon
                 {
                     Name = weaponName,
                     AttackBonus = attackBonus,
                     Damage = damageString,
                     DamageDice = damage,
-                    DamageModifier = damageMod
-                });
+                    DamageModifier = damageMod,
+                    IsVersatile = versatileDamage != null
+                };
+
+                // Add versatile damage if applicable
+                if (versatileDamage != null)
+                {
+                    string versatileDamageString = damageMod >= 0
+                        ? $"{versatileDamage}+{damageMod}"
+                        : $"{versatileDamage}{damageMod}";
+                    weapon.VersatileDamage = versatileDamageString;
+                    weapon.VersatileDamageDice = versatileDamage;
+                }
+
+                weapons.Add(weapon);
             }
         }
 
@@ -369,7 +422,25 @@ public partial class CharacterSheetWindow : Window
                 : $"{weapon.DamageDice}{weapon.DamageModifier}";
         }
 
-        await RollDice($"{weapon.Name} Damage", expression);
+        await RollDice($"{weapon.Name} Damage (1H)", expression);
+    }
+
+    private async void WeaponDamageTwoHanded_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not ValueTuple<Weapon, bool> tag)
+            return;
+
+        var weapon = tag.Item1;
+
+        string expression = weapon.VersatileDamageDice ?? weapon.DamageDice;
+        if (weapon.DamageModifier != 0)
+        {
+            expression = weapon.DamageModifier > 0
+                ? $"{expression}+{weapon.DamageModifier}"
+                : $"{expression}{weapon.DamageModifier}";
+        }
+
+        await RollDice($"{weapon.Name} Damage (2H)", expression);
     }
 
     private async Task RollD20WithModifier(string purpose, int modifier)
@@ -434,5 +505,8 @@ public partial class CharacterSheetWindow : Window
         public string Damage { get; set; } = string.Empty;
         public string DamageDice { get; set; } = string.Empty;
         public int DamageModifier { get; set; }
+        public bool IsVersatile { get; set; }
+        public string? VersatileDamage { get; set; }
+        public string? VersatileDamageDice { get; set; }
     }
 }
