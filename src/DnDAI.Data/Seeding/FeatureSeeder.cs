@@ -6,10 +6,10 @@ namespace DnDAI.Data.Seeding;
 
 public static class FeatureSeeder
 {
-    public static async Task SeedFeaturesAsync(DnDContext context)
+    public static void SeedFeatures(DnDContext context)
     {
         // Check if features already exist
-        if (await context.Features.AnyAsync())
+        if (context.Features.Any())
         {
             return; // Already seeded
         }
@@ -37,8 +37,8 @@ public static class FeatureSeeder
         // Add background features
         features.AddRange(GetBackgroundFeatures());
 
-        await context.Features.AddRangeAsync(features);
-        await context.SaveChangesAsync();
+        context.Features.AddRange(features);
+        context.SaveChanges();
     }
 
     private static List<Feature> GetBarbarianFeatures()
