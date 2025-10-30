@@ -19,7 +19,7 @@
 
             <!-- Form -->
             <ScrollViewer x:Name="MainScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel MaxWidth="500" HorizontalAlignment="Left">
+                <StackPanel MaxWidth="540" HorizontalAlignment="Left">
                     <!-- Weapon Name -->
                     <TextBlock Text="Weapon Name *" FontWeight="Bold" Margin="0,0,0,5"/>
                     <TextBox x:Name="NameTextBox" Margin="0,0,0,15" Height="30" Padding="5"
