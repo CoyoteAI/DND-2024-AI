@@ -228,8 +228,13 @@
                             </Grid>
 
                             <!-- Combat Actions -->
-                            <TextBlock Text="Combat Actions" Style="{StaticResource SectionHeader}" Margin="0,20,0,5"/>
-                            <TextBlock Text="Weapons and attacks from equipment" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,5"/>
+                            <Grid Margin="0,20,0,5">
+                                <TextBlock Text="Combat Actions" Style="{StaticResource SectionHeader}" VerticalAlignment="Center"/>
+                                <Button Content="⚙ Manage Equipment" Height="35" Width="170"
+                                        HorizontalAlignment="Right" Background="#16A085" Foreground="White"
+                                        BorderThickness="0" Click="ManageEquipment_Click" Cursor="Hand" FontSize="11"/>
+                            </Grid>
+                            <TextBlock Text="Weapons and attacks from equipped items" FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,5"/>
                             <StackPanel x:Name="WeaponsPanel">
                                 <!-- Weapons will be added dynamically -->
                                 <TextBlock Text="No weapons equipped" FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>

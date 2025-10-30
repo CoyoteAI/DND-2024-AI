@@ -932,6 +932,18 @@ public partial class CharacterSheetWindow : Window
         await RollD20WithModifier("Initiative", dexMod);
     }
 
+    private void ManageEquipment_Click(object sender, RoutedEventArgs e)
+    {
+        var equipmentWindow = new EquipmentWindow(_character, _gameService)
+        {
+            Owner = this
+        };
+        equipmentWindow.ShowDialog();
+
+        // Reload weapons after equipment window closes in case equipped items changed
+        LoadWeapons();
+    }
+
     private async void WeaponAttack_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button button || button.Tag is not Weapon weapon)
