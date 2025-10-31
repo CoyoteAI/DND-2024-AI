@@ -25,6 +25,9 @@ public class QwenLLMService : ILLMService
         // The "thinking" field often contains meta-commentary followed by the actual response
         // Try to extract just the narrative part
 
+        Log($"Raw thinking text length: {thinkingText.Length}");
+        Log($"First 300 chars of thinking: {thinkingText.Substring(0, Math.Min(300, thinkingText.Length))}");
+
         var lines = thinkingText.Split(new[] { '\n' }, StringSplitOptions.None);
         var narrativeStart = -1;
 
@@ -48,10 +51,13 @@ public class QwenLLMService : ILLMService
             bool isMeta = metaIndicators.Any(indicator =>
                 line.Contains(indicator, StringComparison.OrdinalIgnoreCase));
 
+            Log($"Line {i}: isMeta={isMeta}, length={line.Length}, text={line.Substring(0, Math.Min(50, line.Length))}");
+
             // If not meta, this might be the start of the narrative
             if (!isMeta && line.Length > 20) // At least 20 chars to avoid false positives
             {
                 narrativeStart = i;
+                Log($"Found narrative start at line {i}");
                 break;
             }
         }
@@ -59,10 +65,13 @@ public class QwenLLMService : ILLMService
         // If we found a narrative start, return from there
         if (narrativeStart >= 0)
         {
-            return string.Join("\n", lines.Skip(narrativeStart)).Trim();
+            var cleaned = string.Join("\n", lines.Skip(narrativeStart)).Trim();
+            Log($"Cleaned text length: {cleaned.Length}");
+            return cleaned;
         }
 
         // Fallback: return everything (better to show too much than nothing)
+        Log("No narrative start found, returning full thinking text");
         return thinkingText;
     }
 
