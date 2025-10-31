@@ -238,7 +238,7 @@ public partial class EquipmentPickerDialog : Window
             {
                 "Weapons" => _filteredEquipment.Where(e => e.Type == EquipmentType.Weapon).ToList(),
                 "Armor" => _filteredEquipment.Where(e => e.Type == EquipmentType.Armor).ToList(),
-                "Adventuring Gear" => _filteredEquipment.Where(e => e.Type == EquipmentType.AdventuringGear).ToList(),
+                "Adventuring Gear" => _filteredEquipment.Where(e => e.Type == EquipmentType.Adventuring).ToList(),
                 "Tools" => _filteredEquipment.Where(e => e.Type == EquipmentType.Tool).ToList(),
                 _ => _filteredEquipment
             };
