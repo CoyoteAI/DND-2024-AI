@@ -323,8 +323,13 @@ public class QwenLLMService : ILLMService
         sb.AppendLine("=== CURRENT INTERACTION ===");
         sb.AppendLine(userMessage);
         sb.AppendLine();
-        sb.AppendLine("Respond as the Dungeon Master. Be descriptive, immersive, and consistent with the established world.");
-        sb.AppendLine("Use combat commands to automatically manage combat encounters. The player will roll their own dice.");
+        sb.AppendLine("=== YOUR RESPONSE ===");
+        sb.AppendLine("Respond DIRECTLY as the Dungeon Master with clean narrative.");
+        sb.AppendLine("Do NOT show your thinking process or planning.");
+        sb.AppendLine("Do NOT write meta-commentary like 'I'll write' or 'Let me draft'.");
+        sb.AppendLine("Just write the DM's response as if speaking to the players.");
+        sb.AppendLine("Be descriptive, immersive, and consistent with the established world.");
+        sb.AppendLine("Use combat commands naturally embedded in your narrative when needed.");
 
         return sb.ToString();
     }
