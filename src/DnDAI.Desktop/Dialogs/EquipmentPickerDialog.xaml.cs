@@ -132,6 +132,36 @@ public partial class EquipmentPickerDialog : Window
         }
     }
 
+    private void CollapseAll_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var item in EquipmentTreeView.Items)
+        {
+            if (item is TreeViewItem treeItem)
+            {
+                treeItem.IsExpanded = false;
+                if (treeItem.Tag is EquipmentType equipmentType)
+                {
+                    _categoryExpansionState[equipmentType] = false;
+                }
+            }
+        }
+    }
+
+    private void ExpandAll_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var item in EquipmentTreeView.Items)
+        {
+            if (item is TreeViewItem treeItem)
+            {
+                treeItem.IsExpanded = true;
+                if (treeItem.Tag is EquipmentType equipmentType)
+                {
+                    _categoryExpansionState[equipmentType] = true;
+                }
+            }
+        }
+    }
+
     private Border CreateEquipmentPanel(Equipment equipment)
     {
         var isSelected = _selectedEquipment?.Id == equipment.Id;

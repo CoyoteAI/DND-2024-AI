@@ -21,26 +21,44 @@
 
             <!-- Search and Filter -->
             <Grid Grid.Row="1" Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Search" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="SearchTextBox" Height="30" Padding="5" TextChanged="SearchTextBox_TextChanged"/>
-                </StackPanel>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="Type Filter" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="TypeFilterComboBox" Height="30" SelectionChanged="TypeFilterComboBox_SelectionChanged">
-                        <ComboBoxItem Content="All" IsSelected="True"/>
-                        <ComboBoxItem Content="Weapons"/>
-                        <ComboBoxItem Content="Armor"/>
-                        <ComboBoxItem Content="Adventuring Gear"/>
-                        <ComboBoxItem Content="Tools"/>
-                    </ComboBox>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Search" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="SearchTextBox" Height="30" Padding="5" TextChanged="SearchTextBox_TextChanged"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Type Filter" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="TypeFilterComboBox" Height="30" SelectionChanged="TypeFilterComboBox_SelectionChanged">
+                            <ComboBoxItem Content="All" IsSelected="True"/>
+                            <ComboBoxItem Content="Weapons"/>
+                            <ComboBoxItem Content="Armor"/>
+                            <ComboBoxItem Content="Adventuring Gear"/>
+                            <ComboBoxItem Content="Tools"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Expand/Collapse Buttons -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Collapse All" Width="100" Height="28"
+                            Background="#7F8C8D" Foreground="White" BorderThickness="0"
+                            Click="CollapseAll_Click" Cursor="Hand" Margin="0,0,5,0"/>
+                    <Button Content="Expand All" Width="100" Height="28"
+                            Background="#7F8C8D" Foreground="White" BorderThickness="0"
+                            Click="ExpandAll_Click" Cursor="Hand"/>
                 </StackPanel>
             </Grid>
 
