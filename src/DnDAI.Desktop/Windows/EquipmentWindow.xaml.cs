@@ -131,24 +131,29 @@ public partial class EquipmentWindow : Window
         }
     }
 
-    private Border CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
+    private UIElement CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
     {
         var equipment = charEquip.Equipment;
         var isContainer = equipment.Type == Core.Enums.EquipmentType.Container;
         var leftMargin = indentLevel * 40;
         System.Diagnostics.Debug.WriteLine($"CreateEquipmentPanel: {equipment.Name}, indentLevel={indentLevel}, leftMargin={leftMargin}");
 
+        // Create wrapper grid for indentation
+        var wrapperGrid = new Grid();
+        wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(leftMargin) }); // Indent spacer
+        wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Content
+
         var border = new Border
         {
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(leftMargin, 2, 0, 2), // Left margin for indentation
+            Margin = new Thickness(0, 2, 0, 2), // No left margin - handled by wrapper grid
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
-            Cursor = System.Windows.Input.Cursors.Hand,
-            HorizontalAlignment = HorizontalAlignment.Stretch
+            Cursor = System.Windows.Input.Cursors.Hand
         };
+        Grid.SetColumn(border, 1); // Put border in second column (after spacer)
 
         // Make all items draggable (except when equipped)
         if (!isEquipped)
@@ -334,7 +339,8 @@ public partial class EquipmentWindow : Window
         grid.Children.Add(buttonPanel);
 
         border.Child = grid;
-        return border;
+        wrapperGrid.Children.Add(border);
+        return wrapperGrid;
     }
 
     private async void ToggleEquip_Click(CharacterEquipment charEquip)
