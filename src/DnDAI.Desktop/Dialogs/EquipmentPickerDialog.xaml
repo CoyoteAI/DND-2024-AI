@@ -70,11 +70,13 @@
 
             <!-- Equipment List -->
             <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="10">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel x:Name="EquipmentListPanel">
-                        <TextBlock Text="Loading equipment..." FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>
-                    </StackPanel>
-                </ScrollViewer>
+                <TreeView x:Name="EquipmentTreeView" BorderThickness="0" Background="Transparent">
+                    <TreeView.Resources>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True"/>
+                        </Style>
+                    </TreeView.Resources>
+                </TreeView>
             </Border>
 
             <!-- Buttons -->

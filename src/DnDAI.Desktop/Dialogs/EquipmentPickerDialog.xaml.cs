@@ -42,24 +42,73 @@ public partial class EquipmentPickerDialog : Window
 
     private void DisplayEquipment()
     {
-        EquipmentListPanel.Children.Clear();
+        EquipmentTreeView.Items.Clear();
 
         if (!_filteredEquipment.Any())
         {
-            EquipmentListPanel.Children.Add(new TextBlock
+            var emptyItem = new TreeViewItem
             {
-                Text = "No equipment found",
-                FontStyle = FontStyles.Italic,
-                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
-                Margin = new Thickness(5)
-            });
+                Header = new TextBlock
+                {
+                    Text = "No equipment found",
+                    FontStyle = FontStyles.Italic,
+                    Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                    Margin = new Thickness(5)
+                }
+            };
+            EquipmentTreeView.Items.Add(emptyItem);
             return;
         }
 
-        foreach (var equipment in _filteredEquipment)
+        // Group equipment by type
+        var grouped = _filteredEquipment
+            .GroupBy(e => e.Type)
+            .OrderBy(g => g.Key.ToString());
+
+        foreach (var group in grouped)
         {
-            var border = CreateEquipmentPanel(equipment);
-            EquipmentListPanel.Children.Add(border);
+            // Create category header
+            var categoryHeader = new TreeViewItem
+            {
+                FontWeight = FontWeights.Bold,
+                FontSize = 14,
+                Foreground = new SolidColorBrush(Color.FromRgb(44, 62, 80)),
+                IsExpanded = true
+            };
+
+            // Set category name
+            var categoryName = group.Key switch
+            {
+                EquipmentType.Weapon => "⚔️ Weapons",
+                EquipmentType.Armor => "🛡️ Armor",
+                EquipmentType.Container => "📦 Containers",
+                EquipmentType.Adventuring => "🎒 Adventuring Gear",
+                EquipmentType.Tool => "🔧 Tools",
+                EquipmentType.Consumable => "🧪 Consumables",
+                _ => group.Key.ToString()
+            };
+
+            categoryHeader.Header = new TextBlock
+            {
+                Text = $"{categoryName} ({group.Count()})",
+                FontWeight = FontWeights.Bold,
+                FontSize = 14,
+                Foreground = new SolidColorBrush(Color.FromRgb(44, 62, 80)),
+                Margin = new Thickness(0, 5, 0, 5)
+            };
+
+            // Add items to category
+            foreach (var equipment in group.OrderBy(e => e.Name))
+            {
+                var itemNode = new TreeViewItem
+                {
+                    Header = CreateEquipmentPanel(equipment),
+                    Tag = equipment
+                };
+                categoryHeader.Items.Add(itemNode);
+            }
+
+            EquipmentTreeView.Items.Add(categoryHeader);
         }
     }
 
@@ -73,13 +122,13 @@ public partial class EquipmentPickerDialog : Window
             CornerRadius = new CornerRadius(5),
             Padding = new Thickness(12),
             Margin = new Thickness(0, 3, 0, 3),
-            Cursor = System.Windows.Input.Cursors.Hand,
             Tag = equipment
         };
 
         border.MouseLeftButtonDown += (s, e) =>
         {
             SelectEquipment(equipment);
+            e.Handled = true; // Prevent TreeView from handling the click
         };
 
         var grid = new Grid();
