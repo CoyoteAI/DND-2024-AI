@@ -13,6 +13,7 @@ public partial class EquipmentWindow : Window
     private readonly GameService _gameService;
     private List<CharacterEquipment> _characterEquipment = new();
     private List<CustomWeapon> _customWeapons = new();
+    private Dictionary<int, bool> _containerExpansionState = new(); // Track which containers are expanded
 
     public EquipmentWindow(PlayerCharacter character, GameService gameService)
     {
@@ -104,13 +105,18 @@ public partial class EquipmentWindow : Window
             {
                 InventoryPanel.Children.Add(CreateEquipmentPanel(item, false, 0));
 
-                // If this is a container, display its contents
+                // If this is a container and it's expanded, display its contents
                 if (item.Equipment.Type == Core.Enums.EquipmentType.Container)
                 {
-                    var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
-                    foreach (var containedItem in containedItems)
+                    bool isExpanded = !_containerExpansionState.ContainsKey(item.Id) || _containerExpansionState[item.Id];
+
+                    if (isExpanded)
                     {
-                        InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
+                        var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
+                        foreach (var containedItem in containedItems)
+                        {
+                            InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
+                        }
                     }
                 }
             }
@@ -132,8 +138,24 @@ public partial class EquipmentWindow : Window
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(indentLevel * 30, 2, 0, 2) // Indent nested items
+            Margin = new Thickness(indentLevel * 30, 2, 0, 2), // Indent nested items
+            Tag = charEquip, // Store for drag-and-drop
+            AllowDrop = isContainer, // Only containers can accept drops
+            Cursor = System.Windows.Input.Cursors.Hand
         };
+
+        // Make all items draggable (except when equipped)
+        if (!isEquipped)
+        {
+            border.MouseLeftButtonDown += Equipment_MouseLeftButtonDown;
+        }
+
+        // Allow dropping items into containers
+        if (isContainer)
+        {
+            border.DragOver += Container_DragOver;
+            border.Drop += Container_Drop;
+        }
 
         var grid = new Grid();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -143,6 +165,27 @@ public partial class EquipmentWindow : Window
         var leftPanel = new StackPanel { MaxWidth = 450 };
 
         var namePanel = new StackPanel { Orientation = Orientation.Horizontal };
+
+        // Add expand/collapse indicator for containers
+        if (isContainer && !isEquipped)
+        {
+            bool isExpanded = !_containerExpansionState.ContainsKey(charEquip.Id) || _containerExpansionState[charEquip.Id];
+            var expandButton = new TextBlock
+            {
+                Text = isExpanded ? "▼ " : "▶ ",
+                FontSize = 10,
+                VerticalAlignment = VerticalAlignment.Center,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Margin = new Thickness(0, 0, 5, 0)
+            };
+            expandButton.MouseLeftButtonDown += (s, e) =>
+            {
+                e.Handled = true; // Prevent drag from starting
+                ToggleContainerExpansion(charEquip.Id);
+            };
+            namePanel.Children.Add(expandButton);
+        }
+
         var nameText = new TextBlock
         {
             Text = equipment.Name,
@@ -233,6 +276,25 @@ public partial class EquipmentWindow : Window
         equipButton.Click += (s, e) => ToggleEquip_Click(charEquip);
         buttonPanel.Children.Add(equipButton);
 
+        // Add "Take Out" button if item is in a container
+        if (parentContainer != null)
+        {
+            var takeOutButton = new Button
+            {
+                Content = "Take Out",
+                Width = 70,
+                Height = 30,
+                FontSize = 11,
+                Background = new SolidColorBrush(Color.FromRgb(52, 152, 219)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Margin = new Thickness(0, 0, 5, 0)
+            };
+            takeOutButton.Click += (s, e) => TakeOutOfContainer_Click(charEquip);
+            buttonPanel.Children.Add(takeOutButton);
+        }
+
         var editButton = new Button
         {
             Content = "Edit",
@@ -302,6 +364,21 @@ public partial class EquipmentWindow : Window
                 MessageBox.Show($"Error removing equipment: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    private async void TakeOutOfContainer_Click(CharacterEquipment charEquip)
+    {
+        try
+        {
+            charEquip.ContainerId = null;
+            await _gameService.UpdateCharacterEquipmentAsync(charEquip);
+            DisplayEquipment();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error removing item from container: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -459,5 +536,82 @@ public partial class EquipmentWindow : Window
     private void Close_Click(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    // Container expansion/collapse
+    private void ToggleContainerExpansion(int containerId)
+    {
+        if (_containerExpansionState.ContainsKey(containerId))
+        {
+            _containerExpansionState[containerId] = !_containerExpansionState[containerId];
+        }
+        else
+        {
+            _containerExpansionState[containerId] = false; // Collapse
+        }
+        DisplayEquipment();
+    }
+
+    // Drag and Drop functionality
+    private void Equipment_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        var border = sender as Border;
+        if (border?.Tag is CharacterEquipment charEquip)
+        {
+            DragDrop.DoDragDrop(border, charEquip, DragDropEffects.Move);
+        }
+    }
+
+    private void Container_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = DragDropEffects.None;
+
+        if (e.Data.GetDataPresent(typeof(CharacterEquipment)))
+        {
+            var draggedItem = e.Data.GetData(typeof(CharacterEquipment)) as CharacterEquipment;
+            var targetBorder = sender as Border;
+            var targetContainer = targetBorder?.Tag as CharacterEquipment;
+
+            // Prevent dropping a container into itself or into one of its children
+            if (draggedItem != null && targetContainer != null && draggedItem.Id != targetContainer.Id)
+            {
+                e.Effects = DragDropEffects.Move;
+            }
+        }
+
+        e.Handled = true;
+    }
+
+    private async void Container_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(typeof(CharacterEquipment)))
+        {
+            var draggedItem = e.Data.GetData(typeof(CharacterEquipment)) as CharacterEquipment;
+            var targetBorder = sender as Border;
+            var targetContainer = targetBorder?.Tag as CharacterEquipment;
+
+            if (draggedItem != null && targetContainer != null && draggedItem.Id != targetContainer.Id)
+            {
+                try
+                {
+                    // Move the item into the container
+                    draggedItem.ContainerId = targetContainer.Id;
+                    await _gameService.UpdateCharacterEquipmentAsync(draggedItem);
+
+                    // Expand the container to show the newly added item
+                    _containerExpansionState[targetContainer.Id] = true;
+
+                    DisplayEquipment();
+
+                    MessageBox.Show($"Moved {draggedItem.Equipment.Name} into {targetContainer.Equipment.Name}",
+                        "Item Moved", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error moving item: {ex.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 }
