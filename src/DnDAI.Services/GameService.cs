@@ -408,6 +408,13 @@ public class GameService
         return equipment;
     }
 
+    public async Task<Equipment> CreateStandardEquipmentAsync(Equipment equipment)
+    {
+        equipment.IsStandard = true;
+        await _equipmentRepository.AddAsync(equipment);
+        return equipment;
+    }
+
     public async Task RemoveEquipmentFromCharacterAsync(int characterEquipmentId)
     {
         await _characterEquipmentRepository.DeleteAsync(characterEquipmentId);

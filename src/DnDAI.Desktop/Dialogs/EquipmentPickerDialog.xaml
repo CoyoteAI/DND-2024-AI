@@ -80,17 +80,32 @@
             </Border>
 
             <!-- Buttons -->
-            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-                <Button Content="Cancel" Width="100" Height="35" Margin="0,0,10,0"
-                        Background="#95A5A6" Foreground="White" BorderThickness="0"
-                        Click="Cancel_Click" Cursor="Hand"/>
-                <Button x:Name="EditButton" Content="Edit Item" Width="100" Height="35" Margin="0,0,10,0"
-                        Background="#E67E22" Foreground="White" BorderThickness="0"
-                        Click="Edit_Click" Cursor="Hand" IsEnabled="False"/>
-                <Button x:Name="AddButton" Content="Add to Inventory" Width="140" Height="35"
-                        Background="#27AE60" Foreground="White" BorderThickness="0"
-                        Click="Add_Click" Cursor="Hand" IsEnabled="False"/>
-            </StackPanel>
+            <Grid Grid.Row="4" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left side: Add to Library -->
+                <Button Grid.Column="0" Content="+ Add to Library" Width="140" Height="35"
+                        HorizontalAlignment="Left"
+                        Background="#9B59B6" Foreground="White" BorderThickness="0"
+                        Click="AddToLibrary_Click" Cursor="Hand"
+                        ToolTip="Add a new item to the standard equipment library"/>
+
+                <!-- Right side: Action buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Cancel" Width="100" Height="35" Margin="0,0,10,0"
+                            Background="#95A5A6" Foreground="White" BorderThickness="0"
+                            Click="Cancel_Click" Cursor="Hand"/>
+                    <Button x:Name="EditButton" Content="Edit Item" Width="100" Height="35" Margin="0,0,10,0"
+                            Background="#E67E22" Foreground="White" BorderThickness="0"
+                            Click="Edit_Click" Cursor="Hand" IsEnabled="False"/>
+                    <Button x:Name="AddButton" Content="Add to Inventory" Width="140" Height="35"
+                            Background="#27AE60" Foreground="White" BorderThickness="0"
+                            Click="Add_Click" Cursor="Hand" IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </Window>

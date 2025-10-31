@@ -346,6 +346,33 @@ public partial class EquipmentPickerDialog : Window
         }
     }
 
+    private async void AddToLibrary_Click(object sender, RoutedEventArgs e)
+    {
+        var createDialog = new CustomEquipmentDialog
+        {
+            Owner = this
+        };
+
+        if (createDialog.ShowDialog() == true && createDialog.Equipment != null)
+        {
+            try
+            {
+                await _gameService.CreateStandardEquipmentAsync(createDialog.Equipment);
+
+                MessageBox.Show($"Added {createDialog.Equipment.Name} to the equipment library.\n\nIt will now appear in the standard equipment list.",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reload equipment list to show new item
+                LoadEquipmentAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding to library: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
     private async void Edit_Click(object sender, RoutedEventArgs e)
     {
         if (_selectedEquipment == null)
