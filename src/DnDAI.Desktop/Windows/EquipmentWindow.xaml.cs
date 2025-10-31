@@ -100,24 +100,6 @@ public partial class EquipmentWindow : Window
         }
         else
         {
-            // Debug: Show what we're about to display
-            var debugInfo = "DEBUG - DisplayEquipment:\n\n";
-            debugInfo += $"Total inventory items: {inventory.Count}\n";
-            debugInfo += $"Root items (ContainerId=null): {rootItems.Count}\n\n";
-
-            foreach (var item in inventory)
-            {
-                debugInfo += $"- {item.Equipment.Name} (ID: {item.Id}, ContainerId: {item.ContainerId ?? 0})\n";
-            }
-
-            debugInfo += $"\nRoot items:\n";
-            foreach (var item in rootItems)
-            {
-                debugInfo += $"- {item.Equipment.Name} (ID: {item.Id})\n";
-            }
-
-            MessageBox.Show(debugInfo, "Display Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-
             // Display root-level items (not in containers)
             foreach (var item in rootItems)
             {
@@ -207,7 +189,7 @@ public partial class EquipmentWindow : Window
 
         var nameText = new TextBlock
         {
-            Text = equipment.Name,
+            Text = $"{equipment.Name} [DEBUG: Indent={indentLevel}, ContainerId={charEquip.ContainerId?.ToString() ?? "null"}]",
             FontWeight = FontWeights.Bold,
             FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center
@@ -613,14 +595,6 @@ public partial class EquipmentWindow : Window
             {
                 try
                 {
-                    // Debug: Show what we're about to do
-                    var debugMessage = $"DEBUG:\n" +
-                        $"Dragged Item: {draggedItem.Equipment.Name} (ID: {draggedItem.Id}, Current ContainerId: {draggedItem.ContainerId})\n" +
-                        $"Target Container: {targetContainer.Equipment.Name} (ID: {targetContainer.Id})\n" +
-                        $"Setting draggedItem.ContainerId = {targetContainer.Id}";
-
-                    MessageBox.Show(debugMessage, "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
-
                     // Move the item into the container
                     draggedItem.ContainerId = targetContainer.Id;
                     await _gameService.UpdateCharacterEquipmentAsync(draggedItem);
@@ -630,9 +604,6 @@ public partial class EquipmentWindow : Window
 
                     // Reload equipment data from database to ensure fresh state
                     await LoadEquipmentAsync();
-
-                    MessageBox.Show($"Moved {draggedItem.Equipment.Name} into {targetContainer.Equipment.Name}",
-                        "Item Moved", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
