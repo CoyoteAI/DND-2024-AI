@@ -198,6 +198,7 @@ public partial class EquipmentPickerDialog : Window
         SelectedItemDetails.Text = string.Join(" • ", details);
 
         AddButton.IsEnabled = true;
+        EditButton.IsEnabled = true;
 
         // Refresh display to show selection
         DisplayEquipment();
@@ -286,12 +287,47 @@ public partial class EquipmentPickerDialog : Window
             SelectedItemBorder.Visibility = Visibility.Collapsed;
             QuantityTextBox.Text = "1";
             AddButton.IsEnabled = false;
+            EditButton.IsEnabled = false;
             DisplayEquipment(); // Refresh to clear selection highlight
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error adding equipment: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void Edit_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedEquipment == null)
+        {
+            MessageBox.Show("Please select an item to edit.", "Validation Error",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var editDialog = new CustomEquipmentDialog(_selectedEquipment)
+        {
+            Owner = this
+        };
+
+        if (editDialog.ShowDialog() == true && editDialog.Equipment != null)
+        {
+            try
+            {
+                await _gameService.UpdateEquipmentAsync(editDialog.Equipment);
+
+                MessageBox.Show($"Updated {editDialog.Equipment.Name} successfully.",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reload equipment list to show changes
+                LoadEquipmentAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating equipment: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 

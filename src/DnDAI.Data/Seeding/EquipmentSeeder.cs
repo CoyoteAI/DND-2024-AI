@@ -998,7 +998,7 @@ public static class EquipmentSeeder
                 Description = "This bag has an interior space considerably larger than its outside dimensions. The bag can hold up to 500 pounds, not exceeding a volume of 64 cubic feet.",
                 Type = EquipmentType.Container,
                 IsStandard = true,
-                CostInGold = 4000,
+                CostInGold = 500,  // Uncommon magic item pricing (typically 101-500 gp)
                 Weight = 15,
                 WeightCapacity = 500,
                 VolumeCapacity = 64,

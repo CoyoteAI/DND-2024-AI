@@ -82,6 +82,9 @@
                 <Button Content="Cancel" Width="100" Height="35" Margin="0,0,10,0"
                         Background="#95A5A6" Foreground="White" BorderThickness="0"
                         Click="Cancel_Click" Cursor="Hand"/>
+                <Button x:Name="EditButton" Content="Edit Item" Width="100" Height="35" Margin="0,0,10,0"
+                        Background="#E67E22" Foreground="White" BorderThickness="0"
+                        Click="Edit_Click" Cursor="Hand" IsEnabled="False"/>
                 <Button x:Name="AddButton" Content="Add to Inventory" Width="140" Height="35"
                         Background="#27AE60" Foreground="White" BorderThickness="0"
                         Click="Add_Click" Cursor="Hand" IsEnabled="False"/>

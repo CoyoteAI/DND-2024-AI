@@ -8,10 +8,145 @@ namespace DnDAI.Desktop.Dialogs;
 public partial class CustomEquipmentDialog : Window
 {
     public Equipment? Equipment { get; private set; }
+    private readonly bool _isEditMode;
 
     public CustomEquipmentDialog()
     {
         InitializeComponent();
+        _isEditMode = false;
+    }
+
+    public CustomEquipmentDialog(Equipment equipment) : this()
+    {
+        _isEditMode = true;
+        Equipment = equipment;
+        LoadEquipmentData();
+
+        // Update title and button
+        this.Title = "Edit Equipment";
+        // Find and update the save button text
+        this.Loaded += (s, e) =>
+        {
+            // The button is in the XAML, we'll need to update it
+        };
+    }
+
+    private void LoadEquipmentData()
+    {
+        if (Equipment == null) return;
+
+        NameTextBox.Text = Equipment.Name;
+        DescriptionTextBox.Text = Equipment.Description;
+        CostTextBox.Text = Equipment.CostInGold.ToString();
+        WeightTextBox.Text = Equipment.Weight.ToString();
+
+        // Set equipment type
+        foreach (ComboBoxItem item in TypeComboBox.Items)
+        {
+            if (item.Tag?.ToString() == Equipment.Type.ToString())
+            {
+                TypeComboBox.SelectedItem = item;
+                break;
+            }
+        }
+
+        // Set rarity
+        if (Equipment.Rarity.HasValue)
+        {
+            foreach (ComboBoxItem item in RarityComboBox.Items)
+            {
+                if (item.Tag?.ToString() == Equipment.Rarity.ToString())
+                {
+                    RarityComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
+        RequiresAttunementCheckBox.IsChecked = Equipment.RequiresAttunement;
+
+        if (Equipment.MaxCharges.HasValue)
+        {
+            MaxChargesTextBox.Text = Equipment.MaxCharges.ToString();
+        }
+        if (!string.IsNullOrEmpty(Equipment.ChargeRegeneration))
+        {
+            ChargeRegenTextBox.Text = Equipment.ChargeRegeneration;
+        }
+
+        // Load type-specific properties
+        if (Equipment.Type == EquipmentType.Weapon && Equipment.Damage != null)
+        {
+            DamageTextBox.Text = Equipment.Damage;
+
+            foreach (ComboBoxItem item in DamageTypeComboBox.Items)
+            {
+                if (item.Content?.ToString() == Equipment.DamageType)
+                {
+                    DamageTypeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
+            if (Equipment.WeaponCategory.HasValue)
+            {
+                foreach (ComboBoxItem item in WeaponCategoryComboBox.Items)
+                {
+                    var tag = item.Tag?.ToString();
+                    if (tag == Equipment.WeaponCategory.ToString())
+                    {
+                        WeaponCategoryComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Equipment.Range))
+            {
+                RangeTextBox.Text = Equipment.Range;
+            }
+
+            FinesseCheckBox.IsChecked = Equipment.IsFinesse;
+            VersatileCheckBox.IsChecked = Equipment.IsVersatile;
+
+            if (Equipment.IsVersatile && !string.IsNullOrEmpty(Equipment.VersatileDamage))
+            {
+                VersatileDamageTextBox.Text = Equipment.VersatileDamage;
+            }
+        }
+        else if (Equipment.Type == EquipmentType.Armor && Equipment.ArmorClass.HasValue)
+        {
+            ArmorClassTextBox.Text = Equipment.ArmorClass.ToString();
+
+            if (Equipment.ArmorCategory.HasValue)
+            {
+                foreach (ComboBoxItem item in ArmorCategoryComboBox.Items)
+                {
+                    var tag = item.Tag?.ToString();
+                    if ((tag == "Light" && Equipment.ArmorCategory == ArmorCategory.LightArmor) ||
+                        (tag == "Medium" && Equipment.ArmorCategory == ArmorCategory.MediumArmor) ||
+                        (tag == "Heavy" && Equipment.ArmorCategory == ArmorCategory.HeavyArmor) ||
+                        (tag == "Shield" && Equipment.ArmorCategory == ArmorCategory.Shield))
+                    {
+                        ArmorCategoryComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+
+            StealthDisadvantageCheckBox.IsChecked = Equipment.StealthDisadvantage;
+        }
+        else if (Equipment.Type == EquipmentType.Container)
+        {
+            if (Equipment.WeightCapacity.HasValue)
+            {
+                WeightCapacityTextBox.Text = Equipment.WeightCapacity.ToString();
+            }
+            if (Equipment.VolumeCapacity.HasValue)
+            {
+                VolumeCapacityTextBox.Text = Equipment.VolumeCapacity.ToString();
+            }
+        }
     }
 
     private void TypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -101,20 +236,23 @@ public partial class CustomEquipmentDialog : Window
             chargeRegen = null;
         }
 
-        // Create equipment object
-        Equipment = new Equipment
+        // Create or update equipment object
+        if (!_isEditMode || Equipment == null)
         {
-            Name = name,
-            Description = description,
-            Type = equipmentType,
-            IsStandard = false, // Custom item
-            CostInGold = cost,
-            Weight = weight,
-            Rarity = rarity,
-            RequiresAttunement = RequiresAttunementCheckBox.IsChecked == true,
-            MaxCharges = maxCharges,
-            ChargeRegeneration = chargeRegen
-        };
+            Equipment = new Equipment();
+        }
+
+        // Update equipment properties
+        Equipment.Name = name;
+        Equipment.Description = description;
+        Equipment.Type = equipmentType;
+        Equipment.IsStandard = _isEditMode ? Equipment.IsStandard : false; // Preserve IsStandard in edit mode
+        Equipment.CostInGold = cost;
+        Equipment.Weight = weight;
+        Equipment.Rarity = rarity;
+        Equipment.RequiresAttunement = RequiresAttunementCheckBox.IsChecked == true;
+        Equipment.MaxCharges = maxCharges;
+        Equipment.ChargeRegeneration = chargeRegen;
 
         // Handle weapon properties
         if (equipmentType == EquipmentType.Weapon)

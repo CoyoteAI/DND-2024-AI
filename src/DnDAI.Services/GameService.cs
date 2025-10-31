@@ -417,4 +417,9 @@ public class GameService
     {
         await _characterEquipmentRepository.UpdateAsync(characterEquipment);
     }
+
+    public async Task UpdateEquipmentAsync(Equipment equipment)
+    {
+        await _equipmentRepository.UpdateAsync(equipment);
+    }
 }
