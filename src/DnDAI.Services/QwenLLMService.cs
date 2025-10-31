@@ -34,14 +34,15 @@ public class QwenLLMService : ILLMService
         if (quoteMatches.Count > 0)
         {
             // Prefer the LONGEST quoted section that looks like narrative (not meta-planning)
-            // Meta-planning indicators (expanded list)
+            // Expanded meta-phrase detection
             var metaPhrases = new[] {
                 "I'll ", "Let's ", "We can ", "Idea:", "Note:", "Campaign:", "Example narrative:",
                 "The player has", "The player's", "campaign set in", "The character",
-                "level ", "HP:", "/", "message is", "text is", "input is"
+                "level ", "HP:", "/", "message is", "text is", "input is",
+                "I can ", "to show", "the instructions", "However,", "Since this"
             };
 
-            // First pass: Find longest quote WITHOUT meta phrases and >300 chars
+            // Find longest quote WITHOUT meta phrases and >300 chars (actual narrative)
             var validQuotes = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
                 .Select((m, i) => new { Quote = m.Groups[1].Value, Index = i })
                 .Where(q => {
@@ -58,25 +59,8 @@ public class QwenLLMService : ILLMService
                 return best.Quote.Trim();
             }
 
-            // Second pass: If no long clean quotes, find longest quote without meta (>100 chars)
-            validQuotes = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
-                .Select((m, i) => new { Quote = m.Groups[1].Value, Index = i })
-                .Where(q => {
-                    bool hasMeta = metaPhrases.Any(p => q.Quote.Contains(p, StringComparison.OrdinalIgnoreCase));
-                    return !hasMeta && q.Quote.Length > 100;
-                })
-                .OrderByDescending(q => q.Quote.Length)
-                .ToList();
-
-            if (validQuotes.Any())
-            {
-                var best = validQuotes.First();
-                Log($"Found quoted narrative (#{best.Index}): {best.Quote.Length} chars");
-                return best.Quote.Trim();
-            }
-
-            // Before falling back to longest quote, try to find unquoted narrative at the end
-            Log("No clean quoted narrative found, checking for unquoted narrative");
+            // No good quoted text found - skip to unquoted narrative strategy
+            Log("No clean quoted narrative >300 chars found, checking for unquoted narrative");
         }
 
         // Strategy 2: Look for unquoted narrative (might not be in quotes at all)
