@@ -100,17 +100,35 @@ public class QwenLLMService : ILLMService
             }
         }
 
-        // Strategy 4: Try quoted text as fallback (if we found any quotes earlier)
+        // Strategy 4: Try quoted text as fallback (filter meta-phrases, accept >150 chars)
         var quotePattern2 = @"""([^""]{50,})""";
         var quoteMatches2 = System.Text.RegularExpressions.Regex.Matches(thinkingText, quotePattern2);
         if (quoteMatches2.Count > 0)
         {
-            var longestQuote = quoteMatches2.Cast<System.Text.RegularExpressions.Match>()
-                .OrderByDescending(m => m.Groups[1].Value.Length)
-                .First()
-                .Groups[1].Value;
-            Log($"Using longest quoted section as last resort: {longestQuote.Length} chars");
-            return longestQuote.Trim();
+            var metaPhrasesFallback = new[] {
+                "I'll ", "Let's ", "We can ", "Idea:", "Note:", "Campaign:", "Example narrative:",
+                "The player has", "The player's", "campaign set in", "The character",
+                "level ", "HP:", "/", "message is", "text is", "input is",
+                "I can ", "to show", "the instructions", "However,", "Since this", "I want"
+            };
+
+            var fallbackQuotes = quoteMatches2.Cast<System.Text.RegularExpressions.Match>()
+                .Select(m => m.Groups[1].Value)
+                .Where(quote => {
+                    bool hasMeta = metaPhrasesFallback.Any(p => quote.Contains(p, StringComparison.OrdinalIgnoreCase));
+                    return !hasMeta && quote.Length > 150;
+                })
+                .OrderByDescending(q => q.Length)
+                .ToList();
+
+            if (fallbackQuotes.Any())
+            {
+                var longestQuote = fallbackQuotes.First();
+                Log($"Using longest clean quoted section as fallback: {longestQuote.Length} chars");
+                return longestQuote.Trim();
+            }
+
+            Log("All quotes contain meta-planning text, skipping to full text fallback");
         }
 
         // Final fallback: return everything (better to show too much than nothing)
