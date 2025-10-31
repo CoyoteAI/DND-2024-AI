@@ -365,35 +365,17 @@ public partial class EquipmentWindow : Window
         }
     }
 
-    private async void AddStandardEquipment_Click(object sender, RoutedEventArgs e)
+    private void AddStandardEquipment_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Dialogs.EquipmentPickerDialog(_gameService)
+        var dialog = new Dialogs.EquipmentPickerDialog(_gameService, _character)
         {
             Owner = this
         };
 
-        if (dialog.ShowDialog() == true && dialog.SelectedEquipment != null)
-        {
-            try
-            {
-                await _gameService.AddEquipmentToCharacterAsync(
-                    _character.Id,
-                    dialog.SelectedEquipment.Id,
-                    dialog.Quantity,
-                    isEquipped: false
-                );
+        // Subscribe to refresh event
+        dialog.EquipmentAdded += (s, args) => LoadEquipmentAsync();
 
-                MessageBox.Show($"Added {dialog.Quantity}x {dialog.SelectedEquipment.Name} to inventory.",
-                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                LoadEquipmentAsync(); // Refresh the display
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error adding equipment: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        dialog.ShowDialog();
     }
 
     private async void AddCustomEquipment_Click(object sender, RoutedEventArgs e)

@@ -10,17 +10,18 @@ namespace DnDAI.Desktop.Dialogs;
 public partial class EquipmentPickerDialog : Window
 {
     private readonly GameService _gameService;
+    private readonly PlayerCharacter _character;
     private List<Equipment> _allEquipment = new();
     private List<Equipment> _filteredEquipment = new();
     private Equipment? _selectedEquipment;
 
-    public Equipment? SelectedEquipment => _selectedEquipment;
-    public int Quantity { get; private set; } = 1;
+    public event EventHandler? EquipmentAdded; // Notify parent window to refresh
 
-    public EquipmentPickerDialog(GameService gameService)
+    public EquipmentPickerDialog(GameService gameService, PlayerCharacter character)
     {
         InitializeComponent();
         _gameService = gameService;
+        _character = character;
         LoadEquipmentAsync();
     }
 
@@ -248,7 +249,7 @@ public partial class EquipmentPickerDialog : Window
         DisplayEquipment();
     }
 
-    private void Add_Click(object sender, RoutedEventArgs e)
+    private async void Add_Click(object sender, RoutedEventArgs e)
     {
         if (_selectedEquipment == null)
         {
@@ -265,14 +266,37 @@ public partial class EquipmentPickerDialog : Window
             return;
         }
 
-        Quantity = quantity;
-        DialogResult = true;
-        Close();
+        try
+        {
+            await _gameService.AddEquipmentToCharacterAsync(
+                _character.Id,
+                _selectedEquipment.Id,
+                quantity,
+                isEquipped: false
+            );
+
+            MessageBox.Show($"Added {quantity}x {_selectedEquipment.Name} to inventory.",
+                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Notify parent to refresh
+            EquipmentAdded?.Invoke(this, EventArgs.Empty);
+
+            // Clear selection and reset quantity for next item
+            _selectedEquipment = null;
+            SelectedItemBorder.Visibility = Visibility.Collapsed;
+            QuantityTextBox.Text = "1";
+            AddButton.IsEnabled = false;
+            DisplayEquipment(); // Refresh to clear selection highlight
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error adding equipment: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = false;
         Close();
     }
 }

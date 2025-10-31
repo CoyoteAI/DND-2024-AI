@@ -21,6 +21,15 @@ public static class EquipmentSeeder
         equipment.AddRange(GetMartialMeleeWeapons());
         equipment.AddRange(GetMartialRangedWeapons());
 
+        // Add armor
+        equipment.AddRange(GetArmor());
+
+        // Add adventuring gear
+        equipment.AddRange(GetAdventuringGear());
+
+        // Add containers
+        equipment.AddRange(GetContainers());
+
         // Set timestamps for all equipment
         var now = DateTime.UtcNow;
         foreach (var item in equipment)
@@ -596,6 +605,405 @@ public static class EquipmentSeeder
                 IsFinesse = false,
                 IsVersatile = false,
                 Range = "5/15"
+            }
+        };
+    }
+
+    private static List<Equipment> GetArmor()
+    {
+        return new List<Equipment>
+        {
+            // Light Armor
+            new Equipment
+            {
+                Name = "Padded Armor",
+                Description = "Padded armor consists of quilted layers of cloth and batting.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 5,
+                Weight = 8,
+                ArmorCategory = ArmorCategory.LightArmor,
+                ArmorClass = 11,
+                AddDexModifier = true,
+                StealthDisadvantage = true
+            },
+            new Equipment
+            {
+                Name = "Leather Armor",
+                Description = "The breastplate and shoulder protectors of this armor are made of leather.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 10,
+                Weight = 10,
+                ArmorCategory = ArmorCategory.LightArmor,
+                ArmorClass = 11,
+                AddDexModifier = true
+            },
+            new Equipment
+            {
+                Name = "Studded Leather Armor",
+                Description = "Made from tough but flexible leather, studded leather is reinforced with close-set rivets or spikes.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 45,
+                Weight = 13,
+                ArmorCategory = ArmorCategory.LightArmor,
+                ArmorClass = 12,
+                AddDexModifier = true
+            },
+            // Medium Armor
+            new Equipment
+            {
+                Name = "Hide Armor",
+                Description = "This crude armor consists of thick furs and pelts.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 10,
+                Weight = 12,
+                ArmorCategory = ArmorCategory.MediumArmor,
+                ArmorClass = 12,
+                AddDexModifier = true,
+                MaxDexModifier = 2
+            },
+            new Equipment
+            {
+                Name = "Chain Shirt",
+                Description = "Made of interlocking metal rings, a chain shirt is worn between layers of clothing or leather.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 50,
+                Weight = 20,
+                ArmorCategory = ArmorCategory.MediumArmor,
+                ArmorClass = 13,
+                AddDexModifier = true,
+                MaxDexModifier = 2
+            },
+            new Equipment
+            {
+                Name = "Scale Mail",
+                Description = "This armor consists of a coat and leggings of leather covered with overlapping pieces of metal.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 50,
+                Weight = 45,
+                ArmorCategory = ArmorCategory.MediumArmor,
+                ArmorClass = 14,
+                AddDexModifier = true,
+                MaxDexModifier = 2,
+                StealthDisadvantage = true
+            },
+            new Equipment
+            {
+                Name = "Breastplate",
+                Description = "This armor consists of a fitted metal chest piece worn with supple leather.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 400,
+                Weight = 20,
+                ArmorCategory = ArmorCategory.MediumArmor,
+                ArmorClass = 14,
+                AddDexModifier = true,
+                MaxDexModifier = 2
+            },
+            new Equipment
+            {
+                Name = "Half Plate",
+                Description = "Half plate consists of shaped metal plates that cover most of the wearer's body.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 750,
+                Weight = 40,
+                ArmorCategory = ArmorCategory.MediumArmor,
+                ArmorClass = 15,
+                AddDexModifier = true,
+                MaxDexModifier = 2,
+                StealthDisadvantage = true
+            },
+            // Heavy Armor
+            new Equipment
+            {
+                Name = "Ring Mail",
+                Description = "This armor is leather armor with heavy rings sewn into it.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 30,
+                Weight = 40,
+                ArmorCategory = ArmorCategory.HeavyArmor,
+                ArmorClass = 14,
+                AddDexModifier = false,
+                StealthDisadvantage = true
+            },
+            new Equipment
+            {
+                Name = "Chain Mail",
+                Description = "Made of interlocking metal rings, chain mail includes a layer of quilted fabric worn underneath.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 75,
+                Weight = 55,
+                ArmorCategory = ArmorCategory.HeavyArmor,
+                ArmorClass = 16,
+                AddDexModifier = false,
+                StealthDisadvantage = true,
+                StrengthRequirement = 13
+            },
+            new Equipment
+            {
+                Name = "Splint Armor",
+                Description = "This armor is made of narrow vertical strips of metal riveted to a backing of leather.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 200,
+                Weight = 60,
+                ArmorCategory = ArmorCategory.HeavyArmor,
+                ArmorClass = 17,
+                AddDexModifier = false,
+                StealthDisadvantage = true,
+                StrengthRequirement = 15
+            },
+            new Equipment
+            {
+                Name = "Plate Armor",
+                Description = "Plate consists of shaped, interlocking metal plates to cover the entire body.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 1500,
+                Weight = 65,
+                ArmorCategory = ArmorCategory.HeavyArmor,
+                ArmorClass = 18,
+                AddDexModifier = false,
+                StealthDisadvantage = true,
+                StrengthRequirement = 15
+            },
+            // Shield
+            new Equipment
+            {
+                Name = "Shield",
+                Description = "A shield is made from wood or metal and is carried in one hand.",
+                Type = EquipmentType.Armor,
+                IsStandard = true,
+                CostInGold = 10,
+                Weight = 6,
+                ArmorCategory = ArmorCategory.Shield,
+                ArmorClass = 2
+            }
+        };
+    }
+
+    private static List<Equipment> GetAdventuringGear()
+    {
+        return new List<Equipment>
+        {
+            new Equipment
+            {
+                Name = "Rope, Hempen (50 feet)",
+                Description = "Rope has 2 hit points and can be burst with a DC 17 Strength check.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 1,
+                Weight = 10
+            },
+            new Equipment
+            {
+                Name = "Rope, Silk (50 feet)",
+                Description = "Silk rope has 2 hit points and can be burst with a DC 17 Strength check.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 10,
+                Weight = 5
+            },
+            new Equipment
+            {
+                Name = "Torch",
+                Description = "A torch burns for 1 hour, providing bright light in a 20-foot radius.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 0.01m,
+                Weight = 1
+            },
+            new Equipment
+            {
+                Name = "Rations (1 day)",
+                Description = "Rations consist of dry foods suitable for extended travel.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 0.5m,
+                Weight = 2
+            },
+            new Equipment
+            {
+                Name = "Waterskin",
+                Description = "A waterskin can hold up to 4 pints of liquid.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 0.2m,
+                Weight = 5
+            },
+            new Equipment
+            {
+                Name = "Bedroll",
+                Description = "A sleeping bag for use on adventures.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 1,
+                Weight = 7
+            },
+            new Equipment
+            {
+                Name = "Tinderbox",
+                Description = "This small container holds flint, fire steel, and tinder for kindling a fire.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 0.5m,
+                Weight = 1
+            },
+            new Equipment
+            {
+                Name = "Crowbar",
+                Description = "Using a crowbar grants advantage to Strength checks where leverage can be applied.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 2,
+                Weight = 5
+            },
+            new Equipment
+            {
+                Name = "Grappling Hook",
+                Description = "A grappling hook can secure a rope, allowing you to climb.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 2,
+                Weight = 4
+            },
+            new Equipment
+            {
+                Name = "Lantern, Hooded",
+                Description = "A hooded lantern casts bright light in a 30-foot radius for 6 hours on a pint of oil.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 5,
+                Weight = 2
+            },
+            new Equipment
+            {
+                Name = "Oil (flask)",
+                Description = "Oil can fuel a lantern or be used as a splash weapon dealing 5 fire damage.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 0.1m,
+                Weight = 1
+            },
+            new Equipment
+            {
+                Name = "Caltrops (bag of 20)",
+                Description = "One bag covers a 5-foot-square area. Any creature that enters the area must succeed on a DC 15 Dexterity saving throw or take 1 piercing damage.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 1,
+                Weight = 2
+            },
+            new Equipment
+            {
+                Name = "Ball Bearings (bag of 1,000)",
+                Description = "A bag covers a 10-foot square. Any creature moving through the area must succeed on a DC 10 Dexterity saving throw or fall prone.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 1,
+                Weight = 2
+            },
+            new Equipment
+            {
+                Name = "Healer's Kit",
+                Description = "Has ten uses. As an action, you can expend one use to stabilize a creature at 0 hit points.",
+                Type = EquipmentType.Adventuring,
+                IsStandard = true,
+                CostInGold = 5,
+                Weight = 3
+            },
+            new Equipment
+            {
+                Name = "Potion of Healing",
+                Description = "Drinking this potion restores 2d4+2 hit points.",
+                Type = EquipmentType.Consumable,
+                IsStandard = true,
+                CostInGold = 50,
+                Weight = 0.5m,
+                Rarity = ItemRarity.Common
+            }
+        };
+    }
+
+    private static List<Equipment> GetContainers()
+    {
+        return new List<Equipment>
+        {
+            new Equipment
+            {
+                Name = "Backpack",
+                Description = "A backpack can hold 1 cubic foot or 30 pounds of gear.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 2,
+                Weight = 5,
+                WeightCapacity = 30,
+                VolumeCapacity = 1
+            },
+            new Equipment
+            {
+                Name = "Pouch",
+                Description = "A cloth or leather pouch can hold 1/5 cubic foot or 6 pounds of gear.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 0.5m,
+                Weight = 1,
+                WeightCapacity = 6,
+                VolumeCapacity = 0.2m
+            },
+            new Equipment
+            {
+                Name = "Sack",
+                Description = "A sack can hold 1 cubic foot or 30 pounds of gear.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 0.01m,
+                Weight = 0.5m,
+                WeightCapacity = 30,
+                VolumeCapacity = 1
+            },
+            new Equipment
+            {
+                Name = "Chest",
+                Description = "A sturdy wooden chest can hold 12 cubic feet or 300 pounds of gear.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 5,
+                Weight = 25,
+                WeightCapacity = 300,
+                VolumeCapacity = 12
+            },
+            new Equipment
+            {
+                Name = "Barrel",
+                Description = "A barrel can hold 40 gallons (5.3 cubic feet) or 300 pounds of gear.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 2,
+                Weight = 70,
+                WeightCapacity = 300,
+                VolumeCapacity = 5.3m
+            },
+            new Equipment
+            {
+                Name = "Bag of Holding",
+                Description = "This bag has an interior space considerably larger than its outside dimensions. The bag can hold up to 500 pounds, not exceeding a volume of 64 cubic feet.",
+                Type = EquipmentType.Container,
+                IsStandard = true,
+                CostInGold = 4000,
+                Weight = 15,
+                WeightCapacity = 500,
+                VolumeCapacity = 64,
+                Rarity = ItemRarity.Uncommon,
+                RequiresAttunement = false
             }
         };
     }
