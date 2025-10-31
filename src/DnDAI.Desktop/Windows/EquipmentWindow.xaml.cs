@@ -100,6 +100,24 @@ public partial class EquipmentWindow : Window
         }
         else
         {
+            // Debug: Show what we're about to display
+            var debugInfo = "DEBUG - DisplayEquipment:\n\n";
+            debugInfo += $"Total inventory items: {inventory.Count}\n";
+            debugInfo += $"Root items (ContainerId=null): {rootItems.Count}\n\n";
+
+            foreach (var item in inventory)
+            {
+                debugInfo += $"- {item.Equipment.Name} (ID: {item.Id}, ContainerId: {item.ContainerId ?? 0})\n";
+            }
+
+            debugInfo += $"\nRoot items:\n";
+            foreach (var item in rootItems)
+            {
+                debugInfo += $"- {item.Equipment.Name} (ID: {item.Id})\n";
+            }
+
+            MessageBox.Show(debugInfo, "Display Debug", MessageBoxButton.OK, MessageBoxImage.Information);
+
             // Display root-level items (not in containers)
             foreach (var item in rootItems)
             {
