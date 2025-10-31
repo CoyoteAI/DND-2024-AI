@@ -33,14 +33,29 @@ public class QwenLLMService : ILLMService
 
         if (quoteMatches.Count > 0)
         {
-            // Get the longest quoted section - that's likely the actual narrative
-            var longestQuote = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
-                .OrderByDescending(m => m.Groups[1].Value.Length)
-                .First()
-                .Groups[1].Value;
+            // Prefer the LAST quoted section (often the actual narrative after all the planning)
+            // But also check if it looks like narrative vs meta-planning
+            var metaPhrases = new[] { "I'll ", "Let's ", "We can ", "Idea:", "Note:", "Campaign:", "Example narrative:" };
 
-            Log($"Found quoted narrative: {longestQuote.Length} chars");
-            return longestQuote.Trim();
+            // Check quotes from last to first
+            for (int i = quoteMatches.Count - 1; i >= 0; i--)
+            {
+                var quote = quoteMatches[i].Groups[1].Value;
+
+                // If this quote doesn't contain meta phrases and is substantial, use it
+                bool hasMeta = metaPhrases.Any(p => quote.Contains(p, StringComparison.OrdinalIgnoreCase));
+
+                if (!hasMeta && quote.Length > 100)
+                {
+                    Log($"Found clean quoted narrative (#{i}): {quote.Length} chars");
+                    return quote.Trim();
+                }
+            }
+
+            // Fallback: use the last quote regardless (better than meta-heavy earlier quotes)
+            var lastQuote = quoteMatches[quoteMatches.Count - 1].Groups[1].Value;
+            Log($"Using last quoted section: {lastQuote.Length} chars");
+            return lastQuote.Trim();
         }
 
         // Strategy 2: Look for "Let me draft:" or similar markers and take everything after
