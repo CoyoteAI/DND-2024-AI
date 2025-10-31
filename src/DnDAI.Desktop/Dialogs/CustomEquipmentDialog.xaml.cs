@@ -170,11 +170,11 @@ public partial class CustomEquipmentDialog : Window
             var armorCategoryTag = (ArmorCategoryComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Light";
             var armorCategory = armorCategoryTag switch
             {
-                "Light" => ArmorCategory.Light,
-                "Medium" => ArmorCategory.Medium,
-                "Heavy" => ArmorCategory.Heavy,
+                "Light" => ArmorCategory.LightArmor,
+                "Medium" => ArmorCategory.MediumArmor,
+                "Heavy" => ArmorCategory.HeavyArmor,
                 "Shield" => ArmorCategory.Shield,
-                _ => ArmorCategory.Light
+                _ => ArmorCategory.LightArmor
             };
 
             Equipment.ArmorClass = ac;
@@ -182,8 +182,8 @@ public partial class CustomEquipmentDialog : Window
             Equipment.StealthDisadvantage = StealthDisadvantageCheckBox.IsChecked == true;
 
             // Set DEX modifier rules based on armor category
-            Equipment.AddDexModifier = armorCategory != ArmorCategory.Heavy;
-            if (armorCategory == ArmorCategory.Medium)
+            Equipment.AddDexModifier = armorCategory != ArmorCategory.HeavyArmor;
+            if (armorCategory == ArmorCategory.MediumArmor)
             {
                 Equipment.MaxDexModifier = 2;
             }
