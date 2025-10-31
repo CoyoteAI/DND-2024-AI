@@ -595,6 +595,14 @@ public partial class EquipmentWindow : Window
             {
                 try
                 {
+                    // Debug: Show what we're about to do
+                    var debugMessage = $"DEBUG:\n" +
+                        $"Dragged Item: {draggedItem.Equipment.Name} (ID: {draggedItem.Id}, Current ContainerId: {draggedItem.ContainerId})\n" +
+                        $"Target Container: {targetContainer.Equipment.Name} (ID: {targetContainer.Id})\n" +
+                        $"Setting draggedItem.ContainerId = {targetContainer.Id}";
+
+                    MessageBox.Show(debugMessage, "Debug Info", MessageBoxButton.OK, MessageBoxImage.Information);
+
                     // Move the item into the container
                     draggedItem.ContainerId = targetContainer.Id;
                     await _gameService.UpdateCharacterEquipmentAsync(draggedItem);
