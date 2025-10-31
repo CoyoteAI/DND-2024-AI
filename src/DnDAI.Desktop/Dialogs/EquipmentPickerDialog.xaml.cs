@@ -136,14 +136,18 @@ public partial class EquipmentPickerDialog : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         // Left side: Item info
-        var leftPanel = new StackPanel();
+        var leftPanel = new StackPanel
+        {
+            MaxWidth = 450 // Constrain width so text wraps
+        };
 
         var nameText = new TextBlock
         {
             Text = equipment.Name,
             FontWeight = FontWeights.Bold,
             FontSize = 14,
-            Foreground = new SolidColorBrush(isSelected ? Colors.White : Color.FromRgb(44, 62, 80))
+            Foreground = new SolidColorBrush(isSelected ? Colors.White : Color.FromRgb(44, 62, 80)),
+            TextWrapping = TextWrapping.Wrap
         };
         leftPanel.Children.Add(nameText);
 
