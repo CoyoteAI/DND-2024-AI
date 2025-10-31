@@ -37,7 +37,7 @@
                                 <ComboBoxItem Content="Weapon" Tag="Weapon" IsSelected="True"/>
                                 <ComboBoxItem Content="Armor" Tag="Armor"/>
                                 <ComboBoxItem Content="Container" Tag="Container"/>
-                                <ComboBoxItem Content="Wondrous Item" Tag="Adventuring"/>
+                                <ComboBoxItem Content="Adventuring Gear" Tag="Adventuring"/>
                                 <ComboBoxItem Content="Tool" Tag="Tool"/>
                             </ComboBox>
                         </StackPanel>
