@@ -129,9 +129,9 @@ public partial class EquipmentWindow : Window
         var border = new Border
         {
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
-            CornerRadius = new CornerRadius(5),
-            Padding = new Thickness(10),
-            Margin = new Thickness(indentLevel * 30, 3, 0, 3) // Indent nested items
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8),
+            Margin = new Thickness(indentLevel * 30, 2, 0, 2) // Indent nested items
         };
 
         var grid = new Grid();
@@ -146,7 +146,7 @@ public partial class EquipmentWindow : Window
         {
             Text = equipment.Name,
             FontWeight = FontWeights.Bold,
-            FontSize = 13,
+            FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center
         };
         namePanel.Children.Add(nameText);
@@ -156,7 +156,7 @@ public partial class EquipmentWindow : Window
             var quantityText = new TextBlock
             {
                 Text = $" (x{charEquip.Quantity})",
-                FontSize = 12,
+                FontSize = 10,
                 Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 0, 0)
@@ -169,9 +169,9 @@ public partial class EquipmentWindow : Window
         // Equipment details
         var detailsText = new TextBlock
         {
-            FontSize = 11,
+            FontSize = 10,
             Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
-            Margin = new Thickness(0, 3, 0, 0)
+            Margin = new Thickness(0, 2, 0, 0)
         };
 
         if (equipment.Type == Core.Enums.EquipmentType.Weapon && equipment.Damage != null)
@@ -219,8 +219,9 @@ public partial class EquipmentWindow : Window
         var equipButton = new Button
         {
             Content = isEquipped ? "Unequip" : "Equip",
-            Width = 80,
-            Height = 30,
+            Width = 70,
+            Height = 26,
+            FontSize = 11,
             Background = new SolidColorBrush(isEquipped ? Color.FromRgb(231, 76, 60) : Color.FromRgb(46, 204, 113)),
             Foreground = Brushes.White,
             BorderThickness = new Thickness(0),
@@ -233,8 +234,9 @@ public partial class EquipmentWindow : Window
         var deleteButton = new Button
         {
             Content = "Remove",
-            Width = 80,
-            Height = 30,
+            Width = 70,
+            Height = 26,
+            FontSize = 11,
             Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
             Foreground = Brushes.White,
             BorderThickness = new Thickness(0),
@@ -292,8 +294,8 @@ public partial class EquipmentWindow : Window
         {
             Background = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(5),
-            Padding = new Thickness(10),
-            Margin = new Thickness(0, 3, 0, 3)
+            Padding = new Thickness(8),
+            Margin = new Thickness(0, 2, 0, 2)
         };
 
         var grid = new Grid();
@@ -307,7 +309,7 @@ public partial class EquipmentWindow : Window
         {
             Text = $"{weapon.Name} (Custom Weapon)",
             FontWeight = FontWeights.Bold,
-            FontSize = 13
+            FontSize = 11
         };
         leftPanel.Children.Add(nameText);
 
@@ -315,9 +317,9 @@ public partial class EquipmentWindow : Window
         var detailsText = new TextBlock
         {
             Text = $"{weapon.DamageDice} + {weapon.MagicBonus}",
-            FontSize = 11,
+            FontSize = 10,
             Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
-            Margin = new Thickness(0, 3, 0, 0)
+            Margin = new Thickness(0, 2, 0, 0)
         };
         leftPanel.Children.Add(detailsText);
 
@@ -328,8 +330,9 @@ public partial class EquipmentWindow : Window
         var deleteButton = new Button
         {
             Content = "Remove",
-            Width = 80,
-            Height = 30,
+            Width = 70,
+            Height = 26,
+            FontSize = 11,
             Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
             Foreground = Brushes.White,
             BorderThickness = new Thickness(0),
