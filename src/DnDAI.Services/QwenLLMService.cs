@@ -22,56 +22,66 @@ public class QwenLLMService : ILLMService
 
     private string CleanThinkingText(string thinkingText)
     {
-        // The "thinking" field often contains meta-commentary followed by the actual response
-        // Try to extract just the narrative part
+        // The "thinking" field contains meta-planning and the actual narrative is buried within
+        // Strategy: Look for quoted text or the last substantial narrative paragraph
 
         Log($"Raw thinking text length: {thinkingText.Length}");
-        Log($"First 300 chars of thinking: {thinkingText.Substring(0, Math.Min(300, thinkingText.Length))}");
 
-        var lines = thinkingText.Split(new[] { '\n' }, StringSplitOptions.None);
-        var narrativeStart = -1;
+        // Strategy 1: Extract text in quotes (e.g., "Good evening...")
+        var quotePattern = @"""([^""]{50,})""";
+        var quoteMatches = System.Text.RegularExpressions.Regex.Matches(thinkingText, quotePattern);
 
-        // Meta-thinking indicators
-        var metaIndicators = new[] {
-            "I'll ", "I will ", "I should ", "I need to ", "I must ",
-            "the player", "The player", "Let me ", "First,", "Then,",
-            "Important:", "Note:", "Since the", "We are "
-        };
-
-        // Find where actual narrative starts (first line without meta-indicators)
-        for (int i = 0; i < lines.Length; i++)
+        if (quoteMatches.Count > 0)
         {
-            var line = lines[i].Trim();
+            // Get the longest quoted section - that's likely the actual narrative
+            var longestQuote = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
+                .OrderByDescending(m => m.Groups[1].Value.Length)
+                .First()
+                .Groups[1].Value;
 
-            // Skip empty lines
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            Log($"Found quoted narrative: {longestQuote.Length} chars");
+            return longestQuote.Trim();
+        }
 
-            // Check if this line contains meta-thinking
-            bool isMeta = metaIndicators.Any(indicator =>
-                line.Contains(indicator, StringComparison.OrdinalIgnoreCase));
-
-            Log($"Line {i}: isMeta={isMeta}, length={line.Length}, text={line.Substring(0, Math.Min(50, line.Length))}");
-
-            // If not meta, this might be the start of the narrative
-            if (!isMeta && line.Length > 20) // At least 20 chars to avoid false positives
+        // Strategy 2: Look for "Let me draft:" or similar markers and take everything after
+        var draftMarkers = new[] { "Let me draft:", "I'll write:", "Example response:", "Draft:" };
+        foreach (var marker in draftMarkers)
+        {
+            var markerIndex = thinkingText.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (markerIndex >= 0)
             {
-                narrativeStart = i;
-                Log($"Found narrative start at line {i}");
-                break;
+                var afterMarker = thinkingText.Substring(markerIndex + marker.Length).Trim();
+                // Take first substantial paragraph after marker
+                var firstParagraph = afterMarker.Split(new[] { "\n\n" }, StringSplitOptions.None)[0].Trim();
+                if (firstParagraph.Length > 50)
+                {
+                    // Remove any leading quotes
+                    firstParagraph = firstParagraph.Trim('"', ' ');
+                    Log($"Found narrative after '{marker}': {firstParagraph.Length} chars");
+                    return firstParagraph;
+                }
             }
         }
 
-        // If we found a narrative start, return from there
-        if (narrativeStart >= 0)
+        // Strategy 3: Find last paragraph that looks like narrative (starts with capital, >50 chars)
+        var paragraphs = thinkingText.Split(new[] { "\n\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        for (int i = paragraphs.Length - 1; i >= 0; i--)
         {
-            var cleaned = string.Join("\n", lines.Skip(narrativeStart)).Trim();
-            Log($"Cleaned text length: {cleaned.Length}");
-            return cleaned;
+            var para = paragraphs[i].Trim();
+            if (para.Length > 50 &&
+                char.IsUpper(para[0]) &&
+                !para.Contains("I'll") &&
+                !para.Contains("Let me") &&
+                !para.Contains("the player") &&
+                !para.Contains("Example:"))
+            {
+                Log($"Found narrative paragraph at end: {para.Length} chars");
+                return para;
+            }
         }
 
         // Fallback: return everything (better to show too much than nothing)
-        Log("No narrative start found, returning full thinking text");
+        Log("No narrative found, returning full thinking text");
         return thinkingText;
     }
 
