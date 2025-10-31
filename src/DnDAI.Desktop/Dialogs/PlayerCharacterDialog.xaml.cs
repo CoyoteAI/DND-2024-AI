@@ -113,6 +113,9 @@ public partial class PlayerCharacterDialog : Window
 
     private void UpdateSpellSlotsForClass()
     {
+        // Guard against calling this before controls are initialized
+        if (SpellSlots1TextBox == null) return;
+
         if (ClassComboBox.SelectedItem is CharacterClass selectedClass)
         {
             // Get level from text box, default to 1 if invalid
