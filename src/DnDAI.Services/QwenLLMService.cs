@@ -33,29 +33,55 @@ public class QwenLLMService : ILLMService
 
         if (quoteMatches.Count > 0)
         {
-            // Prefer the LAST quoted section (often the actual narrative after all the planning)
-            // But also check if it looks like narrative vs meta-planning
-            var metaPhrases = new[] { "I'll ", "Let's ", "We can ", "Idea:", "Note:", "Campaign:", "Example narrative:" };
+            // Prefer the LONGEST quoted section that looks like narrative (not meta-planning)
+            // Meta-planning indicators (expanded list)
+            var metaPhrases = new[] {
+                "I'll ", "Let's ", "We can ", "Idea:", "Note:", "Campaign:", "Example narrative:",
+                "The player has", "The player's", "campaign set in", "The character",
+                "level ", "HP:", "/", "message is", "text is", "input is"
+            };
 
-            // Check quotes from last to first
-            for (int i = quoteMatches.Count - 1; i >= 0; i--)
+            // First pass: Find longest quote WITHOUT meta phrases and >300 chars
+            var validQuotes = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
+                .Select((m, i) => new { Quote = m.Groups[1].Value, Index = i })
+                .Where(q => {
+                    bool hasMeta = metaPhrases.Any(p => q.Quote.Contains(p, StringComparison.OrdinalIgnoreCase));
+                    return !hasMeta && q.Quote.Length > 300;
+                })
+                .OrderByDescending(q => q.Quote.Length)
+                .ToList();
+
+            if (validQuotes.Any())
             {
-                var quote = quoteMatches[i].Groups[1].Value;
-
-                // If this quote doesn't contain meta phrases and is substantial, use it
-                bool hasMeta = metaPhrases.Any(p => quote.Contains(p, StringComparison.OrdinalIgnoreCase));
-
-                if (!hasMeta && quote.Length > 100)
-                {
-                    Log($"Found clean quoted narrative (#{i}): {quote.Length} chars");
-                    return quote.Trim();
-                }
+                var best = validQuotes.First();
+                Log($"Found clean quoted narrative (#{best.Index}): {best.Quote.Length} chars");
+                return best.Quote.Trim();
             }
 
-            // Fallback: use the last quote regardless (better than meta-heavy earlier quotes)
-            var lastQuote = quoteMatches[quoteMatches.Count - 1].Groups[1].Value;
-            Log($"Using last quoted section: {lastQuote.Length} chars");
-            return lastQuote.Trim();
+            // Second pass: If no long clean quotes, find longest quote without meta (>100 chars)
+            validQuotes = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
+                .Select((m, i) => new { Quote = m.Groups[1].Value, Index = i })
+                .Where(q => {
+                    bool hasMeta = metaPhrases.Any(p => q.Quote.Contains(p, StringComparison.OrdinalIgnoreCase));
+                    return !hasMeta && q.Quote.Length > 100;
+                })
+                .OrderByDescending(q => q.Quote.Length)
+                .ToList();
+
+            if (validQuotes.Any())
+            {
+                var best = validQuotes.First();
+                Log($"Found quoted narrative (#{best.Index}): {best.Quote.Length} chars");
+                return best.Quote.Trim();
+            }
+
+            // Fallback: use the longest quote regardless
+            var longestQuote = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
+                .OrderByDescending(m => m.Groups[1].Value.Length)
+                .First()
+                .Groups[1].Value;
+            Log($"Using longest quoted section as fallback: {longestQuote.Length} chars");
+            return longestQuote.Trim();
         }
 
         // Strategy 2: Look for "Let me draft:" or similar markers and take everything after
