@@ -1,0 +1,91 @@
+<Window x:Class="DnDAI.Desktop.Dialogs.EquipmentPickerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Equipment" Height="650" Width="700"
+        Background="#ECF0F1" WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
+    <Border Padding="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Text="Select Equipment"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="#2C3E50" Margin="0,0,0,15"/>
+
+            <!-- Search and Filter -->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Search" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <TextBox x:Name="SearchTextBox" Height="30" Padding="5" TextChanged="SearchTextBox_TextChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Type Filter" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="TypeFilterComboBox" Height="30" SelectionChanged="TypeFilterComboBox_SelectionChanged">
+                        <ComboBoxItem Content="All" IsSelected="True"/>
+                        <ComboBoxItem Content="Weapons"/>
+                        <ComboBoxItem Content="Armor"/>
+                        <ComboBoxItem Content="Adventuring Gear"/>
+                        <ComboBoxItem Content="Tools"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <!-- Selected Item Info -->
+            <Border Grid.Row="2" Background="#3498DB" CornerRadius="8" Padding="15" Margin="0,0,0,10"
+                    x:Name="SelectedItemBorder" Visibility="Collapsed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="SelectedItemName" Text="Item Name"
+                                   FontSize="16" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="SelectedItemDetails" Text="Details"
+                                   FontSize="12" Foreground="#ECF0F1" Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Quantity:" FontSize="12" Foreground="White" Margin="0,0,0,5"/>
+                        <TextBox x:Name="QuantityTextBox" Width="60" Height="30"
+                                 Text="1" TextAlignment="Center" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Equipment List -->
+            <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="10">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="EquipmentListPanel">
+                        <TextBlock Text="Loading equipment..." FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button Content="Cancel" Width="100" Height="35" Margin="0,0,10,0"
+                        Background="#95A5A6" Foreground="White" BorderThickness="0"
+                        Click="Cancel_Click" Cursor="Hand"/>
+                <Button x:Name="AddButton" Content="Add to Inventory" Width="140" Height="35"
+                        Background="#27AE60" Foreground="White" BorderThickness="0"
+                        Click="Add_Click" Cursor="Hand" IsEnabled="False"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
