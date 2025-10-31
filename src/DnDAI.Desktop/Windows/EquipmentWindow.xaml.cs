@@ -146,8 +146,8 @@ public partial class EquipmentWindow : Window
             Margin = new Thickness(leftMargin, 2, 0, 2), // Left margin for indentation
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
-            Cursor = System.Windows.Input.Cursors.Hand,
-            HorizontalAlignment = HorizontalAlignment.Left
+            Cursor = System.Windows.Input.Cursors.Hand
+            // No HorizontalAlignment - let it stretch naturally
         };
 
         // Make all items draggable (except when equipped)

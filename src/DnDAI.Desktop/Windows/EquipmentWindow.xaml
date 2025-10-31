@@ -84,7 +84,7 @@
                 </Grid>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel x:Name="InventoryPanel">
+                    <StackPanel x:Name="InventoryPanel" HorizontalAlignment="Stretch">
                         <TextBlock Text="No items in inventory" FontStyle="Italic" Foreground="#7F8C8D" Margin="5"/>
                     </StackPanel>
                 </ScrollViewer>
