@@ -145,7 +145,7 @@
                                 Height="80" TextWrapping="Wrap"
                                 AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                                 IsEnabled="False"
-                                KeyDown="InputTextBox_KeyDown"/>
+                                PreviewKeyDown="InputTextBox_KeyDown"/>
                         <Button Grid.Column="1" Content="Send" Width="100"
                                Margin="10,0,0,0" Click="Send_Click"
                                x:Name="SendButton" IsEnabled="False"/>
