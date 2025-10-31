@@ -256,11 +256,16 @@ public partial class MainWindow : Window
             Margin = new Thickness(0, 0, 0, 5)
         };
 
-        var messageText = new TextBlock
+        // Use TextBox instead of TextBlock to allow text selection
+        var messageText = new TextBox
         {
             Text = message,
             TextWrapping = TextWrapping.Wrap,
-            FontSize = 13
+            FontSize = 13,
+            IsReadOnly = true,
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Cursor = Cursors.Arrow
         };
 
         panel.Children.Add(speakerText);
