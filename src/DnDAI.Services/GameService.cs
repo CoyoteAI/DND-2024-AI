@@ -185,16 +185,7 @@ public class GameService
 
     public async Task<bool> DeleteCampaignAsync(int campaignId)
     {
-        // First, we need to clear the CurrentLocationId to avoid foreign key constraint issues
-        var campaign = await _campaignRepository.GetByIdAsync(campaignId);
-        if (campaign == null)
-            return false;
-
-        campaign.CurrentLocationId = null;
-        await _campaignRepository.UpdateAsync(campaign);
-
-        // Now we can safely delete the campaign (cascade deletes will handle related entities)
-        return await _campaignRepository.DeleteAsync(campaignId);
+        return await _campaignRepository.DeleteCampaignWithRelatedDataAsync(campaignId);
     }
 
     public async Task<Session?> GetSessionAsync(int sessionId)
