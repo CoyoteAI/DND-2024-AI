@@ -88,14 +88,28 @@ public class QwenLLMService : ILLMService
             if (markerIndex >= 0)
             {
                 var afterMarker = thinkingText.Substring(markerIndex + marker.Length).Trim();
-                // Take first substantial paragraph after marker
-                var firstParagraph = afterMarker.Split(new[] { "\n\n" }, StringSplitOptions.None)[0].Trim();
-                if (firstParagraph.Length > 50)
+
+                // Remove any leading quotes
+                afterMarker = afterMarker.Trim('"', ' ');
+
+                // Take everything after the marker, but stop at any meta-planning indicators
+                var metaStopPhrases = new[] { "\n\nI'll ", "\n\nLet me ", "\n\nNote:", "\n\nIdea:", "\n\n(This ", "\n\nThe player" };
+                var stopIndex = -1;
+                foreach (var stopPhrase in metaStopPhrases)
                 {
-                    // Remove any leading quotes
-                    firstParagraph = firstParagraph.Trim('"', ' ');
-                    Log($"Found narrative after '{marker}': {firstParagraph.Length} chars");
-                    return firstParagraph;
+                    var idx = afterMarker.IndexOf(stopPhrase, StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0 && (stopIndex < 0 || idx < stopIndex))
+                    {
+                        stopIndex = idx;
+                    }
+                }
+
+                var narrative = stopIndex >= 0 ? afterMarker.Substring(0, stopIndex).Trim() : afterMarker;
+
+                if (narrative.Length > 50)
+                {
+                    Log($"Found narrative after '{marker}': {narrative.Length} chars");
+                    return narrative;
                 }
             }
         }
