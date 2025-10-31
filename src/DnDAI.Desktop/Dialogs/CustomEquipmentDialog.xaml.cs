@@ -151,6 +151,10 @@ public partial class CustomEquipmentDialog : Window
 
     private void TypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        // Guard against calling before controls are initialized
+        if (WeaponPropertiesPanel == null || ArmorPropertiesPanel == null || ContainerPropertiesPanel == null)
+            return;
+
         var selectedType = (TypeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
 
         WeaponPropertiesPanel.Visibility = selectedType == "Weapon" ? Visibility.Visible : Visibility.Collapsed;
