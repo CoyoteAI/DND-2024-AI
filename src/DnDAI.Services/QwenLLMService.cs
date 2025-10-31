@@ -82,17 +82,26 @@ public class QwenLLMService : ILLMService
                 return "Error: Failed to parse Ollama response. Check the debug output.";
             }
 
-            if (string.IsNullOrEmpty(qwenResponse.Response))
+            // Some models (like qwen3:4b) put output in "thinking" field instead of "response"
+            string actualResponse = qwenResponse.Response;
+
+            if (string.IsNullOrEmpty(actualResponse) && !string.IsNullOrEmpty(qwenResponse.Thinking))
             {
-                Log("Response field is empty");
+                Log("Response field empty, using thinking field instead");
+                actualResponse = qwenResponse.Thinking;
+            }
+
+            if (string.IsNullOrEmpty(actualResponse))
+            {
+                Log("Both response and thinking fields are empty");
                 return "Error: Ollama returned an empty response. This might mean:\n" +
                        "1. The model name is incorrect (check 'ollama list')\n" +
                        "2. The model needs to be pulled (run 'ollama pull " + _settings.ModelName + "')\n" +
                        "3. Ollama is having issues generating content";
             }
 
-            Log($"Success! Response length: {qwenResponse.Response.Length} characters");
-            return qwenResponse.Response;
+            Log($"Success! Response length: {actualResponse.Length} characters");
+            return actualResponse;
         }
         catch (HttpRequestException ex)
         {

@@ -13,6 +13,9 @@ public class QwenResponse
     [JsonProperty("response")]
     public string Response { get; set; } = string.Empty;
 
+    [JsonProperty("thinking")]
+    public string? Thinking { get; set; }
+
     [JsonProperty("done")]
     public bool Done { get; set; }
 
