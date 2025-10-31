@@ -336,16 +336,68 @@ public partial class EquipmentWindow : Window
 
     private async void AddStandardEquipment_Click(object sender, RoutedEventArgs e)
     {
-        // TODO: Create equipment picker dialog
-        MessageBox.Show("Equipment picker dialog coming soon!", "Info",
-            MessageBoxButton.OK, MessageBoxImage.Information);
+        var dialog = new Dialogs.EquipmentPickerDialog(_gameService)
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true && dialog.SelectedEquipment != null)
+        {
+            try
+            {
+                await _gameService.AddEquipmentToCharacterAsync(
+                    _character.Id,
+                    dialog.SelectedEquipment.Id,
+                    dialog.Quantity,
+                    isEquipped: false
+                );
+
+                MessageBox.Show($"Added {dialog.Quantity}x {dialog.SelectedEquipment.Name} to inventory.",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                LoadEquipmentAsync(); // Refresh the display
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding equipment: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
-    private void AddCustomEquipment_Click(object sender, RoutedEventArgs e)
+    private async void AddCustomEquipment_Click(object sender, RoutedEventArgs e)
     {
-        // TODO: Create custom equipment dialog
-        MessageBox.Show("Custom equipment dialog coming soon!", "Info",
-            MessageBoxButton.OK, MessageBoxImage.Information);
+        var dialog = new Dialogs.CustomEquipmentDialog
+        {
+            Owner = this
+        };
+
+        if (dialog.ShowDialog() == true && dialog.Equipment != null)
+        {
+            try
+            {
+                // Create the custom equipment in the database first
+                var createdEquipment = await _gameService.CreateCustomEquipmentAsync(dialog.Equipment);
+
+                // Add it to the character's inventory
+                await _gameService.AddEquipmentToCharacterAsync(
+                    _character.Id,
+                    createdEquipment.Id,
+                    quantity: 1,
+                    isEquipped: false
+                );
+
+                MessageBox.Show($"Created and added {createdEquipment.Name} to inventory.",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                LoadEquipmentAsync(); // Refresh the display
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating custom equipment: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     private void Close_Click(object sender, RoutedEventArgs e)

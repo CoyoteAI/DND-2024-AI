@@ -1,0 +1,278 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using DnDAI.Core.Enums;
+using DnDAI.Core.Models;
+using DnDAI.Services;
+
+namespace DnDAI.Desktop.Dialogs;
+
+public partial class EquipmentPickerDialog : Window
+{
+    private readonly GameService _gameService;
+    private List<Equipment> _allEquipment = new();
+    private List<Equipment> _filteredEquipment = new();
+    private Equipment? _selectedEquipment;
+
+    public Equipment? SelectedEquipment => _selectedEquipment;
+    public int Quantity { get; private set; } = 1;
+
+    public EquipmentPickerDialog(GameService gameService)
+    {
+        InitializeComponent();
+        _gameService = gameService;
+        LoadEquipmentAsync();
+    }
+
+    private async void LoadEquipmentAsync()
+    {
+        try
+        {
+            _allEquipment = await _gameService.GetAllEquipmentAsync();
+            _filteredEquipment = _allEquipment.Where(e => e.IsStandard).OrderBy(e => e.Name).ToList();
+            DisplayEquipment();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading equipment: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void DisplayEquipment()
+    {
+        EquipmentListPanel.Children.Clear();
+
+        if (!_filteredEquipment.Any())
+        {
+            EquipmentListPanel.Children.Add(new TextBlock
+            {
+                Text = "No equipment found",
+                FontStyle = FontStyles.Italic,
+                Foreground = new SolidColorBrush(Color.FromRgb(127, 140, 141)),
+                Margin = new Thickness(5)
+            });
+            return;
+        }
+
+        foreach (var equipment in _filteredEquipment)
+        {
+            var border = CreateEquipmentPanel(equipment);
+            EquipmentListPanel.Children.Add(border);
+        }
+    }
+
+    private Border CreateEquipmentPanel(Equipment equipment)
+    {
+        var isSelected = _selectedEquipment?.Id == equipment.Id;
+
+        var border = new Border
+        {
+            Background = new SolidColorBrush(isSelected ? Color.FromRgb(52, 152, 219) : Color.FromRgb(248, 249, 250)),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(12),
+            Margin = new Thickness(0, 3, 0, 3),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Tag = equipment
+        };
+
+        border.MouseLeftButtonDown += (s, e) =>
+        {
+            SelectEquipment(equipment);
+        };
+
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        // Left side: Item info
+        var leftPanel = new StackPanel();
+
+        var nameText = new TextBlock
+        {
+            Text = equipment.Name,
+            FontWeight = FontWeights.Bold,
+            FontSize = 14,
+            Foreground = new SolidColorBrush(isSelected ? Colors.White : Color.FromRgb(44, 62, 80))
+        };
+        leftPanel.Children.Add(nameText);
+
+        // Equipment details
+        var detailsText = new TextBlock
+        {
+            FontSize = 11,
+            Foreground = new SolidColorBrush(isSelected ? Color.FromRgb(236, 240, 241) : Color.FromRgb(127, 140, 141)),
+            Margin = new Thickness(0, 3, 0, 0),
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        var details = new List<string>();
+
+        if (equipment.Type == EquipmentType.Weapon && equipment.Damage != null)
+        {
+            details.Add($"{equipment.Damage} {equipment.DamageType}");
+            if (equipment.IsVersatile && equipment.VersatileDamage != null)
+            {
+                details.Add($"Versatile: {equipment.VersatileDamage}");
+            }
+            if (equipment.IsFinesse)
+            {
+                details.Add("Finesse");
+            }
+            if (equipment.Range != null)
+            {
+                details.Add($"Range: {equipment.Range}");
+            }
+        }
+        else if (equipment.Type == EquipmentType.Armor && equipment.ArmorClass.HasValue)
+        {
+            details.Add($"AC: {equipment.ArmorClass}");
+            if (equipment.StealthDisadvantage)
+            {
+                details.Add("Stealth Disadvantage");
+            }
+        }
+        else
+        {
+            details.Add(equipment.Description);
+        }
+
+        detailsText.Text = string.Join(" • ", details);
+        leftPanel.Children.Add(detailsText);
+
+        Grid.SetColumn(leftPanel, 0);
+        grid.Children.Add(leftPanel);
+
+        // Right side: Cost and weight
+        var rightPanel = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
+
+        var costText = new TextBlock
+        {
+            Text = $"{equipment.CostInGold} gp",
+            FontSize = 12,
+            FontWeight = FontWeights.Bold,
+            Foreground = new SolidColorBrush(isSelected ? Colors.White : Color.FromRgb(243, 156, 18)),
+            TextAlignment = TextAlignment.Right
+        };
+        rightPanel.Children.Add(costText);
+
+        var weightText = new TextBlock
+        {
+            Text = $"{equipment.Weight} lbs",
+            FontSize = 10,
+            Foreground = new SolidColorBrush(isSelected ? Color.FromRgb(236, 240, 241) : Color.FromRgb(127, 140, 141)),
+            TextAlignment = TextAlignment.Right,
+            Margin = new Thickness(0, 2, 0, 0)
+        };
+        rightPanel.Children.Add(weightText);
+
+        Grid.SetColumn(rightPanel, 1);
+        grid.Children.Add(rightPanel);
+
+        border.Child = grid;
+        return border;
+    }
+
+    private void SelectEquipment(Equipment equipment)
+    {
+        _selectedEquipment = equipment;
+
+        // Update selected item info
+        SelectedItemBorder.Visibility = Visibility.Visible;
+        SelectedItemName.Text = equipment.Name;
+
+        var details = new List<string>();
+        details.Add($"Cost: {equipment.CostInGold} gp");
+        details.Add($"Weight: {equipment.Weight} lbs");
+
+        if (equipment.Type == EquipmentType.Weapon && equipment.Damage != null)
+        {
+            details.Add($"Damage: {equipment.Damage} {equipment.DamageType}");
+        }
+        else if (equipment.Type == EquipmentType.Armor && equipment.ArmorClass.HasValue)
+        {
+            details.Add($"AC: {equipment.ArmorClass}");
+        }
+
+        SelectedItemDetails.Text = string.Join(" • ", details);
+
+        AddButton.IsEnabled = true;
+
+        // Refresh display to show selection
+        DisplayEquipment();
+    }
+
+    private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        FilterEquipment();
+    }
+
+    private void TypeFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        FilterEquipment();
+    }
+
+    private void FilterEquipment()
+    {
+        if (_allEquipment == null || !_allEquipment.Any())
+            return;
+
+        var searchText = SearchTextBox?.Text?.ToLower() ?? "";
+        var selectedType = (TypeFilterComboBox?.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "All";
+
+        _filteredEquipment = _allEquipment.Where(e => e.IsStandard).ToList();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            _filteredEquipment = _filteredEquipment
+                .Where(e => e.Name.ToLower().Contains(searchText) ||
+                           e.Description.ToLower().Contains(searchText))
+                .ToList();
+        }
+
+        // Apply type filter
+        if (selectedType != "All")
+        {
+            _filteredEquipment = selectedType switch
+            {
+                "Weapons" => _filteredEquipment.Where(e => e.Type == EquipmentType.Weapon).ToList(),
+                "Armor" => _filteredEquipment.Where(e => e.Type == EquipmentType.Armor).ToList(),
+                "Adventuring Gear" => _filteredEquipment.Where(e => e.Type == EquipmentType.AdventuringGear).ToList(),
+                "Tools" => _filteredEquipment.Where(e => e.Type == EquipmentType.Tool).ToList(),
+                _ => _filteredEquipment
+            };
+        }
+
+        _filteredEquipment = _filteredEquipment.OrderBy(e => e.Name).ToList();
+        DisplayEquipment();
+    }
+
+    private void Add_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedEquipment == null)
+        {
+            MessageBox.Show("Please select an item.", "Validation Error",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        // Parse quantity
+        if (!int.TryParse(QuantityTextBox.Text, out int quantity) || quantity < 1)
+        {
+            MessageBox.Show("Please enter a valid quantity (minimum 1).", "Validation Error",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        Quantity = quantity;
+        DialogResult = true;
+        Close();
+    }
+
+    private void Cancel_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = false;
+        Close();
+    }
+}
