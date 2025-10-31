@@ -88,6 +88,12 @@ public partial class PlayerCharacterDialog : Window
     private void ClassComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         UpdateSubclassComboBox();
+        UpdateSpellSlotsForClass();
+    }
+
+    private void LevelTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdateSpellSlotsForClass();
     }
 
     private void UpdateSubclassComboBox()
@@ -102,6 +108,30 @@ public partial class PlayerCharacterDialog : Window
 
             SubclassComboBox.ItemsSource = subclassOptions;
             SubclassComboBox.SelectedIndex = 0; // Default to "None"
+        }
+    }
+
+    private void UpdateSpellSlotsForClass()
+    {
+        if (ClassComboBox.SelectedItem is CharacterClass selectedClass)
+        {
+            // Get level from text box, default to 1 if invalid
+            if (!int.TryParse(LevelTextBox.Text, out int level) || level < 1 || level > 20)
+            {
+                level = 1;
+            }
+
+            // Auto-populate spell slots based on class and level
+            int[] spellSlots = SpellSlotHelper.GetSpellSlotsForClassAndLevel(selectedClass, level);
+            SpellSlots1TextBox.Text = spellSlots[0].ToString();
+            SpellSlots2TextBox.Text = spellSlots[1].ToString();
+            SpellSlots3TextBox.Text = spellSlots[2].ToString();
+            SpellSlots4TextBox.Text = spellSlots[3].ToString();
+            SpellSlots5TextBox.Text = spellSlots[4].ToString();
+            SpellSlots6TextBox.Text = spellSlots[5].ToString();
+            SpellSlots7TextBox.Text = spellSlots[6].ToString();
+            SpellSlots8TextBox.Text = spellSlots[7].ToString();
+            SpellSlots9TextBox.Text = spellSlots[8].ToString();
         }
     }
 

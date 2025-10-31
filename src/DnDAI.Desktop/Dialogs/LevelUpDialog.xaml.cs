@@ -1,5 +1,6 @@
 using System.Windows;
 using DnDAI.Core.Models;
+using DnDAI.Core.Helpers;
 
 namespace DnDAI.Desktop.Dialogs;
 
@@ -32,19 +33,35 @@ public partial class LevelUpDialog : Window
         CurrentMaxHPText.Text = _character.MaxHitPoints.ToString();
         NewMaxHPTextBox.Text = _character.MaxHitPoints.ToString();
 
-        // Populate spell slots with current values
-        SpellSlots1TextBox.Text = _character.SpellSlots1Max.ToString();
-        SpellSlots2TextBox.Text = _character.SpellSlots2Max.ToString();
-        SpellSlots3TextBox.Text = _character.SpellSlots3Max.ToString();
-        SpellSlots4TextBox.Text = _character.SpellSlots4Max.ToString();
-        SpellSlots5TextBox.Text = _character.SpellSlots5Max.ToString();
-        SpellSlots6TextBox.Text = _character.SpellSlots6Max.ToString();
-        SpellSlots7TextBox.Text = _character.SpellSlots7Max.ToString();
-        SpellSlots8TextBox.Text = _character.SpellSlots8Max.ToString();
-        SpellSlots9TextBox.Text = _character.SpellSlots9Max.ToString();
+        // Auto-populate spell slots based on new level
+        bool isSpellcaster = SpellSlotHelper.IsSpellcaster(_character.Class);
+        if (isSpellcaster)
+        {
+            int[] newSpellSlots = SpellSlotHelper.GetSpellSlotsForClassAndLevel(_character.Class, NewLevel);
+            SpellSlots1TextBox.Text = newSpellSlots[0].ToString();
+            SpellSlots2TextBox.Text = newSpellSlots[1].ToString();
+            SpellSlots3TextBox.Text = newSpellSlots[2].ToString();
+            SpellSlots4TextBox.Text = newSpellSlots[3].ToString();
+            SpellSlots5TextBox.Text = newSpellSlots[4].ToString();
+            SpellSlots6TextBox.Text = newSpellSlots[5].ToString();
+            SpellSlots7TextBox.Text = newSpellSlots[6].ToString();
+            SpellSlots8TextBox.Text = newSpellSlots[7].ToString();
+            SpellSlots9TextBox.Text = newSpellSlots[8].ToString();
+        }
+        else
+        {
+            SpellSlots1TextBox.Text = "0";
+            SpellSlots2TextBox.Text = "0";
+            SpellSlots3TextBox.Text = "0";
+            SpellSlots4TextBox.Text = "0";
+            SpellSlots5TextBox.Text = "0";
+            SpellSlots6TextBox.Text = "0";
+            SpellSlots7TextBox.Text = "0";
+            SpellSlots8TextBox.Text = "0";
+            SpellSlots9TextBox.Text = "0";
+        }
 
         // Hide spell slots section if not a spellcaster
-        bool isSpellcaster = IsSpellcaster(_character.Class);
         SpellSlotsGroupBox.Visibility = isSpellcaster ? Visibility.Visible : Visibility.Collapsed;
 
         // Display hit die info
