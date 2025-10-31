@@ -138,22 +138,31 @@ public partial class EquipmentWindow : Window
         var leftMargin = indentLevel * 40;
         System.Diagnostics.Debug.WriteLine($"CreateEquipmentPanel: {equipment.Name}, indentLevel={indentLevel}, leftMargin={leftMargin}");
 
-        // Create wrapper grid for indentation
-        var wrapperGrid = new Grid();
-        wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(leftMargin) }); // Indent spacer
-        wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Content
-
         var border = new Border
         {
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(0, 2, 0, 2), // No left margin - handled by wrapper grid
+            Margin = new Thickness(0, 2, 0, 2),
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
             Cursor = System.Windows.Input.Cursors.Hand
         };
-        Grid.SetColumn(border, 1); // Put border in second column (after spacer)
+
+        // Create wrapper grid for indentation using empty cells
+        Grid wrapperGrid = null;
+        if (indentLevel > 0)
+        {
+            wrapperGrid = new Grid();
+            // Add empty spacer columns for each indent level
+            for (int i = 0; i < indentLevel; i++)
+            {
+                wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            }
+            // Add content column
+            wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Grid.SetColumn(border, indentLevel); // Put border after all spacer columns
+        }
 
         // Make all items draggable (except when equipped)
         if (!isEquipped)
@@ -339,8 +348,17 @@ public partial class EquipmentWindow : Window
         grid.Children.Add(buttonPanel);
 
         border.Child = grid;
-        wrapperGrid.Children.Add(border);
-        return wrapperGrid;
+
+        // Return wrapped or unwrapped based on indent level
+        if (wrapperGrid != null)
+        {
+            wrapperGrid.Children.Add(border);
+            return wrapperGrid;
+        }
+        else
+        {
+            return border;
+        }
     }
 
     private async void ToggleEquip_Click(CharacterEquipment charEquip)
