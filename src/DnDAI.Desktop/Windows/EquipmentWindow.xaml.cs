@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using DnDAI.Core.Models;
 using DnDAI.Services;
+using DnDAI.Desktop.Dialogs;
 
 namespace DnDAI.Desktop.Windows;
 
@@ -232,6 +233,21 @@ public partial class EquipmentWindow : Window
         equipButton.Click += (s, e) => ToggleEquip_Click(charEquip);
         buttonPanel.Children.Add(equipButton);
 
+        var editButton = new Button
+        {
+            Content = "Edit",
+            Width = 60,
+            Height = 30,
+            FontSize = 11,
+            Background = new SolidColorBrush(Color.FromRgb(230, 126, 34)),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Margin = new Thickness(0, 0, 5, 0)
+        };
+        editButton.Click += (s, e) => EditEquipment_Click(charEquip);
+        buttonPanel.Children.Add(editButton);
+
         var deleteButton = new Button
         {
             Content = "Remove",
@@ -286,6 +302,29 @@ public partial class EquipmentWindow : Window
                 MessageBox.Show($"Error removing equipment: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    private async void EditEquipment_Click(CharacterEquipment charEquip)
+    {
+        try
+        {
+            var dialog = new CustomEquipmentDialog(charEquip.Equipment)
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true && dialog.Equipment != null)
+            {
+                await _gameService.UpdateEquipmentAsync(dialog.Equipment);
+                // Reload all equipment data from database to get fresh data
+                await LoadEquipmentAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error editing equipment: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
