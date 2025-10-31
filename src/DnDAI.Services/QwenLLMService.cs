@@ -215,22 +215,42 @@ public class QwenLLMService : ILLMService
             // Some models (like qwen3:4b) are inconsistent about where they put output:
             // - Sometimes everything in "thinking", response is empty
             // - Sometimes a SHORT snippet in "response", FULL text in "thinking"
-            // Strategy: Prefer thinking field if it's substantial (>200 chars)
+            // - Sometimes GOOD content in "response", meta-planning in "thinking"
+            // Strategy: Prefer response if substantial, otherwise use thinking (cleaned)
             string actualResponse;
 
-            if (!string.IsNullOrEmpty(qwenResponse.Thinking) && qwenResponse.Thinking.Length > 200)
+            var responseLen = qwenResponse.Response?.Length ?? 0;
+            var thinkingLen = qwenResponse.Thinking?.Length ?? 0;
+
+            Log($"Response field: {responseLen} chars, Thinking field: {thinkingLen} chars");
+
+            // Case 1: Response has substantial content (>300 chars) - use it
+            if (responseLen > 300)
             {
-                Log($"Using thinking field ({qwenResponse.Thinking.Length} chars) over response field ({qwenResponse.Response?.Length ?? 0} chars)");
+                Log($"Using response field (substantial content: {responseLen} chars)");
+                actualResponse = qwenResponse.Response;
+            }
+            // Case 2: Response is short but thinking is much longer - likely truncation
+            else if (thinkingLen > 200 && thinkingLen > responseLen * 3)
+            {
+                Log($"Using thinking field ({thinkingLen} chars) - response appears truncated ({responseLen} chars)");
                 actualResponse = CleanThinkingText(qwenResponse.Thinking);
             }
+            // Case 3: Response exists, use it
             else if (!string.IsNullOrEmpty(qwenResponse.Response))
             {
-                Log($"Using response field ({qwenResponse.Response.Length} chars)");
+                Log($"Using response field ({responseLen} chars)");
                 actualResponse = qwenResponse.Response;
+            }
+            // Case 4: Fallback to thinking (cleaned)
+            else if (!string.IsNullOrEmpty(qwenResponse.Thinking))
+            {
+                Log($"Using thinking field as fallback ({thinkingLen} chars)");
+                actualResponse = CleanThinkingText(qwenResponse.Thinking);
             }
             else
             {
-                Log("Both response and thinking fields are empty or too short");
+                Log("Both response and thinking fields are empty");
                 return "Error: Ollama returned an empty response. This might mean:\n" +
                        "1. The model name is incorrect (check 'ollama list')\n" +
                        "2. The model needs to be pulled (run 'ollama pull " + _settings.ModelName + "')\n" +
