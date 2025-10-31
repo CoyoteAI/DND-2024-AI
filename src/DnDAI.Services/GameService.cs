@@ -183,6 +183,11 @@ public class GameService
         return await _campaignRepository.GetAllCampaignsWithBasicInfoAsync();
     }
 
+    public async Task<bool> DeleteCampaignAsync(int campaignId)
+    {
+        return await _campaignRepository.DeleteAsync(campaignId);
+    }
+
     public async Task<Session?> GetSessionAsync(int sessionId)
     {
         return await _sessionRepository.GetSessionWithMessagesAsync(sessionId);

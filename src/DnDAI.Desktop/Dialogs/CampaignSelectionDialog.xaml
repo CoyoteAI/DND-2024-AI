@@ -17,6 +17,7 @@
                 DisplayMemberPath="Name" MouseDoubleClick="CampaignsListBox_MouseDoubleClick"/>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Delete" Width="100" Margin="0,0,10,0" Click="Delete_Click" Background="#E74C3C" Foreground="White"/>
             <Button Content="Load" Width="100" Margin="0,0,10,0" Click="Load_Click"/>
             <Button Content="Cancel" Width="100" Click="Cancel_Click"/>
         </StackPanel>

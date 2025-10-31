@@ -63,7 +63,7 @@ public partial class MainWindow : Window
                 return;
             }
 
-            var dialog = new CampaignSelectionDialog(campaignList);
+            var dialog = new CampaignSelectionDialog(campaignList, _gameService);
             if (dialog.ShowDialog() == true && dialog.SelectedCampaign != null)
             {
                 _currentCampaign = await _gameService.GetCampaignAsync(dialog.SelectedCampaign.Id);
