@@ -83,8 +83,10 @@ public partial class EquipmentWindow : Window
             }
         }
 
-        // Display inventory items
-        if (!inventory.Any() && !_customWeapons.Any())
+        // Display inventory items with container hierarchy
+        var rootItems = inventory.Where(i => i.ContainerId == null).ToList();
+
+        if (!rootItems.Any() && !_customWeapons.Any())
         {
             InventoryPanel.Children.Add(new TextBlock
             {
@@ -96,9 +98,20 @@ public partial class EquipmentWindow : Window
         }
         else
         {
-            foreach (var item in inventory)
+            // Display root-level items (not in containers)
+            foreach (var item in rootItems)
             {
-                InventoryPanel.Children.Add(CreateEquipmentPanel(item, false));
+                InventoryPanel.Children.Add(CreateEquipmentPanel(item, false, 0));
+
+                // If this is a container, display its contents
+                if (item.Equipment.Type == Core.Enums.EquipmentType.Container)
+                {
+                    var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
+                    foreach (var containedItem in containedItems)
+                    {
+                        InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
+                    }
+                }
             }
 
             // Display custom weapons (legacy system)
@@ -109,15 +122,16 @@ public partial class EquipmentWindow : Window
         }
     }
 
-    private Border CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped)
+    private Border CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
     {
         var equipment = charEquip.Equipment;
+        var isContainer = equipment.Type == Core.Enums.EquipmentType.Container;
         var border = new Border
         {
-            Background = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
+            Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(5),
             Padding = new Thickness(10),
-            Margin = new Thickness(0, 3, 0, 3)
+            Margin = new Thickness(indentLevel * 30, 3, 0, 3) // Indent nested items
         };
 
         var grid = new Grid();
@@ -171,6 +185,23 @@ public partial class EquipmentWindow : Window
             {
                 detailsText.Text += " • Finesse";
             }
+        }
+        else if (isContainer)
+        {
+            var details = new List<string> { equipment.Description };
+            if (equipment.WeightCapacity.HasValue)
+            {
+                // Calculate current weight in container
+                var containedWeight = _characterEquipment
+                    .Where(i => i.ContainerId == charEquip.Id)
+                    .Sum(i => i.Equipment.Weight * i.Quantity);
+                details.Add($"Weight: {containedWeight}/{equipment.WeightCapacity} lbs");
+            }
+            if (equipment.VolumeCapacity.HasValue)
+            {
+                details.Add($"Volume: {equipment.VolumeCapacity} cu ft");
+            }
+            detailsText.Text = string.Join(" • ", details);
         }
         else
         {

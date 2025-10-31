@@ -18,21 +18,9 @@ public partial class CustomEquipmentDialog : Window
     {
         var selectedType = (TypeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
 
-        if (selectedType == "Weapon")
-        {
-            WeaponPropertiesPanel.Visibility = Visibility.Visible;
-            ArmorPropertiesPanel.Visibility = Visibility.Collapsed;
-        }
-        else if (selectedType == "Armor")
-        {
-            WeaponPropertiesPanel.Visibility = Visibility.Collapsed;
-            ArmorPropertiesPanel.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            WeaponPropertiesPanel.Visibility = Visibility.Collapsed;
-            ArmorPropertiesPanel.Visibility = Visibility.Collapsed;
-        }
+        WeaponPropertiesPanel.Visibility = selectedType == "Weapon" ? Visibility.Visible : Visibility.Collapsed;
+        ArmorPropertiesPanel.Visibility = selectedType == "Armor" ? Visibility.Visible : Visibility.Collapsed;
+        ContainerPropertiesPanel.Visibility = selectedType == "Container" ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void VersatileCheckBox_Checked(object sender, RoutedEventArgs e)
@@ -72,7 +60,8 @@ public partial class CustomEquipmentDialog : Window
             "Weapon" => EquipmentType.Weapon,
             "Armor" => EquipmentType.Armor,
             "Tool" => EquipmentType.Tool,
-            _ => EquipmentType.AdventuringGear
+            "Container" => EquipmentType.Container,
+            _ => EquipmentType.Adventuring
         };
 
         // Parse rarity
@@ -197,6 +186,20 @@ public partial class CustomEquipmentDialog : Window
             if (armorCategory == ArmorCategory.Medium)
             {
                 Equipment.MaxDexModifier = 2;
+            }
+        }
+
+        // Handle container properties
+        if (equipmentType == EquipmentType.Container)
+        {
+            if (decimal.TryParse(WeightCapacityTextBox.Text, out decimal weightCapacity))
+            {
+                Equipment.WeightCapacity = weightCapacity;
+            }
+
+            if (decimal.TryParse(VolumeCapacityTextBox.Text, out decimal volumeCapacity))
+            {
+                Equipment.VolumeCapacity = volumeCapacity;
             }
         }
 

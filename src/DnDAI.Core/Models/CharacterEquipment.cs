@@ -15,6 +15,13 @@ public class CharacterEquipment : BaseEntity
     // For items with charges/uses
     public int? CurrentCharges { get; set; }
 
+    // Container relationship - if this item is stored inside a container
+    public int? ContainerId { get; set; }
+    public CharacterEquipment? Container { get; set; }
+
+    // Items stored in this container (if this item is a container)
+    public ICollection<CharacterEquipment> ContainedItems { get; set; } = new List<CharacterEquipment>();
+
     // Custom notes for this specific instance
     public string? Notes { get; set; }
 }

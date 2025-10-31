@@ -37,6 +37,10 @@ public class Equipment : BaseEntity
     public int? MaxCharges { get; set; }
     public string? ChargeRegeneration { get; set; } // e.g., "1d6+1 at dawn"
 
+    // Container properties
+    public decimal? WeightCapacity { get; set; } // Max weight in lbs (e.g., 30 for backpack)
+    public decimal? VolumeCapacity { get; set; } // Max volume in cubic feet (e.g., 1 for backpack)
+
     // Additional properties (JSON for flexibility)
     public string? PropertiesJson { get; set; }
 

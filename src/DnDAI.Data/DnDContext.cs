@@ -320,6 +320,8 @@ public class DnDContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.CostInGold).HasColumnType("decimal(10,2)");
             entity.Property(e => e.Weight).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.WeightCapacity).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.VolumeCapacity).HasColumnType("decimal(10,2)");
         });
 
         // CharacterEquipment configuration
@@ -335,10 +337,13 @@ public class DnDContext : DbContext
             entity.HasOne(e => e.Equipment)
                 .WithMany(eq => eq.CharacterEquipment)
                 .HasForeignKey(e => e.EquipmentId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Prevent duplicate equipment entries for same character
-            entity.HasIndex(e => new { e.PlayerCharacterId, e.EquipmentId }).IsUnique();
+            // Self-referential relationship for containers
+            entity.HasOne(e => e.Container)
+                .WithMany(c => c.ContainedItems)
+                .HasForeignKey(e => e.ContainerId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
