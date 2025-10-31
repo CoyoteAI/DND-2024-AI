@@ -21,7 +21,7 @@ public partial class EquipmentWindow : Window
         _gameService = gameService;
 
         LoadCharacterInfo();
-        LoadEquipmentAsync();
+        _ = LoadEquipmentAsync(); // Fire and forget - constructors can't be async
     }
 
     private void LoadCharacterInfo()
@@ -32,7 +32,7 @@ public partial class EquipmentWindow : Window
         WeightText.Text = "Weight: 0 / 150 lbs"; // Will calculate properly later
     }
 
-    private async void LoadEquipmentAsync()
+    private async Task LoadEquipmentAsync()
     {
         try
         {
