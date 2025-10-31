@@ -22,7 +22,7 @@
                 <StackPanel>
                     <!-- Name -->
                     <TextBlock Text="Item Name *" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <TextBox x:Name="NameTextBox" Height="30" Padding="5" Margin="0,0,0,15"/>
+                    <TextBox x:Name="NameTextBox" Height="30" Padding="5" Margin="0,0,0,15" MaxWidth="590" HorizontalAlignment="Stretch"/>
 
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
@@ -34,11 +34,12 @@
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Equipment Type *" FontWeight="Bold" Margin="0,0,0,5"/>
                             <ComboBox x:Name="TypeComboBox" Height="30" SelectionChanged="TypeComboBox_SelectionChanged">
-                                <ComboBoxItem Content="Weapon" Tag="Weapon" IsSelected="True"/>
-                                <ComboBoxItem Content="Armor" Tag="Armor"/>
-                                <ComboBoxItem Content="Container" Tag="Container"/>
                                 <ComboBoxItem Content="Adventuring Gear" Tag="Adventuring"/>
+                                <ComboBoxItem Content="Armor" Tag="Armor"/>
+                                <ComboBoxItem Content="Consumable" Tag="Consumable"/>
+                                <ComboBoxItem Content="Container" Tag="Container"/>
                                 <ComboBoxItem Content="Tool" Tag="Tool"/>
+                                <ComboBoxItem Content="Weapon" Tag="Weapon" IsSelected="True"/>
                             </ComboBox>
                         </StackPanel>
 
@@ -58,7 +59,7 @@
                     <!-- Description -->
                     <TextBlock Text="Description *" FontWeight="Bold" Margin="0,0,0,5"/>
                     <TextBox x:Name="DescriptionTextBox" Height="80" TextWrapping="Wrap"
-                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="5" Margin="0,0,0,15"/>
+                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="5" Margin="0,0,0,15" MaxWidth="590" HorizontalAlignment="Stretch"/>
 
                     <!-- Magic Item Properties -->
                     <Border Background="#F8F9FA" CornerRadius="8" Padding="15" Margin="0,0,0,15">

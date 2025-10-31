@@ -139,7 +139,7 @@ public partial class EquipmentWindow : Window
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         // Left side: Item info
-        var leftPanel = new StackPanel();
+        var leftPanel = new StackPanel { MaxWidth = 450 };
 
         var namePanel = new StackPanel { Orientation = Orientation.Horizontal };
         var nameText = new TextBlock
@@ -171,7 +171,8 @@ public partial class EquipmentWindow : Window
         {
             FontSize = 10,
             Foreground = new SolidColorBrush(Color.FromRgb(52, 73, 94)),
-            Margin = new Thickness(0, 2, 0, 0)
+            Margin = new Thickness(0, 2, 0, 0),
+            TextWrapping = TextWrapping.Wrap
         };
 
         if (equipment.Type == Core.Enums.EquipmentType.Weapon && equipment.Damage != null)
@@ -220,7 +221,7 @@ public partial class EquipmentWindow : Window
         {
             Content = isEquipped ? "Unequip" : "Equip",
             Width = 70,
-            Height = 26,
+            Height = 30,
             FontSize = 11,
             Background = new SolidColorBrush(isEquipped ? Color.FromRgb(231, 76, 60) : Color.FromRgb(46, 204, 113)),
             Foreground = Brushes.White,
@@ -235,7 +236,7 @@ public partial class EquipmentWindow : Window
         {
             Content = "Remove",
             Width = 70,
-            Height = 26,
+            Height = 30,
             FontSize = 11,
             Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
             Foreground = Brushes.White,
@@ -331,7 +332,7 @@ public partial class EquipmentWindow : Window
         {
             Content = "Remove",
             Width = 70,
-            Height = 26,
+            Height = 30,
             FontSize = 11,
             Background = new SolidColorBrush(Color.FromRgb(149, 165, 166)),
             Foreground = Brushes.White,
