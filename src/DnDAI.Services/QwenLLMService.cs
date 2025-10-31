@@ -75,16 +75,28 @@ public class QwenLLMService : ILLMService
                 return best.Quote.Trim();
             }
 
-            // Fallback: use the longest quote regardless
-            var longestQuote = quoteMatches.Cast<System.Text.RegularExpressions.Match>()
-                .OrderByDescending(m => m.Groups[1].Value.Length)
-                .First()
-                .Groups[1].Value;
-            Log($"Using longest quoted section as fallback: {longestQuote.Length} chars");
-            return longestQuote.Trim();
+            // Before falling back to longest quote, try to find unquoted narrative at the end
+            Log("No clean quoted narrative found, checking for unquoted narrative");
         }
 
-        // Strategy 2: Look for "Let me draft:" or similar markers and take everything after
+        // Strategy 2: Look for unquoted narrative (might not be in quotes at all)
+        var metaPhrases2 = new[] { "I'll ", "I will", "Let me ", "the player", "The player", "Since ", "Idea:", "I want" };
+        var paragraphs = thinkingText.Split(new[] { "\n\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        // Look backwards for substantial unquoted narrative paragraph
+        for (int i = paragraphs.Length - 1; i >= 0; i--)
+        {
+            var para = paragraphs[i].Trim();
+            if (para.Length > 200 &&
+                char.IsUpper(para[0]) &&
+                !metaPhrases2.Any(m => para.Contains(m, StringComparison.OrdinalIgnoreCase)))
+            {
+                Log($"Found unquoted narrative paragraph: {para.Length} chars");
+                return para;
+            }
+        }
+
+        // Strategy 3: Look for "Let me draft:" or similar markers and take everything after
         var draftMarkers = new[] { "Let me draft:", "I'll write:", "Example response:", "Draft:" };
         foreach (var marker in draftMarkers)
         {
@@ -104,25 +116,21 @@ public class QwenLLMService : ILLMService
             }
         }
 
-        // Strategy 3: Find last paragraph that looks like narrative (starts with capital, >50 chars)
-        var paragraphs = thinkingText.Split(new[] { "\n\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-        for (int i = paragraphs.Length - 1; i >= 0; i--)
+        // Strategy 4: Try quoted text as fallback (if we found any quotes earlier)
+        var quotePattern2 = @"""([^""]{50,})""";
+        var quoteMatches2 = System.Text.RegularExpressions.Regex.Matches(thinkingText, quotePattern2);
+        if (quoteMatches2.Count > 0)
         {
-            var para = paragraphs[i].Trim();
-            if (para.Length > 50 &&
-                char.IsUpper(para[0]) &&
-                !para.Contains("I'll") &&
-                !para.Contains("Let me") &&
-                !para.Contains("the player") &&
-                !para.Contains("Example:"))
-            {
-                Log($"Found narrative paragraph at end: {para.Length} chars");
-                return para;
-            }
+            var longestQuote = quoteMatches2.Cast<System.Text.RegularExpressions.Match>()
+                .OrderByDescending(m => m.Groups[1].Value.Length)
+                .First()
+                .Groups[1].Value;
+            Log($"Using longest quoted section as last resort: {longestQuote.Length} chars");
+            return longestQuote.Trim();
         }
 
-        // Fallback: return everything (better to show too much than nothing)
-        Log("No narrative found, returning full thinking text");
+        // Final fallback: return everything (better to show too much than nothing)
+        Log("No narrative found in any strategy, returning full thinking text");
         return thinkingText;
     }
 
