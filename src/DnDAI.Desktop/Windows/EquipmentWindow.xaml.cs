@@ -138,10 +138,11 @@ public partial class EquipmentWindow : Window
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(indentLevel * 30, 2, 0, 2), // Indent nested items
+            Margin = new Thickness(indentLevel * 40, 2, 0, 2), // Indent nested items (increased from 30 to 40)
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
-            Cursor = System.Windows.Input.Cursors.Hand
+            Cursor = System.Windows.Input.Cursors.Hand,
+            HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
         // Make all items draggable (except when equipped)
@@ -601,7 +602,8 @@ public partial class EquipmentWindow : Window
                     // Expand the container to show the newly added item
                     _containerExpansionState[targetContainer.Id] = true;
 
-                    DisplayEquipment();
+                    // Reload equipment data from database to ensure fresh state
+                    await LoadEquipmentAsync();
 
                     MessageBox.Show($"Moved {draggedItem.Equipment.Name} into {targetContainer.Equipment.Name}",
                         "Item Moved", MessageBoxButton.OK, MessageBoxImage.Information);
