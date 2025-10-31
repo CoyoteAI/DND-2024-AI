@@ -20,6 +20,52 @@ public class QwenLLMService : ILLMService
         Console.WriteLine(fullMsg);
     }
 
+    private string CleanThinkingText(string thinkingText)
+    {
+        // The "thinking" field often contains meta-commentary followed by the actual response
+        // Try to extract just the narrative part
+
+        var lines = thinkingText.Split(new[] { '\n' }, StringSplitOptions.None);
+        var narrativeStart = -1;
+
+        // Meta-thinking indicators
+        var metaIndicators = new[] {
+            "I'll ", "I will ", "I should ", "I need to ", "I must ",
+            "the player", "The player", "Let me ", "First,", "Then,",
+            "Important:", "Note:", "Since the", "We are "
+        };
+
+        // Find where actual narrative starts (first line without meta-indicators)
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].Trim();
+
+            // Skip empty lines
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            // Check if this line contains meta-thinking
+            bool isMeta = metaIndicators.Any(indicator =>
+                line.Contains(indicator, StringComparison.OrdinalIgnoreCase));
+
+            // If not meta, this might be the start of the narrative
+            if (!isMeta && line.Length > 20) // At least 20 chars to avoid false positives
+            {
+                narrativeStart = i;
+                break;
+            }
+        }
+
+        // If we found a narrative start, return from there
+        if (narrativeStart >= 0)
+        {
+            return string.Join("\n", lines.Skip(narrativeStart)).Trim();
+        }
+
+        // Fallback: return everything (better to show too much than nothing)
+        return thinkingText;
+    }
+
     public QwenLLMService(
         HttpClient httpClient,
         IOptions<QwenSettings> settings,
@@ -88,7 +134,7 @@ public class QwenLLMService : ILLMService
             if (string.IsNullOrEmpty(actualResponse) && !string.IsNullOrEmpty(qwenResponse.Thinking))
             {
                 Log("Response field empty, using thinking field instead");
-                actualResponse = qwenResponse.Thinking;
+                actualResponse = CleanThinkingText(qwenResponse.Thinking);
             }
 
             if (string.IsNullOrEmpty(actualResponse))
