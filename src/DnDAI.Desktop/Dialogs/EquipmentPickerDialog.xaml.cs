@@ -14,6 +14,7 @@ public partial class EquipmentPickerDialog : Window
     private List<Equipment> _allEquipment = new();
     private List<Equipment> _filteredEquipment = new();
     private Equipment? _selectedEquipment;
+    private Dictionary<EquipmentType, bool> _categoryExpansionState = new(); // Track expansion state
 
     public event EventHandler? EquipmentAdded; // Notify parent window to refresh
 
@@ -42,6 +43,9 @@ public partial class EquipmentPickerDialog : Window
 
     private void DisplayEquipment()
     {
+        // Save current expansion state before clearing
+        SaveExpansionState();
+
         EquipmentTreeView.Items.Clear();
 
         if (!_filteredEquipment.Any())
@@ -67,13 +71,17 @@ public partial class EquipmentPickerDialog : Window
 
         foreach (var group in grouped)
         {
+            // Determine expansion state (default to true if not set)
+            bool isExpanded = !_categoryExpansionState.ContainsKey(group.Key) || _categoryExpansionState[group.Key];
+
             // Create category header
             var categoryHeader = new TreeViewItem
             {
                 FontWeight = FontWeights.Bold,
                 FontSize = 14,
                 Foreground = new SolidColorBrush(Color.FromRgb(44, 62, 80)),
-                IsExpanded = true
+                IsExpanded = isExpanded,
+                Tag = group.Key // Store the category type for later reference
             };
 
             // Set category name
@@ -109,6 +117,18 @@ public partial class EquipmentPickerDialog : Window
             }
 
             EquipmentTreeView.Items.Add(categoryHeader);
+        }
+    }
+
+    private void SaveExpansionState()
+    {
+        // Save the current expansion state of all categories
+        foreach (var item in EquipmentTreeView.Items)
+        {
+            if (item is TreeViewItem treeItem && treeItem.Tag is EquipmentType equipmentType)
+            {
+                _categoryExpansionState[equipmentType] = treeItem.IsExpanded;
+            }
         }
     }
 
