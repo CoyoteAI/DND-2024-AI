@@ -130,11 +130,8 @@ public class GameService
         System.Diagnostics.Debug.WriteLine($"[GameService] First 200 chars: {cleanedResponse.Substring(0, Math.Min(200, cleanedResponse.Length))}");
         Console.WriteLine($"[GameService] Cleaned response length: {cleanedResponse.Length} characters");
 
-        // DIAGNOSTIC: Add length marker to the response so we can see it in the UI
-        var diagnosticResponse = $"[DEBUG: Original={dmResponse.Length} chars, Cleaned={cleanedResponse.Length} chars]\n\n{cleanedResponse}";
-
         // Save DM message (cleaned version)
-        await SaveMessageAsync(sessionId, "DM", diagnosticResponse);
+        await SaveMessageAsync(sessionId, "DM", cleanedResponse);
 
         // Log command results if any
         if (commandResults.Any())
@@ -143,7 +140,7 @@ public class GameService
             await SaveMessageAsync(sessionId, "System", $"Combat: {commandLog}", "System");
         }
 
-        return diagnosticResponse;
+        return cleanedResponse;
     }
 
     public async Task<ConversationMessage> SaveMessageAsync(int sessionId, string speaker, string message, string messageType = "Normal")
