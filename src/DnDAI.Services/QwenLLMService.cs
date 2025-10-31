@@ -162,25 +162,32 @@ public class QwenLLMService : ILLMService
                 return "Error: Failed to parse Ollama response. Check the debug output.";
             }
 
-            // Some models (like qwen3:4b) put output in "thinking" field instead of "response"
-            string actualResponse = qwenResponse.Response;
+            // Some models (like qwen3:4b) are inconsistent about where they put output:
+            // - Sometimes everything in "thinking", response is empty
+            // - Sometimes a SHORT snippet in "response", FULL text in "thinking"
+            // Strategy: Prefer thinking field if it's substantial (>200 chars)
+            string actualResponse;
 
-            if (string.IsNullOrEmpty(actualResponse) && !string.IsNullOrEmpty(qwenResponse.Thinking))
+            if (!string.IsNullOrEmpty(qwenResponse.Thinking) && qwenResponse.Thinking.Length > 200)
             {
-                Log("Response field empty, using thinking field instead");
+                Log($"Using thinking field ({qwenResponse.Thinking.Length} chars) over response field ({qwenResponse.Response?.Length ?? 0} chars)");
                 actualResponse = CleanThinkingText(qwenResponse.Thinking);
             }
-
-            if (string.IsNullOrEmpty(actualResponse))
+            else if (!string.IsNullOrEmpty(qwenResponse.Response))
             {
-                Log("Both response and thinking fields are empty");
+                Log($"Using response field ({qwenResponse.Response.Length} chars)");
+                actualResponse = qwenResponse.Response;
+            }
+            else
+            {
+                Log("Both response and thinking fields are empty or too short");
                 return "Error: Ollama returned an empty response. This might mean:\n" +
                        "1. The model name is incorrect (check 'ollama list')\n" +
                        "2. The model needs to be pulled (run 'ollama pull " + _settings.ModelName + "')\n" +
                        "3. Ollama is having issues generating content";
             }
 
-            Log($"Success! Response length: {actualResponse.Length} characters");
+            Log($"Final response length: {actualResponse.Length} characters");
             return actualResponse;
         }
         catch (HttpRequestException ex)
