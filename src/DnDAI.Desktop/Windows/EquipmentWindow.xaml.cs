@@ -103,6 +103,7 @@ public partial class EquipmentWindow : Window
             // Display root-level items (not in containers)
             foreach (var item in rootItems)
             {
+                System.Diagnostics.Debug.WriteLine($"Adding root item: {item.Equipment.Name}, ID={item.Id}, ContainerId={item.ContainerId}, calling with indentLevel=0");
                 InventoryPanel.Children.Add(CreateEquipmentPanel(item, false, 0));
 
                 // If this is a container and it's expanded, display its contents
@@ -115,6 +116,7 @@ public partial class EquipmentWindow : Window
                         var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
                         foreach (var containedItem in containedItems)
                         {
+                            System.Diagnostics.Debug.WriteLine($"Adding contained item: {containedItem.Equipment.Name}, ID={containedItem.Id}, ContainerId={containedItem.ContainerId}, calling with indentLevel=1");
                             InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
                         }
                     }
