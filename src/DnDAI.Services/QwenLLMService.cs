@@ -168,12 +168,16 @@ public class QwenLLMService : ILLMService
     {
         try
         {
-            var fullPrompt = BuildPrompt(prompt, context);
+            var systemPrompt = BuildSystemPrompt(context);
 
-            var request = new QwenRequest
+            var request = new QwenChatRequest
             {
                 Model = _settings.ModelName,
-                Prompt = fullPrompt,
+                Messages = new List<QwenChatMessage>
+                {
+                    new QwenChatMessage { Role = "system", Content = systemPrompt },
+                    new QwenChatMessage { Role = "user", Content = prompt }
+                },
                 Stream = false,
                 Options = new QwenOptions
                 {
@@ -185,11 +189,12 @@ public class QwenLLMService : ILLMService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            Log($"Sending request to: {_settings.ApiUrl}/api/generate");
+            Log($"Sending request to: {_settings.ApiUrl}/api/chat");
             Log($"Model: {_settings.ModelName}");
-            Log($"Prompt length: {fullPrompt.Length} characters");
+            Log($"System prompt length: {systemPrompt.Length} characters");
+            Log($"User message: {prompt}");
 
-            var response = await _httpClient.PostAsync($"{_settings.ApiUrl}/api/generate", content);
+            var response = await _httpClient.PostAsync($"{_settings.ApiUrl}/api/chat", content);
 
             Log($"Response status: {response.StatusCode}");
 
@@ -204,59 +209,24 @@ public class QwenLLMService : ILLMService
             Log($"Response length: {responseJson.Length} characters");
             Log($"Raw response: {responseJson.Substring(0, Math.Min(500, responseJson.Length))}...");
 
-            var qwenResponse = JsonConvert.DeserializeObject<QwenResponse>(responseJson);
+            var chatResponse = JsonConvert.DeserializeObject<QwenChatResponse>(responseJson);
 
-            if (qwenResponse == null)
+            if (chatResponse == null)
             {
-                Log("Failed to deserialize response");
+                Log("Failed to deserialize chat response");
                 return "Error: Failed to parse Ollama response. Check the debug output.";
             }
 
-            // Some models (like qwen3:4b) are inconsistent about where they put output:
-            // - Sometimes everything in "thinking", response is empty
-            // - Sometimes a SHORT snippet in "response", FULL text in "thinking"
-            // - Sometimes GOOD content in "response", meta-planning in "thinking"
-            // Strategy: Prefer response if substantial, otherwise use thinking (cleaned)
-            string actualResponse;
-
-            var responseLen = qwenResponse.Response?.Length ?? 0;
-            var thinkingLen = qwenResponse.Thinking?.Length ?? 0;
-
-            Log($"Response field: {responseLen} chars, Thinking field: {thinkingLen} chars");
-
-            // Case 1: Response has substantial content (>300 chars) - use it
-            if (responseLen > 300)
+            if (chatResponse.Message == null || string.IsNullOrEmpty(chatResponse.Message.Content))
             {
-                Log($"Using response field (substantial content: {responseLen} chars)");
-                actualResponse = qwenResponse.Response;
-            }
-            // Case 2: Response is short but thinking is much longer - likely truncation
-            else if (thinkingLen > 200 && thinkingLen > responseLen * 3)
-            {
-                Log($"Using thinking field ({thinkingLen} chars) - response appears truncated ({responseLen} chars)");
-                actualResponse = CleanThinkingText(qwenResponse.Thinking);
-            }
-            // Case 3: Response exists, use it
-            else if (!string.IsNullOrEmpty(qwenResponse.Response))
-            {
-                Log($"Using response field ({responseLen} chars)");
-                actualResponse = qwenResponse.Response;
-            }
-            // Case 4: Fallback to thinking (cleaned)
-            else if (!string.IsNullOrEmpty(qwenResponse.Thinking))
-            {
-                Log($"Using thinking field as fallback ({thinkingLen} chars)");
-                actualResponse = CleanThinkingText(qwenResponse.Thinking);
-            }
-            else
-            {
-                Log("Both response and thinking fields are empty");
+                Log("Chat response message is empty");
                 return "Error: Ollama returned an empty response. This might mean:\n" +
                        "1. The model name is incorrect (check 'ollama list')\n" +
                        "2. The model needs to be pulled (run 'ollama pull " + _settings.ModelName + "')\n" +
                        "3. Ollama is having issues generating content";
             }
 
+            var actualResponse = chatResponse.Message.Content;
             Log($"Final response length: {actualResponse.Length} characters");
             return actualResponse;
         }
@@ -289,7 +259,7 @@ public class QwenLLMService : ILLMService
         return await GenerateResponseAsync(prompt, context);
     }
 
-    private string BuildPrompt(string userMessage, string context)
+    private string BuildSystemPrompt(string context)
     {
         var sb = new StringBuilder();
         sb.AppendLine("You are an expert Dungeon Master running a Dungeons & Dragons 2024 campaign.");
@@ -320,10 +290,7 @@ public class QwenLLMService : ILLMService
         sb.AppendLine("=== CAMPAIGN MEMORY ===");
         sb.AppendLine(context);
         sb.AppendLine();
-        sb.AppendLine("=== CURRENT INTERACTION ===");
-        sb.AppendLine(userMessage);
-        sb.AppendLine();
-        sb.AppendLine("=== YOUR RESPONSE ===");
+        sb.AppendLine("=== RESPONSE GUIDELINES ===");
         sb.AppendLine("Respond DIRECTLY as the Dungeon Master with clean narrative.");
         sb.AppendLine("Do NOT show your thinking process or planning.");
         sb.AppendLine("Do NOT write meta-commentary like 'I'll write' or 'Let me draft'.");
