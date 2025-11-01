@@ -105,19 +105,10 @@ public partial class EquipmentWindow : Window
             {
                 InventoryPanel.Children.Add(CreateEquipmentPanel(item, false, 0));
 
-                // If this is a container and it's expanded, display its contents
+                // If this is a container, recursively display its contents
                 if (item.Equipment.Type == Core.Enums.EquipmentType.Container)
                 {
-                    bool isExpanded = !_containerExpansionState.ContainsKey(item.Id) || _containerExpansionState[item.Id];
-
-                    if (isExpanded)
-                    {
-                        var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
-                        foreach (var containedItem in containedItems)
-                        {
-                            InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
-                        }
-                    }
+                    DisplayContainerContents(item, inventory, 1);
                 }
             }
 
@@ -125,6 +116,26 @@ public partial class EquipmentWindow : Window
             foreach (var weapon in _customWeapons)
             {
                 InventoryPanel.Children.Add(CreateCustomWeaponPanel(weapon));
+            }
+        }
+    }
+
+    private void DisplayContainerContents(CharacterEquipment container, List<CharacterEquipment> inventory, int indentLevel)
+    {
+        bool isExpanded = !_containerExpansionState.ContainsKey(container.Id) || _containerExpansionState[container.Id];
+
+        if (isExpanded)
+        {
+            var containedItems = inventory.Where(i => i.ContainerId == container.Id).ToList();
+            foreach (var containedItem in containedItems)
+            {
+                InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, indentLevel, container));
+
+                // If this contained item is also a container, recursively display its contents
+                if (containedItem.Equipment.Type == Core.Enums.EquipmentType.Container)
+                {
+                    DisplayContainerContents(containedItem, inventory, indentLevel + 1);
+                }
             }
         }
     }
