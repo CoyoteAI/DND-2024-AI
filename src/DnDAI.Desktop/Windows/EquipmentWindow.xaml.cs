@@ -131,25 +131,30 @@ public partial class EquipmentWindow : Window
         }
     }
 
-    private Border CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
+    private Grid CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
     {
         var equipment = charEquip.Equipment;
         var isContainer = equipment.Type == Core.Enums.EquipmentType.Container;
         var leftMargin = indentLevel * 40;
         System.Diagnostics.Debug.WriteLine($"CreateEquipmentPanel: {equipment.Name}, indentLevel={indentLevel}, leftMargin={leftMargin}");
 
+        // Outer grid: item content on left, buttons on right
+        var outerGrid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        outerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Item content
+        outerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Buttons (fixed width)
+
         var border = new Border
         {
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(leftMargin, 2, 0, 2), // Left margin for indentation
-            Width = 800, // Fixed width so all items are same size and buttons have space
+            Margin = new Thickness(leftMargin, 0, 10, 0), // Left margin for indentation, right margin for spacing before buttons
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
             Cursor = System.Windows.Input.Cursors.Hand,
             HorizontalAlignment = HorizontalAlignment.Left // Keep left alignment for correct indentation
         };
+        Grid.SetColumn(border, 0);
 
         // Make all items draggable (except when equipped)
         if (!isEquipped)
@@ -164,12 +169,8 @@ public partial class EquipmentWindow : Window
             border.Drop += Container_Drop;
         }
 
-        var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-        // Left side: Item info
-        var leftPanel = new StackPanel { MaxWidth = 450 };
+        // Item content (no grid needed now, just the content)
+        var leftPanel = new StackPanel();
 
         var namePanel = new StackPanel { Orientation = Orientation.Horizontal };
 
@@ -262,11 +263,16 @@ public partial class EquipmentWindow : Window
 
         leftPanel.Children.Add(detailsText);
 
-        Grid.SetColumn(leftPanel, 0);
-        grid.Children.Add(leftPanel);
+        // Set the item content as the border's child
+        border.Child = leftPanel;
+        outerGrid.Children.Add(border);
 
-        // Right side: Action buttons
-        var buttonPanel = new StackPanel { Orientation = Orientation.Horizontal };
+        // Right side: Action buttons (in outer grid, always on right)
+        var buttonPanel = new StackPanel {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
 
         var equipButton = new Button
         {
@@ -332,10 +338,9 @@ public partial class EquipmentWindow : Window
         buttonPanel.Children.Add(deleteButton);
 
         Grid.SetColumn(buttonPanel, 1);
-        grid.Children.Add(buttonPanel);
+        outerGrid.Children.Add(buttonPanel);
 
-        border.Child = grid;
-        return border;
+        return outerGrid;
     }
 
     private async void ToggleEquip_Click(CharacterEquipment charEquip)
