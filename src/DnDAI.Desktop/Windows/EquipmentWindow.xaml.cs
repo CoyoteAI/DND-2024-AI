@@ -131,7 +131,7 @@ public partial class EquipmentWindow : Window
         }
     }
 
-    private UIElement CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
+    private Border CreateEquipmentPanel(CharacterEquipment charEquip, bool isEquipped, int indentLevel = 0, CharacterEquipment? parentContainer = null)
     {
         var equipment = charEquip.Equipment;
         var isContainer = equipment.Type == Core.Enums.EquipmentType.Container;
@@ -143,26 +143,13 @@ public partial class EquipmentWindow : Window
             Background = new SolidColorBrush(isContainer ? Color.FromRgb(230, 240, 250) : Color.FromRgb(248, 249, 250)),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
-            Margin = new Thickness(0, 2, 0, 2),
+            Margin = new Thickness(leftMargin, 2, 0, 2), // Left margin for indentation
+            MinWidth = 600, // Ensure enough width for buttons to display properly
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
-            Cursor = System.Windows.Input.Cursors.Hand
+            Cursor = System.Windows.Input.Cursors.Hand,
+            HorizontalAlignment = HorizontalAlignment.Left
         };
-
-        // Create wrapper grid for indentation using empty cells
-        Grid wrapperGrid = null;
-        if (indentLevel > 0)
-        {
-            wrapperGrid = new Grid();
-            // Add empty spacer columns for each indent level
-            for (int i = 0; i < indentLevel; i++)
-            {
-                wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
-            }
-            // Add content column
-            wrapperGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            Grid.SetColumn(border, indentLevel); // Put border after all spacer columns
-        }
 
         // Make all items draggable (except when equipped)
         if (!isEquipped)
@@ -348,17 +335,7 @@ public partial class EquipmentWindow : Window
         grid.Children.Add(buttonPanel);
 
         border.Child = grid;
-
-        // Return wrapped or unwrapped based on indent level
-        if (wrapperGrid != null)
-        {
-            wrapperGrid.Children.Add(border);
-            return wrapperGrid;
-        }
-        else
-        {
-            return border;
-        }
+        return border;
     }
 
     private async void ToggleEquip_Click(CharacterEquipment charEquip)
