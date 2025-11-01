@@ -144,10 +144,11 @@ public partial class EquipmentWindow : Window
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8),
             Margin = new Thickness(leftMargin, 2, 0, 2), // Left margin for indentation
+            Width = 800, // Fixed width so all items are same size and buttons have space
             Tag = charEquip, // Store for drag-and-drop
             AllowDrop = isContainer, // Only containers can accept drops
-            Cursor = System.Windows.Input.Cursors.Hand
-            // No HorizontalAlignment - defaults to Stretch, filling width from left margin to right edge
+            Cursor = System.Windows.Input.Cursors.Hand,
+            HorizontalAlignment = HorizontalAlignment.Left // Keep left alignment for correct indentation
         };
 
         // Make all items draggable (except when equipped)
