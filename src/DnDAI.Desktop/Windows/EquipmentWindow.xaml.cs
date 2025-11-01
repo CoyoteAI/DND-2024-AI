@@ -103,7 +103,6 @@ public partial class EquipmentWindow : Window
             // Display root-level items (not in containers)
             foreach (var item in rootItems)
             {
-                System.Diagnostics.Debug.WriteLine($"Adding root item: {item.Equipment.Name}, ID={item.Id}, ContainerId={item.ContainerId}, calling with indentLevel=0");
                 InventoryPanel.Children.Add(CreateEquipmentPanel(item, false, 0));
 
                 // If this is a container and it's expanded, display its contents
@@ -116,7 +115,6 @@ public partial class EquipmentWindow : Window
                         var containedItems = inventory.Where(i => i.ContainerId == item.Id).ToList();
                         foreach (var containedItem in containedItems)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Adding contained item: {containedItem.Equipment.Name}, ID={containedItem.Id}, ContainerId={containedItem.ContainerId}, calling with indentLevel=1");
                             InventoryPanel.Children.Add(CreateEquipmentPanel(containedItem, false, 1, item));
                         }
                     }
@@ -136,7 +134,6 @@ public partial class EquipmentWindow : Window
         var equipment = charEquip.Equipment;
         var isContainer = equipment.Type == Core.Enums.EquipmentType.Container;
         var leftMargin = indentLevel * 40;
-        System.Diagnostics.Debug.WriteLine($"CreateEquipmentPanel: {equipment.Name}, indentLevel={indentLevel}, leftMargin={leftMargin}");
 
         // Outer grid: item content on left, buttons on right
         var outerGrid = new Grid { Margin = new Thickness(0, 2, 0, 2) };
@@ -196,7 +193,7 @@ public partial class EquipmentWindow : Window
 
         var nameText = new TextBlock
         {
-            Text = $"{equipment.Name} [DEBUG: Indent={indentLevel}, ContainerId={charEquip.ContainerId?.ToString() ?? "null"}]",
+            Text = equipment.Name,
             FontWeight = FontWeights.Bold,
             FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center
